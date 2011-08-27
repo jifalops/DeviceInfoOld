@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
@@ -40,6 +41,7 @@ import com.jphilli85.deviceinfo.library.Library;
 public class DeviceInfoActivity extends Activity {
     private static final String TAG = "DeviceInfoActivity";
     private LinearLayout mLayout;
+    private static final int API = Build.VERSION.SDK_INT;
         
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,7 @@ public class DeviceInfoActivity extends Activity {
         addItem("System Partition", di.getSystemSize() + " Bytes");
         addItem("Data Partition", di.getDataSize() + " Bytes");
         addItem("RAM", di.getProcMemTotal());
-        //addItem("ICC Card", mDevice.hasIccCard()); 
+        addItem("ICC Card", di.hasIccCard()); 
         
         addCategory("Device Identifiers");
         
@@ -141,7 +143,7 @@ public class DeviceInfoActivity extends Activity {
                 .append("Power: ").append(di.getSensorPower(s)).append("\n")
                 .append("Resolution: ").append(di.getSensorResolution(s)).append("\n")
                 .append("Max Range: ").append(di.getSensorMaxRange(s)).append("\n");
-            //if (API >= 9) sb.append("Min Delay: ").append(mDevice.getSensorMinDelay(s));
+            if (API >= 9) sb.append("Min Delay: ").append(di.getSensorMinDelay(s));
             addItem(di.getSensorType(s.getType()), sb.toString());         
         }       
     }

@@ -118,7 +118,7 @@ public class DeviceInfo {
     public String getNetworkOperator() {    return gets(mTelephonyManager.getNetworkOperatorName()); } 
     public String getSimOperatorInt() {     return gets(mTelephonyManager.getSimOperator()); }
     public String getSimOperator() {        return gets(mTelephonyManager.getSimOperatorName()); }     
-    //public String hasIccCard() {        	return (API >= 5 && mTelephonyManager.hasIccCard()) ? mTrue : mFalse; }
+    public String hasIccCard() {        	return (API >= 5 && mTelephonyManager.hasIccCard()) ? TRUE : FALSE; }
     public String isNetworkRoaming() {      return mTelephonyManager.isNetworkRoaming() ? TRUE : FALSE; }
    
     public String getCallStateInt() { return String.valueOf(mTelephonyManager.getCallState()); }
@@ -154,16 +154,16 @@ public class DeviceInfo {
         if (API >= 4 && x == TelephonyManager.NETWORK_TYPE_1xRTT)   return "1xRTT";
         if (API >= 4 && x == TelephonyManager.NETWORK_TYPE_CDMA)    return "CDMA";
         if (x == TelephonyManager.NETWORK_TYPE_EDGE)                return "EDGE";
-        //if (API >= 11 && x == TelephonyManager.NETWORK_TYPE_EHRPD)  return "eHRPD";
+        if (API >= 11 && x == TelephonyManager.NETWORK_TYPE_EHRPD)  return "eHRPD";
         if (API >= 4 && x == TelephonyManager.NETWORK_TYPE_EVDO_0)  return "EVDO-0";
         if (API >= 4 && x == TelephonyManager.NETWORK_TYPE_EVDO_A)  return "EVDO-A";
-        //if (API >= 9 && x == TelephonyManager.NETWORK_TYPE_EVDO_B)  return "EVDO-B";
+        if (API >= 9 && x == TelephonyManager.NETWORK_TYPE_EVDO_B)  return "EVDO-B";
         if (x == TelephonyManager.NETWORK_TYPE_GPRS)                return "GPRS";
-//        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSDPA)   return "HSDPA";
-//        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSPA)    return "HSPA";
-//        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSUPA)   return "HSUPA";
-//        if (API >= 8 && x == TelephonyManager.NETWORK_TYPE_IDEN)    return "iDen";
-//        if (API >= 11 && x == TelephonyManager.NETWORK_TYPE_LTE)    return "LTE";
+        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSDPA)   return "HSDPA";
+        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSPA)    return "HSPA";
+        if (API >= 5 && x == TelephonyManager.NETWORK_TYPE_HSUPA)   return "HSUPA";
+        if (API >= 8 && x == TelephonyManager.NETWORK_TYPE_IDEN)    return "iDen";
+        if (API >= 11 && x == TelephonyManager.NETWORK_TYPE_LTE)    return "LTE";
         if (x == TelephonyManager.NETWORK_TYPE_UMTS)                return "UMTS";
         if (x == TelephonyManager.NETWORK_TYPE_UNKNOWN)             return "Unknown";
         return UNKNOWN;
@@ -174,7 +174,7 @@ public class DeviceInfo {
         if (API >= 4 && x == TelephonyManager.PHONE_TYPE_CDMA)  return "CDMA";
         if (x == TelephonyManager.PHONE_TYPE_GSM)               return "GSM";
         if (x == TelephonyManager.PHONE_TYPE_NONE)              return "None";
-        //if (API >= 11 && x == TelephonyManager.PHONE_TYPE_SIP)  return "SIP";     
+        if (API >= 11 && x == TelephonyManager.PHONE_TYPE_SIP)  return "SIP";     
         return UNKNOWN;
     }
     public String getSimStateInt() { return String.valueOf(mTelephonyManager.getSimState()); }
@@ -216,21 +216,21 @@ public class DeviceInfo {
     //
     
     public String getBuildBoard() {                 return gets(Build.BOARD); }
-    //public String getBuildBootloader() {            if (API < 8) return EMPTY; return gets(Build.BOOTLOADER); }
+    public String getBuildBootloader() {            if (API < 8) return UNKNOWN; return gets(Build.BOOTLOADER); }
     public String getBuildBrand() {                 return gets(Build.BRAND); }
     public String getBuildCpuAbi() {                return API < 4 ? UNKNOWN : gets(Build.CPU_ABI); }
-    //public String getBuildCpuAbi2() {               return API < 8 ? EMPTY : gets(Build.CPU_ABI2); }
+    public String getBuildCpuAbi2() {               return API < 8 ? UNKNOWN : gets(Build.CPU_ABI2); }
     public String getBuildDevice() {                return gets(Build.DEVICE); }
     public String getBuildDisplay() {               return API < 3 ? UNKNOWN : gets(Build.DISPLAY); }
     public String getBuildFingerprint() {           return gets(Build.FINGERPRINT); }
-    //public String getBuildHardware() {              return API < 8 ? EMPTY : gets(Build.HARDWARE); }
+    public String getBuildHardware() {              return API < 8 ? UNKNOWN : gets(Build.HARDWARE); }
     public String getBuildHost() {                  return gets(Build.HOST); }
     public String getBuildId() {                    return gets(Build.ID); }
     public String getBuildManufacturer() {          return API < 4 ? UNKNOWN : gets(Build.MANUFACTURER); }
     public String getBuildModel() {                 return gets(Build.MODEL); }
     public String getBuildProduct() {               return gets(Build.PRODUCT); }
-    //public String getBuildRadio() {                 return API < 8 ? EMPTY : gets(Build.RADIO); }
-    //public String getBuildSerial() {                return API < 9 ? EMPTY : gets(Build.SERIAL); }
+    public String getBuildRadio() {                 return API < 8 ? UNKNOWN : gets(Build.RADIO); }
+    public String getBuildSerial() {                return API < 9 ? UNKNOWN : gets(Build.SERIAL); }
     public String getBuildTags() {                  return gets(Build.TAGS); }
     public String getBuildTime() {                  return String.valueOf(Build.TIME); }
     public String getBuildType() {                  return gets(Build.TYPE); }
@@ -368,15 +368,15 @@ public class DeviceInfo {
     
     public String getSensorType(int type) {
         if (type == Sensor.TYPE_ACCELEROMETER)                      return "Accelerometer";
-        //if (API >= 9 && type == Sensor.TYPE_GRAVITY)               return "Gravity";
+        if (API >= 9 && type == Sensor.TYPE_GRAVITY)               return "Gravity";
         if (type == Sensor.TYPE_GYROSCOPE)                          return "Gyroscope";
         if (type == Sensor.TYPE_LIGHT)                              return "Light";
-        //if (API >= 9 && type == Sensor.TYPE_LINEAR_ACCELERATION)   return "Linear Acceleration";
+        if (API >= 9 && type == Sensor.TYPE_LINEAR_ACCELERATION)   return "Linear Acceleration";
         if (type == Sensor.TYPE_MAGNETIC_FIELD)                     return "Magnetic Field";
         if (type == Sensor.TYPE_ORIENTATION)                        return "Orientation";
         if (type == Sensor.TYPE_PRESSURE)                           return "Pressure";
         if (type == Sensor.TYPE_PROXIMITY)                          return "Proximity";
-        //if (API >= 9 && type == Sensor.TYPE_ROTATION_VECTOR)       return "Rotation Vector";
+        if (API >= 9 && type == Sensor.TYPE_ROTATION_VECTOR)       return "Rotation Vector";
         if (type == Sensor.TYPE_TEMPERATURE)                        return "Temperature";
         else return UNKNOWN;
     }
@@ -388,7 +388,7 @@ public class DeviceInfo {
     public String getSensorPower(Sensor s) { return String.valueOf(s.getPower()); }
     public String getSensorResolution(Sensor s) { return String.valueOf(s.getResolution()); }
     public String getSensorMaxRange(Sensor s) { return String.valueOf(s.getMaximumRange()); }
-    //public String getSensorMinDelay(Sensor s) { return API >= 9 ? String.valueOf(s.getMinDelay()) : EMPTY; }
+    public String getSensorMinDelay(Sensor s) { return API >= 9 ? String.valueOf(s.getMinDelay()) : UNKNOWN; }
     
     /** Depreciated */
     public List<String> getSensorInfo() { 
@@ -409,7 +409,7 @@ public class DeviceInfo {
                 .append("Power: ").append(s.getPower()).append(NL)
                 .append("Resolution: ").append(s.getResolution()).append(NL)
                 .append("Max Range: ").append(s.getMaximumRange()).append(NL);
-            //if (API >= 9) builder.append("Min Delay: ").append(s.getMinDelay()).append(NL);
+            if (API >= 9) builder.append("Min Delay: ").append(s.getMinDelay()).append(NL);
             result.add(builder.toString());
         }
         return result;
@@ -446,9 +446,8 @@ public class DeviceInfo {
     public String getDisplayRefreshRate() { return String.valueOf(mDisplay.getRefreshRate()); }
     public String getDisplayLogicalDensity() { return String.valueOf(mDisplayMetrics.density); }
     public String getDisplayRotation() { 
-        //if (API < 8) 
-        return String.valueOf(mDisplay.getOrientation());
-        //return String.valueOf(mDisplay.getRotation());
+        if (API < 8) return String.valueOf(mDisplay.getOrientation());
+        else return String.valueOf(mDisplay.getRotation());
     }
     public String getDisplayDpi() {
         if (API < 4) return String.valueOf((int) (160 * mDisplayMetrics.density));
@@ -464,7 +463,7 @@ public class DeviceInfo {
             if (mDisplayMetrics.densityDpi == DisplayMetrics.DENSITY_HIGH) return "High";
             if (mDisplayMetrics.densityDpi == DisplayMetrics.DENSITY_LOW) return "Low";
             if (mDisplayMetrics.densityDpi == DisplayMetrics.DENSITY_MEDIUM) return "Medium";
-            //if ((API >= 9) && (mDisplayMetrics.densityDpi == DisplayMetrics.DENSITY_XHIGH)) return "Extra High";
+            if ((API >= 9) && (mDisplayMetrics.densityDpi == DisplayMetrics.DENSITY_XHIGH)) return "Extra High";
         }
         return UNKNOWN;
     }
@@ -472,14 +471,14 @@ public class DeviceInfo {
         if (API < 8) {
             if (mDisplay.getPixelFormat() == PixelFormat.JPEG) return "JPEG";
             if (mDisplay.getPixelFormat() == PixelFormat.YCbCr_420_SP) return "YCbCr_420_SP";
-            //if ((API >= 5) && (mDisplay.getPixelFormat() == PixelFormat.YCbCr_422_I)) return "YCbCr_422_I";
+            if ((API >= 5) && (mDisplay.getPixelFormat() == PixelFormat.YCbCr_422_I)) return "YCbCr_422_I";
             if (mDisplay.getPixelFormat() == PixelFormat.YCbCr_422_SP) return "YCbCr_422_SP";            
         }
         else {
-//            if (mDisplay.getPixelFormat() == ImageFormat.JPEG) return "JPEG";
-//            if (mDisplay.getPixelFormat() == ImageFormat.NV21) return "NV21";
-//            if (mDisplay.getPixelFormat() == ImageFormat.YUY2) return "YUY2"; 
-//            if (mDisplay.getPixelFormat() == ImageFormat.NV16) return "NV16";                          
+            if (mDisplay.getPixelFormat() == ImageFormat.JPEG) return "JPEG";
+            if (mDisplay.getPixelFormat() == ImageFormat.NV21) return "NV21";
+            if (mDisplay.getPixelFormat() == ImageFormat.YUY2) return "YUY2"; 
+            if (mDisplay.getPixelFormat() == ImageFormat.NV16) return "NV16";                          
         }        
         if (mDisplay.getPixelFormat() == PixelFormat.L_8) return "L_8";
         if (mDisplay.getPixelFormat() == PixelFormat.LA_88) return "LA_88";
