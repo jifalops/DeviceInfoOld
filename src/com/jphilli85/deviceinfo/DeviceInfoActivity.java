@@ -191,7 +191,6 @@ public class DeviceInfoActivity extends Activity {
     private static class ValueTextView extends TextView {      
         public ValueTextView(Context context, String text) {
             super(context);
-            setFocusable(true);
             int indent = Library.dpToPx(context, 20);
             int pad = Library.dpToPx(context, 2);
             setPadding(indent, pad, pad, pad);
