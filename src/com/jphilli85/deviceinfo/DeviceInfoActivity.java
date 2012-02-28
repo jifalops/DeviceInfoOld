@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Jacob Phillips
+ * Copyright (C) 2012 Jacob Phillips
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package com.jphilli85.deviceinfo;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -33,13 +33,8 @@ import android.widget.TextView;
 import com.jphilli85.deviceinfo.library.DeviceInfo;
 import com.jphilli85.deviceinfo.library.Library;
 
-
-/**
- * This is one of the my first Android projects. It is likely filled with inefficient
- * and improper coding styles.
- */
-public class DeviceInfoActivity extends Activity {
-    private static final String TAG = "DeviceInfoActivity";
+public class DeviceInfoActivity extends FragmentActivity {
+    //private final String LOG_TAG = getClass().getSimpleName();
     private LinearLayout mLayout;
     private static final int API = Build.VERSION.SDK_INT;
         

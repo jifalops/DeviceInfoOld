@@ -2,4 +2,8 @@
 # Android ignore stuff #
 ########################
 
-*
+bin/
+gen/
+*.class
+
+Thumbs.db
