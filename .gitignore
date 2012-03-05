@@ -7,3 +7,6 @@ gen/
 *.class
 
 Thumbs.db
+
+# Ubuntu lock
+.~*
