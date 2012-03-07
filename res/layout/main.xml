@@ -5,5 +5,17 @@
 	<LinearLayout android:id="@+id/mainLinearLayout"
 	    android:orientation="vertical"    
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent" />
+	    android:layout_height="wrap_content">
+	    <fragment
+	        android:name="com.jphilli85.deviceinfo2.ButtonFragment"
+	        android:layout_width="fill_parent"
+	        android:layout_height="48dp"
+	        android:id="@+id/button_fragment" />	    
+	    <fragment
+	        android:name="com.jphilli85.deviceinfo2.ViewerFragment"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
+	        android:id="@+id/viewer_fragment"
+	        android:layout_weight="1" />	    
+    </LinearLayout>
 </ScrollView>	

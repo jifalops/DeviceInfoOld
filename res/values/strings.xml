@@ -2,4 +2,34 @@
 <resources>
     <string name="app_name">DeviceInfo</string>
     
+	<!-- Subgroup labels -->
+    <string name="subgroup_label_overview"></string>
+    <string name="subgroup_label_cpu">CPU</string>
+    <string name="subgroup_label_ram">RAM</string>
+    <string name="subgroup_label_storage">Storage</string>
+    <string name="subgroup_label_display">Display</string>
+    <string name="subgroup_label_graphics">Graphics</string>
+    <string name="subgroup_label_camera">Camera</string>
+    <string name="subgroup_label_audio">Audio</string>
+    <string name="subgroup_label_battery">Battery</string>
+    <string name="subgroup_label_sensors">Sensors</string>
+    <string name="subgroup_label_gps">GPS</string>
+    <string name="subgroup_label_mobile">Mobile</string>
+    <string name="subgroup_label_wifi">WiFi</string>
+    <string name="subgroup_label_bluetooth">Bluetooth</string>
+    <string name="subgroup_label_platform">Platform</string>
+    <string name="subgroup_label_properties">Properties</string>
+    <string name="subgroup_label_available_keys">Available Keys</string>
+    <string name="subgroup_label_logcat">Logcat</string>
+    <string name="subgroup_label_identifiers">Identifiers</string>
+    
+    <!-- Group labels -->
+    <string name="group_label_overview">Overview</string>
+    <string name="group_label_cpu">Processor</string>
+    <string name="group_label_memory">Memory</string>
+    <string name="group_label_visual_audio">Visual &amp; Audio</string>
+    <string name="group_label_battery_sensors">Battery &amp; Sensors</string>
+    <string name="group_label_connections">Connections</string>
+    <string name="group_label_system">System</string>
+    
 </resources>
