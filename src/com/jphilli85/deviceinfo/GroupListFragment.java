@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo2;
+package com.jphilli85.deviceinfo;
 
 
 import android.app.Activity;
@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo2.data.DeviceInfoDataBase;
+import com.jphilli85.deviceinfo.data.DeviceInfoDatabase;
 
 public class GroupListFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -45,7 +45,7 @@ public class GroupListFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String[] uiBindFrom = { DeviceInfoDataBase.COL_LABEL };
+        String[] uiBindFrom = { DeviceInfoDatabase.COL_LABEL };
         int[] uiBindTo = { R.id.item_label };
 
         getLoaderManager().initLoader(GROUP_LIST_LOADER, null, this);
@@ -70,9 +70,9 @@ public class GroupListFragment extends ListFragment implements
     
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        String projection[] = { DeviceInfoDataBase.COL_NAME };
+        String projection[] = { DeviceInfoDatabase.COL_NAME };
         Cursor cursor = getActivity().getContentResolver().query(
-                Uri.withAppendedPath(TutListProvider.CONTENT_URI,
+                Uri.withAppendedPath(DeviceInfoProvider.CONTENT_URI,
                         String.valueOf(id)), projection, null, null, null);
         if (cursor.moveToFirst()) {
             String tutorialUrl = cursor.getString(0);

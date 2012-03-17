@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo2;
+package com.jphilli85.deviceinfo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
