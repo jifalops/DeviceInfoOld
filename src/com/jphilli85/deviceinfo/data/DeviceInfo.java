@@ -19,13 +19,15 @@ public final class DeviceInfo {
 	public static final class Group {		
 		private Group() { /* Not instantiable */ }
 		
-		public static final String TABLE_NAME = "group";
+		public static final String TABLE_NAME = "groups";
 	    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + TABLE_NAME);
 	  
 	    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + TABLE_NAME;
 	    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + TABLE_NAME;
 	    
 	    public static final String COL_ID = "_id";
+	    /** The name can be used to determine what data to show.*/ 
+	    public static final String COL_NAME = "name";  
 	    /** The label shown to the user. */
 	    public static final String COL_LABEL = "label";
 	    /** 
@@ -33,9 +35,20 @@ public final class DeviceInfo {
 	     * Lowest number is listed first (highest). The order of 
 	     * two groups with the same index can vary. 
 	     */ 
-	    public static final String COL_INDEX = "index";
+	    public static final String COL_INDEX = "index_";
 	    /** Toggle display of this group or subgroup */    
 	    public static final String COL_HIDDEN = "hidden";
+	    
+	    /*
+	     * Group names
+	     */
+	    public static final String GROUP_OVERVIEW = "GROUP_OVERVIEW";
+	    public static final String GROUP_CPU = "GROUP_CPU";
+	    public static final String GROUP_MEMORY = "GROUP_MEMORY";
+	    public static final String GROUP_VISUAL_AUDIO = "GROUP_VISUAL_AUDIO";
+	    public static final String GROUP_BATTERY_SENSORS = "GROUP_BATTERY_SENSORS";
+	    public static final String GROUP_CONNECTIONS = "GROUP_CONNECTIONS";
+	    public static final String GROUP_SYSTEM = "GROUP_SYSTEM";
 	}
 	
 	/** 
@@ -54,7 +67,7 @@ public final class DeviceInfo {
 	    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + TABLE_NAME;
 	    
 	    public static final String COL_ID = "_id";
-	    /** The name is used to determine what data to show.*/ 
+	    /** The name can be used to determine what data to show.*/ 
 	    public static final String COL_NAME = "name";   
 	    /** The label shown to the user. */
 	    public static final String COL_LABEL = "label";
@@ -62,7 +75,7 @@ public final class DeviceInfo {
 	    public static final String COL_HIDDEN = "hidden";
 	    
 	    /*
-	     * The actual subgroup names
+	     * Subgroup names
 	     */
 	    public static final String SUBGROUP_OVERVIEW = "SUBGROUP_OVERVIEW";
 	    public static final String SUBGROUP_CPU = "SUBGROUP_CPU";
@@ -107,6 +120,6 @@ public final class DeviceInfo {
 	     * Lowest number is listed first (highest). The order of 
 	     * two groups with the same index can vary. 
 	     */ 
-	    public static final String COL_INDEX = "index";
+	    public static final String COL_INDEX = "index_";
 	}
 }

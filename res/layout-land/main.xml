@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainLinearLayout"    
+    android:orientation="horizontal"    
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">    
+    <fragment
+        android:name="com.jphilli85.deviceinfo.GroupListFragment"
+        android:id="@+id/groupListFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="40" />	    
+    <fragment
+        android:name="com.jphilli85.deviceinfo.DetailsFragment"
+        android:id="@+id/detailsFragment"	        
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="60" />	    
+</LinearLayout>

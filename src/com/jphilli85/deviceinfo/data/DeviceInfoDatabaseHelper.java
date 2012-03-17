@@ -13,7 +13,7 @@ import com.jphilli85.deviceinfo.data.DeviceInfo.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfo.Subgroup;
 import com.jphilli85.deviceinfo.data.DeviceInfo.SubgroupGroup;
 
-public class DeviceInfoDatabase extends SQLiteOpenHelper {
+public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = "DeviceInfoDataBase";
 
     /*
@@ -39,7 +39,7 @@ public class DeviceInfoDatabase extends SQLiteOpenHelper {
     		+ SubgroupGroup.COL_INDEX + " integer NOT NULL default 0);";
  
     
-    public DeviceInfoDatabase(Context context) {
+    public DeviceInfoDatabaseHelper(Context context) {
         super(context, DeviceInfo.DATABASE_NAME, null, DeviceInfo.DATABASE_VERSION);
     }
 
@@ -200,42 +200,49 @@ public class DeviceInfoDatabase extends SQLiteOpenHelper {
         
         // Overview [1]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_OVERVIEW);
         values.put(Group.COL_LABEL, getString(R.string.group_label_overview));
         values.put(Group.COL_INDEX, -1);
         db.insert(Group.TABLE_NAME, null, values);
         
         // CPU [2]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_CPU);
         values.put(Group.COL_LABEL, getString(R.string.group_label_cpu));
         values.put(Group.COL_INDEX, 0);
         db.insert(Group.TABLE_NAME, null, values);
         
         // Memory [3]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_MEMORY);
         values.put(Group.COL_LABEL, getString(R.string.group_label_memory));
         values.put(Group.COL_INDEX, 1);
         db.insert(Group.TABLE_NAME, null, values);
         
         // Visual & Audio [4]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_VISUAL_AUDIO);
         values.put(Group.COL_LABEL, getString(R.string.group_label_visual_audio));
         values.put(Group.COL_INDEX, 2);
         db.insert(Group.TABLE_NAME, null, values);
         
         // Battery & Sensors [5]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_BATTERY_SENSORS);
         values.put(Group.COL_LABEL, getString(R.string.group_label_battery_sensors));
         values.put(Group.COL_INDEX, 3);
         db.insert(Group.TABLE_NAME, null, values);
         
         // Connections [6]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_CONNECTIONS);
         values.put(Group.COL_LABEL, getString(R.string.group_label_connections));
         values.put(Group.COL_INDEX, 4);
         db.insert(Group.TABLE_NAME, null, values);
         
         // System [7]
         values.clear();
+        values.put(Group.COL_NAME, Group.GROUP_SYSTEM);
         values.put(Group.COL_LABEL, getString(R.string.group_label_system));
         values.put(Group.COL_INDEX, 5);
         db.insert(Group.TABLE_NAME, null, values);

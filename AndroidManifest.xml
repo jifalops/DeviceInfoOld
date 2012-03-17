@@ -17,12 +17,21 @@
     <application 
         android:icon="@drawable/icon" 
        	android:label="@string/app_name"
-       	android:theme="@style/Theme.Sherlock">
+       	android:theme="@style/Theme.Sherlock">       	
         <activity android:name=".DeviceInfoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:host="com.jphilli85.deviceinfo" />
+            </intent-filter>
         </activity>
+        <provider 
+            android:authorities="com.jphilli85.deviceinfo" 
+            android:multiprocess="true"
+            android:name="com.jphilli85.deviceinfo.data.DeviceInfoProvider"/>
     </application>
 </manifest>

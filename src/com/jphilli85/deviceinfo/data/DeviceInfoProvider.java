@@ -7,33 +7,37 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-
+//TODO WhereArgs / sanitize input
 public class DeviceInfoProvider extends ContentProvider {
 	private static final String LOG_TAG = "DeviceInfoProvider";
 	
-    private DeviceInfoDatabase mDB;
+    private DeviceInfoDatabaseHelper mDB;
 
     public static final int GROUP = 1;
     public static final int GROUP_ID = 2;
+    public static final int GROUP_NAME = 7;
     public static final int SUBGROUP = 3;
     public static final int SUBGROUP_ID = 4;
-    public static final int SUBGROUP_GROUP = 5;
-    public static final int SUBGROUP_GROUP_ID = 6;
+    public static final int SUBGROUP_NAME = 8;
+    public static final int SUBGROUPGROUP = 5;
+    public static final int SUBGROUPGROUP_ID = 6;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
         sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME, GROUP);
         sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME + "/#", GROUP_ID);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME + "/*", GROUP_NAME);
         sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME, SUBGROUP);
         sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME, SUBGROUP_GROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME + "/#", SUBGROUP_GROUP_ID);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME + "/#", SUBGROUPGROUP_ID);        
     }
 
     @Override
     public boolean onCreate() {
-        mDB = new DeviceInfoDatabase(getContext());
+        mDB = new DeviceInfoDatabaseHelper(getContext());
         return true;
     }
     
@@ -44,13 +48,17 @@ public class DeviceInfoProvider extends ContentProvider {
         	return DeviceInfo.Group.CONTENT_TYPE;              
         case GROUP_ID:        	
         	return DeviceInfo.Group.CONTENT_ITEM_TYPE;
+        case GROUP_NAME:        	
+        	return DeviceInfo.Group.CONTENT_ITEM_TYPE;
         case SUBGROUP:
         	return DeviceInfo.Subgroup.CONTENT_TYPE;
         case SUBGROUP_ID:
         	return DeviceInfo.Subgroup.CONTENT_ITEM_TYPE;
-        case SUBGROUP_GROUP:
+        case SUBGROUP_NAME:
+        	return DeviceInfo.Subgroup.CONTENT_ITEM_TYPE;
+        case SUBGROUPGROUP:
         	return DeviceInfo.SubgroupGroup.CONTENT_TYPE;
-        case SUBGROUP_GROUP_ID:
+        case SUBGROUPGROUP_ID:
         	return DeviceInfo.SubgroupGroup.CONTENT_ITEM_TYPE;
         default:
             return null;
@@ -69,18 +77,34 @@ public class DeviceInfoProvider extends ContentProvider {
         	break;
         case GROUP_ID:        	
         	queryBuilder.setTables(DeviceInfo.Group.TABLE_NAME);
+        	queryBuilder.appendWhere(DeviceInfo.Group.COL_ID + "="
+                    + uri.getLastPathSegment());        	
+        	break;
+        case GROUP_NAME:        	
+        	queryBuilder.setTables(DeviceInfo.Group.TABLE_NAME);
+        	queryBuilder.appendWhere(DeviceInfo.Group.COL_NAME + "="
+                    + uri.getLastPathSegment());
         	break;
         case SUBGROUP:
         	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
         	break;
-        case SUBGROUP_ID:
+        case SUBGROUP_ID:        	
         	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
+        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_ID + "="
+                    + uri.getLastPathSegment());
         	break;
-        case SUBGROUP_GROUP:
+        case SUBGROUP_NAME:     
+        	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
+        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_NAME + "="
+                    + uri.getLastPathSegment());
+        	break;
+        case SUBGROUPGROUP:
         	queryBuilder.setTables(DeviceInfo.SubgroupGroup.TABLE_NAME);
         	break;
-        case SUBGROUP_GROUP_ID:
+        case SUBGROUPGROUP_ID:
         	queryBuilder.setTables(DeviceInfo.SubgroupGroup.TABLE_NAME);
+        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_ID + "="
+                    + uri.getLastPathSegment());
         	break;
         default:
         	throw new IllegalArgumentException(LOG_TAG + ": Unknown URI " + uri);
@@ -95,10 +119,10 @@ public class DeviceInfoProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        int uriType = sUriMatcher.match(uri);
-        SQLiteDatabase sqlDB = mDB.getWritableDatabase();
-        int rowsAffected = 0;
-        switch (uriType) {
+//        int uriType = sUriMatcher.match(uri);
+//        SQLiteDatabase sqlDB = mDB.getWritableDatabase();
+//        int rowsAffected = 0;
+//        switch (uriType) {
 //        case TUTORIALS:
 //            rowsAffected = sqlDB.delete(TutListDatabase.TABLE_TUTORIALS,
 //                    selection, selectionArgs);
@@ -116,9 +140,9 @@ public class DeviceInfoProvider extends ContentProvider {
 //            break;
 //        default:
 //        	throw new IllegalArgumentException(LOG_TAG + ": Unknown URI " + uri);
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
-        return rowsAffected;
+//        }
+//        getContext().getContentResolver().notifyChange(uri, null);
+        return 0; //rowsAffected;
     }
 
     

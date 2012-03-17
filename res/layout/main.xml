@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-	<LinearLayout android:id="@+id/mainLinearLayout"
-	    android:orientation="horizontal"    
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent">
-	    <fragment
-	        class="com.jphilli85.deviceinfo2.GroupListFragment"
-	        android:id="@+id/grouplist_fragment"
-	        android:layout_width="0dp"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="35" />	    
-	    <fragment
-	        class="com.jphilli85.deviceinfo2.DetailsFragment"
-	        android:id="@+id/viewer_fragment"	        
-	        android:layout_width="0dp"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="65" />	    
-    </LinearLayout>
-</merge>	
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"       
+    android:orientation="horizontal"    
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">    
+    <fragment
+        android:name="com.jphilli85.deviceinfo.GroupListFragment"
+        android:id="@+id/groupListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>
