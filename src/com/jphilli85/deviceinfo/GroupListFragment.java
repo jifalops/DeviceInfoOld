@@ -4,7 +4,6 @@ package com.jphilli85.deviceinfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -13,14 +12,14 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.jphilli85.deviceinfo.data.DeviceInfo;
 
 public class GroupListFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
-// TODO current task: handling sending data to the DetailsFragment.
-	// will need to replace the default implementation of showDetails(int).
+
 	/** Interface for communication with container Activity. */
 	public interface OnGroupSelectedListener {
 		public void onGroupSelected(int id);
@@ -79,8 +78,9 @@ public class GroupListFragment extends ListFragment implements
         
         // Check to see if we have a frame in which to embed the details
         // fragment directly in the containing UI.
-        View detailsFrame = getActivity().findViewById(R.id.detailsFragment);
-        mDualPane = detailsFrame != null && detailsFrame.getVisibility() == View.VISIBLE;
+        ViewGroup detailsWrapper = (ViewGroup) 
+        		getActivity().findViewById(R.id.detailsFragmentWrapper);
+        mDualPane = detailsWrapper != null && detailsWrapper.getVisibility() == View.VISIBLE;
         
         if (mDualPane) {
             // In dual-pane mode, the list view highlights the selected item.
@@ -101,20 +101,22 @@ public class GroupListFragment extends ListFragment implements
     
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        String projection[] = { DeviceInfo.Group.COL_ID };
-        Cursor cursor = getActivity().getContentResolver().query(
-                Uri.withAppendedPath(DeviceInfo.Group.CONTENT_URI,
-                        String.valueOf(id)), projection, null, null, null);
-        if (cursor.moveToFirst()) {
-            mOnGroupSelectedListener.onGroupSelected(cursor.getInt(0));
+//        String projection[] = { DeviceInfo.Group.COL_ID };
+//        Cursor cursor = getActivity().getContentResolver().query(
+//                Uri.withAppendedPath(DeviceInfo.Group.CONTENT_URI,
+//                        String.valueOf(id)), projection, null, null, null);
+//        if (cursor.moveToFirst()) {
+//            mOnGroupSelectedListener.onGroupSelected(cursor.getInt(0));
 //            Intent detailsIntent = new Intent();
 //    		detailsIntent.setAction(Intent.ACTION_VIEW)
 //    		.setData(Uri.parse(DeviceInfo.AUTHORITY))
 //    		.putExtra(EXTRA_DETAILS_ARRAY, new String[] { 
 //    			DeviceInfo.Group.CONTENT_URI + "/" + id });
-        }
-        cursor.close();
-        l.setItemChecked(position, true); 
+//        }
+//        cursor.close();
+//        l.setItemChecked(position, true); 
+    	mOnGroupSelectedListener.onGroupSelected(position);
+    	showDetails(position);    	
     }
     
     
@@ -132,18 +134,18 @@ public class GroupListFragment extends ListFragment implements
             getListView().setItemChecked(index, true);
 
             // Check what fragment is currently shown, replace if needed.
-            DetailsFragment details = (DetailsFragment)
+            DetailsFragment detailsFragment = (DetailsFragment)
                     getFragmentManager().findFragmentById(R.id.detailsFragment);
-            if (details == null || details.getShownIndex() != index) {
+            if (detailsFragment == null || detailsFragment.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = DetailsFragment.newInstance(index);
+                detailsFragment = DetailsFragment.newInstance(index);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.detailsFragment, details);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                getFragmentManager().beginTransaction()
+                .replace(R.id.detailsFragmentWrapper, detailsFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
             }
 
         } else {

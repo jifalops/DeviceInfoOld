@@ -29,6 +29,7 @@
                 <data android:host="com.jphilli85.deviceinfo" />
             </intent-filter>
         </activity>
+        <activity android:name=".DetailsActivity" />
         <provider 
             android:authorities="com.jphilli85.deviceinfo" 
             android:multiprocess="true"

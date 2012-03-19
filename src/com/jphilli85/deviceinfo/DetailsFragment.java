@@ -5,7 +5,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class DetailsFragment extends Fragment {
 	private LinearLayout mLayout;
@@ -26,7 +28,8 @@ public class DetailsFragment extends Fragment {
     }
 	
     public int getShownIndex() {
-        return getArguments().getInt("index", 0);
+    	Bundle args = getArguments();
+        return args != null ? args.getInt("index", 0) : 0;
     }
     
 	@Override
@@ -39,16 +42,17 @@ public class DetailsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		if (container == null) return null;
+			//container = (ViewGroup) getActivity().findViewById(R.id.detailsFragmentWrapper);
 		//super.onCreateView(inflater, container, savedInstanceState);		
-		View v = inflater.inflate(R.layout.details, container);
+		View v = inflater.inflate(R.layout.details, container, false);
 		mLayout = (LinearLayout) v.findViewById(R.id.detailsLayout);
-		// TODO stuff with mLayout ... 
-		return v; 		
-	}
-	
-	@Override
-	public void onResume() {
 		
-		super.onResume();
+		TextView tv = new TextView(getActivity());
+		tv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, 
+				LayoutParams.WRAP_CONTENT));
+		tv.setText(String.valueOf(getShownIndex()));
+		mLayout.addView(tv);
+		
+		return v; 		
 	}
 }

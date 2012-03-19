@@ -32,6 +32,6 @@ public class DeviceInfoActivity extends FragmentActivity implements
 
 	@Override
 	public void onGroupSelected(int id) {
-		Toast.makeText(this, "Group " + id + " selected", Toast.LENGTH_SHORT).show();		
+		//Toast.makeText(this, "Group " + id + " selected", Toast.LENGTH_SHORT).show();		
 	}
 }
