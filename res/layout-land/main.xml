@@ -13,13 +13,5 @@
         android:id="@+id/detailsFragmentWrapper"
         android:layout_width="0dp"
     	android:layout_height="match_parent"
-    	android:layout_weight="60">
-<!--     	android:background="?android:attr/detailsElementBackground">         -->
-<!-- 	    <fragment -->
-<!-- 	        android:name="com.jphilli85.deviceinfo.DetailsFragment" -->
-<!-- 	        android:id="@+id/detailsFragment"	         -->
-<!-- 	        android:layout_width="0dp" -->
-<!-- 	        android:layout_height="match_parent" -->
-<!-- 	        android:layout_weight="60" /> -->
-    </FrameLayout>	    
+    	android:layout_weight="60" />	    
 </LinearLayout>

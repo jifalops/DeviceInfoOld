@@ -28,6 +28,7 @@ public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
     
     private static final String CREATE_TABLE_GROUP = "CREATE TABLE " + Group.TABLE_NAME 
     		+ " (" + Group.COL_ID + " integer PRIMARY KEY AUTOINCREMENT, " 
+    		+ Group.COL_NAME + " text UNIQUE NOT NULL, " 
     		+ Group.COL_LABEL + " text UNIQUE NOT NULL, " 
     		+ Group.COL_INDEX + " integer NOT NULL default 0, "
     		+ Group.COL_HIDDEN + " integer NOT NULL default 0);";
@@ -224,6 +225,7 @@ public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(Group.COL_NAME, Group.GROUP_VISUAL_AUDIO);
         values.put(Group.COL_LABEL, getString(R.string.group_label_visual_audio));
         values.put(Group.COL_INDEX, 2);
+//        values.put(Group.COL_HIDDEN, 1);
         db.insert(Group.TABLE_NAME, null, values);
         
         // Battery & Sensors [5]

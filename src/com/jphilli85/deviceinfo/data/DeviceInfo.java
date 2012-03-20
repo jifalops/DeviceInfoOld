@@ -7,7 +7,7 @@ public final class DeviceInfo {
 	private DeviceInfo() { /* Not instantiable */ }
 	
 	public static final String AUTHORITY = "com.jphilli85.deviceinfo";
-	public static final String DATABASE_NAME = "deviceinfo";
+	public static final String DATABASE_NAME = "deviceinfo.db";
 	public static final int DATABASE_VERSION = 1;
 	
 	/** 

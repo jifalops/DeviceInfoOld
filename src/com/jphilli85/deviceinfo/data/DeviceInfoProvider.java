@@ -103,7 +103,7 @@ public class DeviceInfoProvider extends ContentProvider {
         	break;
         case SUBGROUPGROUP_ID:
         	queryBuilder.setTables(DeviceInfo.SubgroupGroup.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_ID + "="
+        	queryBuilder.appendWhere(DeviceInfo.SubgroupGroup.COL_ID + "="
                     + uri.getLastPathSegment());
         	break;
         default:

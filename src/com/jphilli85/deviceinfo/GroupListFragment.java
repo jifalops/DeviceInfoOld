@@ -116,7 +116,7 @@ public class GroupListFragment extends ListFragment implements
 //        cursor.close();
 //        l.setItemChecked(position, true); 
     	mOnGroupSelectedListener.onGroupSelected(position);
-    	showDetails(position);    	
+    	showDetails((int) id);    	
     }
     
     
@@ -166,7 +166,11 @@ public class GroupListFragment extends ListFragment implements
         String[] projection = { DeviceInfo.Group.COL_ID, DeviceInfo.Group.COL_LABEL };
 
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
-                DeviceInfo.Group.CONTENT_URI, projection, null, null, null);
+                DeviceInfo.Group.CONTENT_URI, 
+                projection, 
+                DeviceInfo.Group.COL_HIDDEN + " = ?", 
+                new String[] { "0" }, 
+                DeviceInfo.Group.COL_INDEX + " ASC");
         return cursorLoader;
     }
 
