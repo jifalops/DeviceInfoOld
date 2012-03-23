@@ -26,6 +26,7 @@ public class GroupListFragment extends ListFragment implements
 	}
 	
 	private static final int GROUP_LIST_LOADER = 1;
+	
 	public static final String EXTRA_DETAILS_ARRAY = 
 			"com.jphilli85.deviceinfo.extra.DETAILS_ARRAY";
 	
@@ -33,7 +34,7 @@ public class GroupListFragment extends ListFragment implements
     private SimpleCursorAdapter mAdapter;
     
     private boolean mDualPane;
-    int mCurCheckPosition = 0;
+    int mCurCheckPosition = 1;
     
 	
     
@@ -166,11 +167,7 @@ public class GroupListFragment extends ListFragment implements
         String[] projection = { DeviceInfo.Group.COL_ID, DeviceInfo.Group.COL_LABEL };
 
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
-                DeviceInfo.Group.CONTENT_URI, 
-                projection, 
-                DeviceInfo.Group.COL_HIDDEN + " = ?", 
-                new String[] { "0" }, 
-                DeviceInfo.Group.COL_INDEX + " ASC");
+                DeviceInfo.Group.CONTENT_URI, projection, null, null, null);
         return cursorLoader;
     }
 

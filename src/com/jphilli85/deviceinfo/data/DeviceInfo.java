@@ -91,7 +91,7 @@ public final class DeviceInfo {
 	    public static final String SUBGROUP_MOBILE = "SUBGROUP_MOBILE";
 	    public static final String SUBGROUP_WIFI = "SUBGROUP_WIFI";
 	    public static final String SUBGROUP_BLUETOOTH = "SUBGROUP_BLUETOOTH";
-	    public static final String SUBGROUP_PLATFORM = "SUBGROUP_SOFTWARE";
+	    public static final String SUBGROUP_PLATFORM = "SUBGROUP_PLATFORM";
 	    public static final String SUBGROUP_PROPERTIES = "SUBGROUP_PROPERTIES";
 	    public static final String SUBGROUP_AVAILABLE_KEYS = "SUBGROUP_AVAILABLE_KEYS";
 	    public static final String SUBGROUP_LOGCAT = "SUBGROUP_LOGCAT";

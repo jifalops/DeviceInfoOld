@@ -4,35 +4,41 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-//TODO WhereArgs / sanitize input
+
+import com.jphilli85.deviceinfo.data.DeviceInfo.*;
+
 public class DeviceInfoProvider extends ContentProvider {
 	private static final String LOG_TAG = "DeviceInfoProvider";
 	
     private DeviceInfoDatabaseHelper mDB;
 
+    /** Get all the groups */
     public static final int GROUP = 1;
+    /** Get a group's subgroups using its ID */
     public static final int GROUP_ID = 2;
+    /** Get a group's subgroups using its name */
     public static final int GROUP_NAME = 7;
+    /** Get all subgroups */
     public static final int SUBGROUP = 3;
+    /** Get a subgroup by ID */
     public static final int SUBGROUP_ID = 4;
+    /** Get a subgroup by name */
     public static final int SUBGROUP_NAME = 8;
-    public static final int SUBGROUPGROUP = 5;
-    public static final int SUBGROUPGROUP_ID = 6;
+    /** Get all the mappings of subgroups to groups */
+    public static final int SUBGROUPGROUP = 5; 
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME, GROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME + "/#", GROUP_ID);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Group.TABLE_NAME + "/*", GROUP_NAME);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME, SUBGROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, DeviceInfo.SubgroupGroup.TABLE_NAME + "/#", SUBGROUPGROUP_ID);        
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME, GROUP);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME + "/#", GROUP_ID);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME + "/*", GROUP_NAME);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME, SUBGROUP);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
+        sUriMatcher.addURI(DeviceInfo.AUTHORITY, SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);  
     }
 
     @Override
@@ -45,21 +51,19 @@ public class DeviceInfoProvider extends ContentProvider {
     public String getType(Uri uri) {
     	switch (sUriMatcher.match(uri)) {
         case GROUP:
-        	return DeviceInfo.Group.CONTENT_TYPE;              
+        	return Group.CONTENT_TYPE;              
         case GROUP_ID:        	
-        	return DeviceInfo.Group.CONTENT_ITEM_TYPE;
+        	return Group.CONTENT_ITEM_TYPE;
         case GROUP_NAME:        	
-        	return DeviceInfo.Group.CONTENT_ITEM_TYPE;
+        	return Group.CONTENT_ITEM_TYPE;
         case SUBGROUP:
-        	return DeviceInfo.Subgroup.CONTENT_TYPE;
+        	return Subgroup.CONTENT_TYPE;
         case SUBGROUP_ID:
-        	return DeviceInfo.Subgroup.CONTENT_ITEM_TYPE;
+        	return Subgroup.CONTENT_ITEM_TYPE;
         case SUBGROUP_NAME:
-        	return DeviceInfo.Subgroup.CONTENT_ITEM_TYPE;
+        	return Subgroup.CONTENT_ITEM_TYPE;
         case SUBGROUPGROUP:
-        	return DeviceInfo.SubgroupGroup.CONTENT_TYPE;
-        case SUBGROUPGROUP_ID:
-        	return DeviceInfo.SubgroupGroup.CONTENT_ITEM_TYPE;
+        	return SubgroupGroup.CONTENT_TYPE;
         default:
             return null;
         }
@@ -69,43 +73,57 @@ public class DeviceInfoProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
 
+    	final String g = Group.TABLE_NAME;
+    	final String sg = Subgroup.TABLE_NAME;
+    	final String sgg = SubgroupGroup.TABLE_NAME;    	
+    	
+    	// Last path segment contains invalid characters
+    	if (!uri.getLastPathSegment().matches("[0-9a-zA-Z_]+")) return null;
+    	
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         
+        //TODO create Intent flag to SHOW_HIDDEN
         switch (sUriMatcher.match(uri)) {
         case GROUP:
-        	queryBuilder.setTables(DeviceInfo.Group.TABLE_NAME);       
+        	queryBuilder.setTables(g);       
         	break;
-        case GROUP_ID:        	
-        	queryBuilder.setTables(DeviceInfo.Group.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.Group.COL_ID + "="
-                    + uri.getLastPathSegment());        	
+        case GROUP_ID:       
+        	queryBuilder.setTables(sg + " INNER JOIN " + sgg + " ON " 
+        			+ sg + "." + Subgroup.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_SUBGROUP_ID);
+        	queryBuilder.appendWhere(" " + sgg + "." + SubgroupGroup.COL_GROUP_ID + "="
+                    + uri.getLastPathSegment());
+        	if (selection == null || selection.isEmpty())
+        		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
+        	if (sortOrder == null || sortOrder.isEmpty())
+        		sortOrder = sgg + "." + SubgroupGroup.COL_INDEX + " ASC";
         	break;
         case GROUP_NAME:        	
-        	queryBuilder.setTables(DeviceInfo.Group.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.Group.COL_NAME + "="
+        	queryBuilder.setTables(sg + " INNER JOIN " + sgg + " INNER JOIN " + g + " ON " 
+        			+ sg + "." + Subgroup.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_SUBGROUP_ID 
+        			+ " AND " + g + "." + Group.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_GROUP_ID);
+        	queryBuilder.appendWhere(" " + g + "." + Group.COL_NAME + "="
                     + uri.getLastPathSegment());
+        	if (selection == null || selection.isEmpty())
+        		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
+        	if (sortOrder == null || sortOrder.isEmpty())
+        		sortOrder = sgg + "." + SubgroupGroup.COL_INDEX + " ASC";
         	break;
         case SUBGROUP:
-        	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
+        	queryBuilder.setTables(sg);
         	break;
         case SUBGROUP_ID:        	
-        	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_ID + "="
+        	queryBuilder.setTables(sg);
+        	queryBuilder.appendWhere(Subgroup.COL_ID + "="
                     + uri.getLastPathSegment());
         	break;
         case SUBGROUP_NAME:     
-        	queryBuilder.setTables(DeviceInfo.Subgroup.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.Subgroup.COL_NAME + "="
+        	queryBuilder.setTables(sg);
+        	queryBuilder.appendWhere(Subgroup.COL_NAME + "="
                     + uri.getLastPathSegment());
         	break;
         case SUBGROUPGROUP:
-        	queryBuilder.setTables(DeviceInfo.SubgroupGroup.TABLE_NAME);
-        	break;
-        case SUBGROUPGROUP_ID:
-        	queryBuilder.setTables(DeviceInfo.SubgroupGroup.TABLE_NAME);
-        	queryBuilder.appendWhere(DeviceInfo.SubgroupGroup.COL_ID + "="
-                    + uri.getLastPathSegment());
-        	break;
+        	queryBuilder.setTables(sgg);
+        	break;        
         default:
         	throw new IllegalArgumentException(LOG_TAG + ": Unknown URI " + uri);
         }
