@@ -17,8 +17,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.data.DeviceInfo;
-import com.jphilli85.deviceinfo.data.DeviceInfo.*;
+import com.jphilli85.deviceinfo.data.DeviceInfo.Group;
+import com.jphilli85.deviceinfo.data.DeviceInfo.Subgroup;
 
 public class DetailsFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {

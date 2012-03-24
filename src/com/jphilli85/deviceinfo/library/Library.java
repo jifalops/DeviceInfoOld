@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Jacob Phillips
+ * Copyright (C) 2012 Jacob Phillips
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,6 @@ public final class Library {
         int oldBase = 0;
         int newMultiplier = 0;
         int newBase = 0;    
-        //double valueInBits = 0;
         
         // Set values for what was given
         if (oldScale.length() == 2) {
