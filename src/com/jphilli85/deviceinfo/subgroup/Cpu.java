@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jphilli85.deviceinfo.ShellHelper;
+
 public class Cpu extends Subgroup {
 	private Map<String, String> mCpuinfo;
+	
 	//TODO multiple cpus, live info
 	public Cpu() {
 		mCpuinfo = new HashMap<String, String>();
@@ -16,7 +19,7 @@ public class Cpu extends Subgroup {
 	
 	/** Get the current cpuinfo from /proc */
 	public boolean updateCpuinfo() {
-        List<String> cpuinfo = getProc("cpuinfo");
+        List<String> cpuinfo = ShellHelper.getProc("cpuinfo");
         if (cpuinfo == null || cpuinfo.isEmpty()) return false;        
         String[] parts = null;
         mCpuinfo.clear();
@@ -36,4 +39,11 @@ public class Cpu extends Subgroup {
         if (key == null || !mCpuinfo.containsKey(key)) return null;
         return mCpuinfo.get(key);        
     }
+
+	@Override
+	public Map<String, String> getContents() {
+//		Map<String, String> contents = new HashMap<String, String>();
+		return mCpuinfo;
+//		return contents; 
+	}
 }

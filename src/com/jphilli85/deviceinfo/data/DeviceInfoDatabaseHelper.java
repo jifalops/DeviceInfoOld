@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.jphilli85.deviceinfo.DeviceInfoActivity;
+import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.data.DeviceInfo.Group;
-import com.jphilli85.deviceinfo.data.DeviceInfo.Subgroup;
-import com.jphilli85.deviceinfo.data.DeviceInfo.SubgroupGroup;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.SubgroupGroup;
 
 public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = "DeviceInfoDataBase";
@@ -41,7 +41,7 @@ public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
  
     
     public DeviceInfoDatabaseHelper(Context context) {
-        super(context, DeviceInfo.DATABASE_NAME, null, DeviceInfo.DATABASE_VERSION);
+        super(context, DeviceInfoContract.DATABASE_NAME, null, DeviceInfoContract.DATABASE_VERSION);
     }
 
     @Override
@@ -403,6 +403,6 @@ public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
 
 
     private String getString(int resId) { 
-    	return DeviceInfoActivity.sAppContext.getString(resId);
+    	return DeviceInfo.sAppContext.getString(resId);
     }
 }

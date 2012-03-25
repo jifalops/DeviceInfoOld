@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo;
+package com.jphilli85.deviceinfo.app;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

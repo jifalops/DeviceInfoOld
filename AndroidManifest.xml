@@ -18,7 +18,7 @@
         android:icon="@drawable/icon" 
        	android:label="@string/app_name"
        	android:theme="@style/Theme.Sherlock">       	
-        <activity android:name=".DeviceInfoActivity">
+        <activity android:name=".app.DeviceInfoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,10 +29,10 @@
                 <data android:host="com.jphilli85.deviceinfo" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailsActivity" />
+        <activity android:name=".app.DetailsActivity" />
         <provider 
             android:authorities="com.jphilli85.deviceinfo" 
             android:multiprocess="true"
-            android:name="com.jphilli85.deviceinfo.data.DeviceInfoProvider"/>
+            android:name=".data.DeviceInfoProvider"/>
     </application>
 </manifest>

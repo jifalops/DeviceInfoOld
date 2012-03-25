@@ -1,9 +1,13 @@
 package com.jphilli85.deviceinfo.subgroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.os.StatFs;
+
+import com.jphilli85.deviceinfo.ShellHelper;
 
 public class Storage extends Subgroup {
 	private static final String LOG_TAG = Storage.class.getSimpleName();
@@ -13,7 +17,8 @@ public class Storage extends Subgroup {
 	// TODO use singleton
 	public Storage() {
 		mMounts = new ArrayList<Mount>();
-		updateMounts();
+		if (!updateMounts()) 
+			throw new RuntimeException("Error updating mounts.");
 	}
 	
 	
@@ -21,6 +26,7 @@ public class Storage extends Subgroup {
 		private String mDevice;
 		private String mMountPoint;
 		private String mFileSystem;
+		private String mOptionsString;
 		private String[] mOptions;
 		
 		private StatFs mStatFs;
@@ -36,6 +42,7 @@ public class Storage extends Subgroup {
 			mDevice = parts[0];
 			mMountPoint = parts[1];
 			mFileSystem = parts[2];
+			mOptionsString = parts[3];
 			mOptions = parts[3].split(",");
 		}
 		
@@ -84,12 +91,16 @@ public class Storage extends Subgroup {
 		public String[] getOptions() {
 			return mOptions;
 		}
+		
+		public String getOptionsString() {
+			return mOptionsString;
+		}
 	}
 	
 	
 	/** Get the current mounts from /proc */
 	public boolean updateMounts() {
-        List<String> mounts = getProc("mounts");
+        List<String> mounts = ShellHelper.getProc("mounts");
         if (mounts == null || mounts.isEmpty()) return false;
         mMounts.clear();
         for (String s : mounts) {
@@ -140,7 +151,39 @@ public class Storage extends Subgroup {
 		return getMountByPath("/cache");
 	}
 	
-	public Mount getRootFsMount() {
+	public Mount getRootMount() {
 		return getMountByPath("/");
+	}
+	
+	// TODO ui facing strings
+	@Override
+	public Map<String, String> getContents() {
+		Map<String, String> contents = new HashMap<String, String>();
+		
+		// All mount data
+		Mount m = null;
+		for (int i = 0, len = mMounts.size(); i < len; ++i) {
+			m = mMounts.get(i);
+			contents.put("Mount " + i + " Device", m.getDevice());
+			contents.put("Mount " + i + " MountPoint", m.getMountPoint());
+			contents.put("Mount " + i + " FileSystem", m.getFileSystem());
+			contents.put("Mount " + i + " Options", m.getOptionsString());
+			contents.put("Mount " + i + " TotalSize", String.valueOf(m.getTotalSize()));
+			contents.put("Mount " + i + " FreeSpace", String.valueOf(m.getFreeSpace()));
+			contents.put("Mount " + i + " AvailableSpace", String.valueOf(m.getAvailableSpace()));
+		}
+		
+		// Interesting mounts
+		contents.put("System Mount index", String.valueOf(mMounts.indexOf(getSystemMount())));
+		contents.put("Data Mount index", String.valueOf(mMounts.indexOf(getDataMount())));
+		contents.put("Cache Mount index", String.valueOf(mMounts.indexOf(getCacheMount())));
+		contents.put("Root Mount index", String.valueOf(mMounts.indexOf(getRootMount())));		
+		List<Mount> sdMounts = getSdcardMounts();
+		for (int i = 0; i < sdMounts.size(); ++i) {				
+			contents.put("SD card Mount " + i + " index", 
+					String.valueOf(mMounts.indexOf(sdMounts.get(i))));			
+		}
+		
+		return contents;
 	}
 }

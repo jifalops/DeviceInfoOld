@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo;
+package com.jphilli85.deviceinfo.app;
 
 
 import android.app.Activity;
@@ -15,7 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.jphilli85.deviceinfo.data.DeviceInfo;
+import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.R.id;
+import com.jphilli85.deviceinfo.R.layout;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract;
 
 public class GroupListFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -54,7 +57,7 @@ public class GroupListFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String[] uiBindFrom = { DeviceInfo.Group.COL_LABEL };
+        String[] uiBindFrom = { DeviceInfoContract.Group.COL_LABEL };
         int[] uiBindTo = { R.id.itemLabel };
 
         getLoaderManager().initLoader(GROUP_LIST_LOADER, null, this);
@@ -164,10 +167,10 @@ public class GroupListFragment extends ListFragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = { DeviceInfo.Group.COL_ID, DeviceInfo.Group.COL_LABEL };
+        String[] projection = { DeviceInfoContract.Group.COL_ID, DeviceInfoContract.Group.COL_LABEL };
 
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
-                DeviceInfo.Group.CONTENT_URI, projection, null, null, null);
+                DeviceInfoContract.Group.CONTENT_URI, projection, null, null, null);
         return cursorLoader;
     }
 

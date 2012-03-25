@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo;
+package com.jphilli85.deviceinfo.app;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +17,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.data.DeviceInfo.Group;
-import com.jphilli85.deviceinfo.data.DeviceInfo.Subgroup;
+import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.R.id;
+import com.jphilli85.deviceinfo.R.layout;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 
 public class DetailsFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {

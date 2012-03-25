@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jphilli85.deviceinfo.ShellHelper;
+
 public class Ram extends Subgroup {
 	private Map<String, String> mMeminfo;
 	
@@ -16,7 +18,7 @@ public class Ram extends Subgroup {
 	
 	/** Get the current meminfo from /proc */
 	public boolean updateMeminfo() {
-        List<String> meminfo = getProc("meminfo");
+        List<String> meminfo = ShellHelper.getProc("meminfo");
         if (meminfo == null || meminfo.isEmpty()) return false;        
         String[] parts = null;
         mMeminfo.clear();
@@ -44,4 +46,12 @@ public class Ram extends Subgroup {
 	public String getFree() {
         return getMeminfo("MemFree");     
     }
+	
+	
+	@Override
+	public Map<String, String> getContents() {
+//		Map<String, String> contents = new HashMap<String, String>();			
+		return mMeminfo;
+//		return contents;
+	}
 }

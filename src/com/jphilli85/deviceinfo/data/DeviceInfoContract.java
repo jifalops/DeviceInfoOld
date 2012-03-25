@@ -3,8 +3,8 @@ package com.jphilli85.deviceinfo.data;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-public final class DeviceInfo {
-	private DeviceInfo() { /* Not instantiable */ }
+public final class DeviceInfoContract {
+	private DeviceInfoContract() { /* Not instantiable */ }
 	
 	public static final String AUTHORITY = "com.jphilli85.deviceinfo";
 	public static final String DATABASE_NAME = "deviceinfo.db";

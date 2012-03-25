@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import com.jphilli85.deviceinfo.data.DeviceInfo.*;
+import com.jphilli85.deviceinfo.data.DeviceInfoContract.*;
 
 public class DeviceInfoProvider extends ContentProvider {
 	private static final String LOG_TAG = "DeviceInfoProvider";
@@ -32,13 +32,13 @@ public class DeviceInfoProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME, GROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME + "/#", GROUP_ID);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Group.TABLE_NAME + "/*", GROUP_NAME);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME, SUBGROUP);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
-        sUriMatcher.addURI(DeviceInfo.AUTHORITY, SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);  
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Group.TABLE_NAME, GROUP);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Group.TABLE_NAME + "/#", GROUP_ID);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Group.TABLE_NAME + "/*", GROUP_NAME);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME, SUBGROUP);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);  
     }
 
     @Override
