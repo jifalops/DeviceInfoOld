@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.subgroup;
+package com.jphilli85.deviceinfo.unit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import android.os.StatFs;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Storage extends Subgroup {
+public class Storage extends Unit {
 	private static final String LOG_TAG = Storage.class.getSimpleName();
 	
 	private List<Mount> mMounts;

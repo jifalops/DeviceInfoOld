@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.subgroup;
+package com.jphilli85.deviceinfo.unit;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Ram extends Subgroup {
+public class Ram extends Unit {
 	private Map<String, String> mMeminfo;
 	
 	public Ram() {

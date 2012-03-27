@@ -1,6 +1,7 @@
 package com.jphilli85.deviceinfo;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -8,7 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.util.Log;
+
 public class ShellHelper {
+	private static final String LOG_TAG = ShellHelper.class.getSimpleName();
 	
 	/** Non instantiable, even from within. */
 	private ShellHelper() { throw new AssertionError(); }
@@ -42,24 +46,40 @@ public class ShellHelper {
                 InputStreamReader(p.getInputStream()));                                                
             String s;
             while ((s = stdInput.readLine()) != null) {
-            	if (trimOutput)	list.add(s.trim());
+            	if (trimOutput)	{
+            		s = s.trim();
+            		if (!s.isEmpty()) list.add(s);
+            	}
             	else list.add(s);
             }
     	}
+        catch (IOException e) {
+        	Log.e(LOG_TAG, "IOException occurred while executing '" + command + "'.");
+        	throw e;
+        }
+        catch (SecurityException e) {
+        	Log.e(LOG_TAG, "SecurityException occurred while executing '" + command + "'.");
+        	throw e;
+        }
         finally {
         	stdInput.close();
         }
         return list;
     }
     
-    
-    public static List<String> getProc(String proc) {
-		if (proc == null || proc.isEmpty()) return null;
+    public static List<String> cat(String filename) {    	
+    	File f = new File(filename); 
+    	if (!f.exists() || f.isDirectory()) return null;
 		List<String> list = null;                       
-        try { list = exec("cat /proc/" + proc); }
+        try { list = exec("cat " + f.getAbsolutePath()); }
         catch (IOException ignored) {}
         catch (SecurityException ignored) {}
         return list;
+    }
+    
+    
+    public static List<String> getProc(String proc) {
+    	return cat("/proc/" + proc);
     }  
     
     
@@ -76,7 +96,10 @@ public class ShellHelper {
         	// Remove first and last bracket.        	
         	s = s.trim().substring(1, s.length() - 1);
         	parts = s.split("]: [");
-        	if (parts == null || parts.length != 2) continue;
+        	if (parts == null || parts.length != 2) {
+        		Log.d(LOG_TAG, "getprop property does not have exactly 2 parts.");
+        		continue;
+        	}
         	props.put(parts[0], parts[1]);
         }
         return props;
@@ -91,4 +114,5 @@ public class ShellHelper {
         return s;           
     }
 
+    
 }

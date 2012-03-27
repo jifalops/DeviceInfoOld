@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.subgroup;
+package com.jphilli85.deviceinfo.unit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import android.util.DisplayMetrics;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Display extends Subgroup {
+public class Display extends Unit {
 	
 	// Use a shorter name
 	private final int API = Build.VERSION.SDK_INT;
