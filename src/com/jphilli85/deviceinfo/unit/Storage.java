@@ -1,9 +1,8 @@
 package com.jphilli85.deviceinfo.unit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.os.StatFs;
 
@@ -157,8 +156,8 @@ public class Storage extends Unit {
 	
 	// TODO ui facing strings
 	@Override
-	public Map<String, String> getContents() {
-		Map<String, String> contents = new HashMap<String, String>();
+	public LinkedHashMap<String, String> getContents() {
+		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		
 		// All mount data
 		Mount m = null;

@@ -1,7 +1,6 @@
 package com.jphilli85.deviceinfo.unit;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import android.app.Activity;
 import android.content.Context;
@@ -208,8 +207,8 @@ public class Display extends Unit {
     }
     
     @Override
-	public Map<String, String> getContents() {
-		Map<String, String> contents = new HashMap<String, String>();
+	public LinkedHashMap<String, String> getContents() {
+    	LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		Context context = DeviceInfo.sAppContext;
 		
 		contents.put("Density DPI String", getDensityDpiString());

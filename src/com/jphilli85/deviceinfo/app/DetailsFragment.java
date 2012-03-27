@@ -22,6 +22,7 @@ import com.jphilli85.deviceinfo.R.id;
 import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
+import com.jphilli85.deviceinfo.unit.Cpu;
 
 public class DetailsFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -98,10 +99,11 @@ public class DetailsFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         //mAdapter.swapCursor(cursor);
-    	testResult(cursor);
-    	while(cursor.moveToNext()) {
+    	//testResult(cursor);
+    	if (!cursor.moveToFirst()) return;  
+    	do {
     		mSubgroups.put(cursor.getString(0), cursor.getString(1));
-    	}
+    	} while(cursor.moveToNext());
     	loadSubgroups();
     }
 
@@ -118,9 +120,18 @@ public class DetailsFragment extends Fragment implements
     }
     
     private void loadSubgroup(final String name) {
-    	if (name.equals(Subgroup.SUBGROUP_AUDIO)) {
-    		//TODO complete
-    		
+    	if (name.equals(Subgroup.SUBGROUP_CPU)) {
+    		Cpu cpu = new Cpu();
+    		cpu.updateCpuStats();
+    		Map<String, String> contents = cpu.getContents();
+    		TextView tv = new TextView(getActivity());
+    		tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 
+    				LayoutParams.WRAP_CONTENT));
+    		tv.setText(name + "\n");
+    		for (String s : contents.keySet()) {
+    			tv.append(s + ": " + contents.get(s) + "\n");
+    		}
+    		mLayout.addView(tv);
     	}
     }
     

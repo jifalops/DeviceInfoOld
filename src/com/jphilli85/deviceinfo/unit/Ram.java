@@ -1,16 +1,16 @@
 package com.jphilli85.deviceinfo.unit;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
 public class Ram extends Unit {
-	private Map<String, String> mMeminfo;
+	private LinkedHashMap<String, String> mMeminfo;
 	
 	public Ram() {
-		mMeminfo = new HashMap<String, String>();
+		mMeminfo = new LinkedHashMap<String, String>();
 		if (!updateMeminfo()) {
 			throw new RuntimeException("Error reading from '/proc/meminfo'."); 
 		}			
@@ -49,8 +49,8 @@ public class Ram extends Unit {
 	
 	
 	@Override
-	public Map<String, String> getContents() {
-//		Map<String, String> contents = new HashMap<String, String>();			
+	public LinkedHashMap<String, String> getContents() {
+//		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();			
 		return mMeminfo;
 //		return contents;
 	}

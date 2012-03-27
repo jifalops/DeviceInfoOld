@@ -3,9 +3,8 @@ package com.jphilli85.deviceinfo.unit;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.util.Log;
 
@@ -108,39 +107,39 @@ public class Cpu extends Unit {
 		}
 		
 		/** Get the maximum frequency in MHz */
-		public float getMaxFrequency() {
+		public int getMaxFrequency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_max_freq");
-			if (list == null || list.isEmpty()) return -1;
-			return Float.valueOf(list.get(0)) / 1000;
+			if (list == null || list.isEmpty()) return 0;
+			return Integer.valueOf(list.get(0)) / 1000;
 		}
 		
 		/** Get the minimum frequency in MHz */
-		public float getMinFrequency() {
+		public int getMinFrequency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_min_freq");
-			if (list == null || list.isEmpty()) return -1;
-			return Float.valueOf(list.get(0)) / 1000;
+			if (list == null || list.isEmpty()) return 0;
+			return Integer.valueOf(list.get(0)) / 1000;
 		}
 		
 		/** Get the current frequency in MHz */
-		public float getFrequency() {
+		public int getFrequency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_cur_freq");
-			if (list == null || list.isEmpty()) return -1;
-			return Float.valueOf(list.get(0)) / 1000;
+			if (list == null || list.isEmpty()) return 0;
+			return Integer.valueOf(list.get(0)) / 1000;
 		}
 		
 		/** Get the available frequencies in MHz */
-		public float[] getAvailableFrequencies() {
+		public int[] getAvailableFrequencies() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_frequencies");
 			if (list == null || list.isEmpty()) return null;
 			String[] results = list.get(0).split("\\s");
 			int len = results.length;
-			float[] freqs = new float[len];
+			int[] freqs = new int[len];
 			for (int i = 0; i < len; ++i) {
-				freqs[i] = Float.valueOf(results[i]) / 1000;
+				freqs[i] = Integer.valueOf(results[i]) / 1000;
 			}
 			return freqs;
 		}
@@ -173,7 +172,7 @@ public class Cpu extends Unit {
 		public int getTransitionLatency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_transition_latency");
-			if (list == null || list.isEmpty()) return -1;
+			if (list == null || list.isEmpty()) return 0;
 			return Integer.valueOf(list.get(0));
 		}
 		
@@ -181,22 +180,22 @@ public class Cpu extends Unit {
 		public int getTotalTransitions() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/stats/total_trans");
-			if (list == null || list.isEmpty()) return -1;
+			if (list == null || list.isEmpty()) return 0;
 			return Integer.valueOf(list.get(0));
 		}
 		
 		/** Get the total amount of time spent in frequency transitions in seconds */
-		public double getTimeInTransitions() {
-			return getTotalTransitions() * getTransitionLatency() / 1E9;
+		public float getTimeInTransitions() {
+			return (float) ((long) getTotalTransitions() * (long) getTransitionLatency() / 1E9);
 		}
-		//TODO % in freq
+
 		/** Get a list of the total time (in Jiffies) spent at each frequency (in MHz) */
-		public float[][] getTimeInFrequency() {
+		public int[][] getTimeInFrequency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/stats/time_in_state");
 			if (list == null || list.isEmpty()) return null;
 			int len = list.size();
-			float[][] times = new float[len][2];
+			int[][] times = new int[len][2];
 			String[] parts = null;
 			for (int i = 0; i < len; ++i) {
 				parts = list.get(i).split("\\s");
@@ -204,19 +203,37 @@ public class Cpu extends Unit {
 					Log.d(LOG_TAG, "time in state did not have exactly 2 parts.");
 					continue;
 				}
-				times[i][0] = Float.valueOf(parts[0]) / 1000;
-				times[i][1] = Float.valueOf(parts[1]);
+				times[i][0] = Integer.valueOf(parts[0]) / 1000;
+				times[i][1] = Integer.valueOf(parts[1]);
 			}
 			return times;
 		}
 		
 		/** Get the total time (in Jiffies) spent a frequency given in MHz. */
-		public float getTimeInFrequency(float frequency) {
-			float[][] times = getTimeInFrequency();
-			for (float[] f : times) {
+		public int getTimeInFrequency(int frequency) {
+			int[][] times = getTimeInFrequency();
+			for (int[] f : times) {
 				if (f[0] == frequency) return f[1];
 			}
-			return -1;
+			return 0;
+		}
+		
+		/** Get a list of the percentage of time spent at each frequency (in MHz) */
+		public LinkedHashMap<Integer, Float> getPercentInFrequency() {
+			LinkedHashMap<Integer, Float> percents = new LinkedHashMap<Integer, Float>();
+			
+			int[][] times = getTimeInFrequency();
+			long total = 0;
+			
+			for (int i = 0; i < times.length; ++i) {
+				total += times[i][1];
+			}
+			
+			for (int i = 0; i < times.length; ++i) {
+				percents.put(times[i][0], (float) times[i][1] / total * 100);				
+			}
+			
+			return percents;
 		}
 	}
 	
@@ -313,55 +330,83 @@ public class Cpu extends Unit {
 			return mId;
 		}
 		
-		public double getUserPercent() {
-			return (mUser - mUserPrevious) / mUserPrevious * 100;
+		public float getUserPercent() {
+			float divisor = mUserPrevious;
+			if (divisor == 0) return 0;
+			return (mUser - mUserPrevious) / divisor  * 100;
 		}
 		
-		public double getNicePercent() {
-			return (mNice - mNicePrevious) / mNicePrevious * 100;
+		public float getNicePercent() {
+			float divisor = mNicePrevious;
+			if (divisor == 0) return 0;
+			return (mNice - mNicePrevious) / divisor * 100;
 		}
 		
-		public double getSystemPercent() {
-			return (mSystem - mSystemPrevious) / mSystemPrevious * 100;
+		public float getSystemPercent() {
+			float divisor = mSystemPrevious;
+			if (divisor == 0) return 0;
+			return (mSystem - mSystemPrevious) / divisor * 100;
 		}
 		
-		public double getIdlePercent() {
-			return (mIdle - mIdlePrevious) / mIdlePrevious * 100;
+		public float getIdlePercent() {
+			float divisor = mIdlePrevious;
+			if (divisor == 0) return 0;
+			return (mIdle - mIdlePrevious) / divisor * 100;
 		}
 		
-		public double getIoWaitPercent() {
-			return (mIoWait - mIoWaitPrevious) / mIoWaitPrevious * 100;
+		public float getIoWaitPercent() {
+			float divisor = mIoWaitPrevious;
+			if (divisor == 0) return 0;
+			return (mIoWait - mIoWaitPrevious) / divisor * 100;
 		}
 		
-		public double getIntrPercent() {
-			return (mIntr - mIntrPrevious) / mIntrPrevious * 100;
+		public float getIntrPercent() {
+			float divisor = mIntrPrevious;
+			if (divisor == 0) return 0;
+			return (mIntr - mIntrPrevious) / divisor * 100;
 		}
 		
-		public double getSoftIrqPercent() {
-			return (mSoftIrq - mSoftIrqPrevious) / mSoftIrqPrevious * 100;
+		public float getSoftIrqPercent() {
+			float divisor = mSoftIrqPrevious;
+			if (divisor == 0) return 0;
+			return (mSoftIrq - mSoftIrqPrevious) / divisor * 100;
 		}
 		
 		/** User + Nice */
-		public double getUserTotalPercent() {
+		public float getUserTotalPercent() {
+			float divisor = mUserPrevious + mNicePrevious;
+			if (divisor == 0) return 0;
 			return ((mUser - mUserPrevious) + (mNice - mNicePrevious))
-				/ (mUserPrevious + mNicePrevious) * 100;
+				/ divisor * 100;
 		}
 		
 		/** System + Intr + SoftIrq */
-		public double getSystemTotalPercent() {
+		public float getSystemTotalPercent() {
+			float divisor = mSystemPrevious + mIntrPrevious + mSoftIrqPrevious;
+			if (divisor == 0) return 0;
 			return ((mSystem - mSystemPrevious) 
 				+ (mIntr - mIntrPrevious)
 				+ (mSoftIrq - mSoftIrqPrevious))
-				/ (mSystemPrevious + mIntrPrevious + mSoftIrqPrevious) * 100;
+				/ divisor * 100;
 		}
 		
 		/** Idle + IoWait */
-		public double getIdleTotalPercent() {
+		public float getIdleTotalPercent() {
+			float divisor = mIdlePrevious + mIoWaitPrevious;
+			if (divisor == 0) return 0;
 			return ((mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious))
-					/ (mIdlePrevious + mIoWaitPrevious) * 100;
+					/ divisor * 100;
 		}
 		
-		public double getTotalPercent() {
+		public float getTotalPercent() {
+			float divisor = mUserPrevious
+					+ mNicePrevious
+					+ mSystemPrevious
+					+ mIdlePrevious
+					+ mIoWaitPrevious
+					+ mIntrPrevious 
+					+ mSoftIrqPrevious;
+			if (divisor == 0) return 0;
 			return ((mUser - mUserPrevious)
 				+ (mNice - mNicePrevious)
 				+ (mSystem - mSystemPrevious) 
@@ -369,13 +414,7 @@ public class Cpu extends Unit {
 				+ (mIoWait - mIoWaitPrevious)
 				+ (mIntr - mIntrPrevious)				
 				+ (mSoftIrq - mSoftIrqPrevious))
-				/ (mUserPrevious
-					+ mNicePrevious
-					+ mSystemPrevious
-					+ mIdlePrevious
-					+ mIoWaitPrevious
-					+ mIntrPrevious 
-					+ mSoftIrqPrevious) * 100;
+				/ divisor * 100;
 		}
 		
 		
@@ -493,8 +532,8 @@ public class Cpu extends Unit {
 
 
 	@Override
-	public Map<String, String> getContents() {
-		Map<String, String> contents = new HashMap<String, String>();
+	public LinkedHashMap<String, String> getContents() {
+		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		
 		for (int i = 0; i < mCpuinfo.size(); ++i) {
 			contents.put("CPU Info " + i, mCpuinfo.get(i));
@@ -509,8 +548,8 @@ public class Cpu extends Unit {
 		return contents; 
 	}
 	
-	private Map<String, String> getLogicalCpuContents(LogicalCpu cpu) {
-		Map<String, String> contents = new HashMap<String, String>();
+	private LinkedHashMap<String, String> getLogicalCpuContents(LogicalCpu cpu) {
+		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		String key = "LogicalCpu " + cpu.getId();
 		
 		contents.put(key + " ID", String.valueOf(cpu.getId()));
@@ -519,7 +558,7 @@ public class Cpu extends Unit {
 		contents.put(key + " MinFrequency (MHz)", String.valueOf(cpu.getMinFrequency()));
 		contents.put(key + " MaxFrequency (MHz)", String.valueOf(cpu.getMaxFrequency()));
 		
-		float[] freqs = cpu.getAvailableFrequencies();
+		int[] freqs = cpu.getAvailableFrequencies();
 		for (int i = 0; i < freqs.length; ++i) {
 			contents.put(key + " AvailableFrequency " + i + " (MHz)", 
 				String.valueOf(freqs[i]));
@@ -530,17 +569,23 @@ public class Cpu extends Unit {
 			contents.put(key + " AvailableGovernor " + i, govs[i]);
 		}
 		
-		contents.put(key + "Governor", cpu.getGovernor());
-		contents.put(key + "Driver", cpu.getDriver());
-		contents.put(key + "TransitionLatency (ns)", String.valueOf(cpu.getTransitionLatency()));
-		contents.put(key + "TotalTransitions", String.valueOf(cpu.getTotalTransitions()));
-		contents.put(key + "TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
-		contents.put(key + "TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
+		contents.put(key + " Governor", cpu.getGovernor());
+		contents.put(key + " Driver", cpu.getDriver());
+		contents.put(key + " TransitionLatency (ns)", String.valueOf(cpu.getTransitionLatency()));
+		contents.put(key + " TotalTransitions", String.valueOf(cpu.getTotalTransitions()));
+		contents.put(key + " TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
+		contents.put(key + " TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
 		
-		float[][] times = cpu.getTimeInFrequency();
+		int[][] times = cpu.getTimeInFrequency();
 		for (int i = 0; i < times.length; ++i) {
-			contents.put(key + "TimeInFrequency " + times[i][0] + "(Jiffies (10ms))", 
+			contents.put(key + " TimeInFrequency " + times[i][0] + "MHz (Jiffies (10ms))", 
 					String.valueOf(times[i][1]));					
+		}
+		
+		LinkedHashMap<Integer, Float> percents = cpu.getPercentInFrequency();
+		for (int freq : percents.keySet()) {
+			contents.put(key + " PercentInFrequency " + freq + "MHz", 
+					String.valueOf(percents.get(freq)));
 		}
 		
 		contents.putAll(getCpuStatContents(cpu.getCpuStat(), key));
@@ -548,8 +593,8 @@ public class Cpu extends Unit {
 		return contents;
 	}
 	
-	private Map<String, String> getCpuStatContents(CpuStat cpuStat, String key) {
-		Map<String, String> contents = new HashMap<String, String>();
+	private LinkedHashMap<String, String> getCpuStatContents(CpuStat cpuStat, String key) {
+		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		
 		contents.put(key + " CpuStat ID", String.valueOf(cpuStat.getId()));
 		contents.put(key + " CpuStat Timestamp", String.valueOf(cpuStat.getTimestamp()));
