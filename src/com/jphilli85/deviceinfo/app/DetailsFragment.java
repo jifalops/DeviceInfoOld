@@ -17,12 +17,17 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.R.id;
-import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 import com.jphilli85.deviceinfo.unit.Cpu;
+import com.jphilli85.deviceinfo.unit.Display;
+import com.jphilli85.deviceinfo.unit.Graphics;
+import com.jphilli85.deviceinfo.unit.Ram;
+import com.jphilli85.deviceinfo.unit.Storage;
+import com.jphilli85.deviceinfo.unit.Unit;
 
 public class DetailsFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -98,10 +103,10 @@ public class DetailsFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        //mAdapter.swapCursor(cursor);
-    	//testResult(cursor);
+    	if (DeviceInfo.DEBUG) dumpResult(cursor);
     	if (!cursor.moveToFirst()) return;  
     	do {
+    		// name, label
     		mSubgroups.put(cursor.getString(0), cursor.getString(1));
     	} while(cursor.moveToNext());
     	loadSubgroups();
@@ -109,7 +114,7 @@ public class DetailsFragment extends Fragment implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-       //mAdapter.swapCursor(null);
+       // Empty
     }
     
     
@@ -120,22 +125,37 @@ public class DetailsFragment extends Fragment implements
     }
     
     private void loadSubgroup(final String name) {
+    	Unit unit = null;
+    	
     	if (name.equals(Subgroup.SUBGROUP_CPU)) {
-    		Cpu cpu = new Cpu();
-    		cpu.updateCpuStats();
-    		Map<String, String> contents = cpu.getContents();
-    		TextView tv = new TextView(getActivity());
-    		tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 
-    				LayoutParams.WRAP_CONTENT));
-    		tv.setText(name + "\n");
-    		for (String s : contents.keySet()) {
-    			tv.append(s + ": " + contents.get(s) + "\n");
-    		}
-    		mLayout.addView(tv);
+    		unit = new Cpu();
+    		((Cpu) unit).updateCpuStats();    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_DISPLAY)) {
+    		unit = new Display(getActivity());    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_GRAPHICS)) {
+    		unit = new Graphics();    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_RAM)) {
+    		unit = new Ram();    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_STORAGE)) {
+    		unit = new Storage();    		
+    	}
+    	
+    	
+    	if (unit != null) {
+	    	Map<String, String> contents = unit.getContents();
+			TextView tv = new DetailsTextView(getActivity(), name + "\n");
+			for (String s : contents.keySet()) {
+				tv.append(s + ": " + contents.get(s) + "\n");
+			}
+			mLayout.addView(tv);
     	}
     }
     
-    private void testResult(Cursor c) {
+    private void dumpResult(Cursor c) {
     	if (!c.moveToFirst()) return;    	
 
     	String rows = "";
@@ -148,12 +168,9 @@ public class DetailsFragment extends Fragment implements
     			rows += c.getString(i) + "|";
     		}
     		rows += "\n";
-    	} while (c.moveToNext()); 
-    	
-    	TextView tv = new TextView(getActivity());
-		tv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, 
-				LayoutParams.WRAP_CONTENT));
-		tv.setText(rows);
-		mLayout.addView(tv);
+    	} while (c.moveToNext());     	    	
+		mLayout.addView(new DetailsTextView(getActivity(), rows));
     }
+    
+   
 }

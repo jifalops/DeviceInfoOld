@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import android.os.StatFs;
+import android.util.Log;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
@@ -17,7 +18,7 @@ public class Storage extends Unit {
 	public Storage() {
 		mMounts = new ArrayList<Mount>();
 		if (!updateMounts()) 
-			throw new RuntimeException("Error updating mounts.");
+			Log.e(LOG_TAG, "Error updating mounts.");
 	}
 	
 	
@@ -26,27 +27,35 @@ public class Storage extends Unit {
 		private String mMountPoint;
 		private String mFileSystem;
 		private String mOptionsString;
-		private String[] mOptions;
+		private String[] mAttributes;
 		
 		private StatFs mStatFs;
 		
 		public Mount(String desc) {
-			if (desc == null || desc.isEmpty()) {
-				throw new RuntimeException("Error creating Mount instance.");
+			if (desc == null || desc.length() == 0) {
+				Log.e(LOG_TAG, "Error creating Mount instance.");
 			}
-			String[] parts = desc.split(" ");
-			if (parts.length != 6) {
-				throw new RuntimeException("Error creating Mount instance. Unrecognized format.");
+			else {
+				String[] parts = desc.split(" ");
+				
+				if (parts.length != 6) {
+					Log.e(LOG_TAG, "Error creating Mount instance. Unrecognized format.");
+				}
+				
+				try {
+					mDevice = parts[0];
+					mMountPoint = parts[1];
+					mFileSystem = parts[2];
+					mOptionsString = parts[3];
+					mAttributes = parts[3].split(",");
+				}
+				catch (IndexOutOfBoundsException ignored) {}
 			}
-			mDevice = parts[0];
-			mMountPoint = parts[1];
-			mFileSystem = parts[2];
-			mOptionsString = parts[3];
-			mOptions = parts[3].split(",");
 		}
 		
-		public boolean hasOption(String option) {
-			for (String s : mOptions) {
+		public boolean hasAttribute(String option) {
+			if (option == null || option.length() == 0)
+			for (String s : mAttributes) {
 				if (option.equals(s)) return true;
 			}
 			return false;
@@ -54,25 +63,31 @@ public class Storage extends Unit {
 		
 		public StatFs getStatFs() {
 			if (mStatFs == null) {
-				mStatFs = new StatFs(mMountPoint); 
+				try {
+					mStatFs = new StatFs(mMountPoint);
+				}
+				catch (Exception ignored) {}
 			}
 			return mStatFs; 
 		}
 		
 	    public long getTotalSize() { 
+	    	if (getStatFs() == null) return -1;    	
 	    	return ((long) getStatFs().getBlockSize()) * ((long) getStatFs().getBlockCount());
 	    } 
 	    
 	    public long getFreeSpace() {
+	    	if (getStatFs() == null) return -1;
 	    	return ((long) getStatFs().getBlockSize()) * ((long) getStatFs().getFreeBlocks());
 	    }
 	    
 	    public long getAvailableSpace() {
+	    	if (getStatFs() == null) return -1;
 	    	return ((long) getStatFs().getBlockSize()) * ((long) getStatFs().getAvailableBlocks());
 	    }
 
 		public boolean isReadOnly() {
-			return hasOption("ro");
+			return hasAttribute("ro");
 		}
 		
 		public String getDevice() {
@@ -88,10 +103,10 @@ public class Storage extends Unit {
 		}
 		
 		public String[] getOptions() {
-			return mOptions;
+			return mAttributes;
 		}
 		
-		public String getOptionsString() {
+		public String getAttributeString() {
 			return mOptionsString;
 		}
 	}
@@ -103,7 +118,7 @@ public class Storage extends Unit {
         if (mounts == null || mounts.isEmpty()) return false;
         mMounts.clear();
         for (String s : mounts) {
-        	if (s == null || s.isEmpty()) continue;
+        	if (s == null || s.length() == 0) continue;
         	mMounts.add(new Mount(s));
         }
         return !mMounts.isEmpty();
@@ -114,7 +129,7 @@ public class Storage extends Unit {
 	}
 	
 	public Mount getMountByPath(String mountPoint) {
-        if (mountPoint == null || mountPoint.isEmpty()) return null;
+        if (mountPoint == null || mountPoint.length() == 0) return null;
 		for (Mount m : mMounts) {
         	if (mountPoint.equals(m.getMountPoint())) {
         		return m;
@@ -124,7 +139,7 @@ public class Storage extends Unit {
     }
 	
 	public List<Mount> findMountsByPath(String regex) {
-		if (regex == null || regex.isEmpty()) return null;
+		if (regex == null || regex.length() == 0) return null;
 		List<Mount> matches = new ArrayList<Mount>();
 		for (Mount m : mMounts) {
 			if (m.getMountPoint().matches(regex)) {
@@ -159,19 +174,6 @@ public class Storage extends Unit {
 	public LinkedHashMap<String, String> getContents() {
 		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		
-		// All mount data
-		Mount m = null;
-		for (int i = 0, len = mMounts.size(); i < len; ++i) {
-			m = mMounts.get(i);
-			contents.put("Mount " + i + " Device", m.getDevice());
-			contents.put("Mount " + i + " MountPoint", m.getMountPoint());
-			contents.put("Mount " + i + " FileSystem", m.getFileSystem());
-			contents.put("Mount " + i + " Options", m.getOptionsString());
-			contents.put("Mount " + i + " TotalSize", String.valueOf(m.getTotalSize()));
-			contents.put("Mount " + i + " FreeSpace", String.valueOf(m.getFreeSpace()));
-			contents.put("Mount " + i + " AvailableSpace", String.valueOf(m.getAvailableSpace()));
-		}
-		
 		// Interesting mounts
 		contents.put("System Mount index", String.valueOf(mMounts.indexOf(getSystemMount())));
 		contents.put("Data Mount index", String.valueOf(mMounts.indexOf(getDataMount())));
@@ -181,6 +183,19 @@ public class Storage extends Unit {
 		for (int i = 0; i < sdMounts.size(); ++i) {				
 			contents.put("SD card Mount " + i + " index", 
 					String.valueOf(mMounts.indexOf(sdMounts.get(i))));			
+		}
+		
+		// All mount data
+		Mount m = null;
+		for (int i = 0, len = mMounts.size(); i < len; ++i) {
+			m = mMounts.get(i);
+			contents.put("Mount " + i + " Device", m.getDevice());
+			contents.put("Mount " + i + " MountPoint", m.getMountPoint());
+			contents.put("Mount " + i + " FileSystem", m.getFileSystem());
+			contents.put("Mount " + i + " Attributes", m.getAttributeString());
+			contents.put("Mount " + i + " TotalSize", String.valueOf(m.getTotalSize()));
+			contents.put("Mount " + i + " FreeSpace", String.valueOf(m.getFreeSpace()));
+			contents.put("Mount " + i + " AvailableSpace", String.valueOf(m.getAvailableSpace()));
 		}
 		
 		return contents;

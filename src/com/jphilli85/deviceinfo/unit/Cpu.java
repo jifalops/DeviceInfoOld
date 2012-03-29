@@ -2,12 +2,13 @@ package com.jphilli85.deviceinfo.unit;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.util.Log;
 
+import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
 //TODO exact current frequency???
@@ -48,22 +49,23 @@ public class Cpu extends Unit {
 	public int updateCpuStats() {
 		List<String> stats = ShellHelper.getProc("stat");
 		if (stats == null || stats.isEmpty()) {
-			return -1;
+			return 0;
 		}
-		long timestamp = Calendar.getInstance().getTimeInMillis();
+		long timestamp = DeviceInfo.getTimestamp();
 		String[] parts = null;
 		String line = null;
 		int updated = 0;
 		for (int i = 0; i < stats.size(); ++i) {
 			line = stats.get(i);
 			if (line.startsWith("cpu")) {
-				parts = line.split("\\s+");
+				parts = line.split("\\s+");				
 				if (parts[0].endsWith(String.valueOf(i - 1))) {
-					mLogicalCpus.get(i - 1).getCpuStat().update(parts, timestamp);
-					++updated;
+					if (mLogicalCpus.size() >= i &&
+							mLogicalCpus.get(i - 1).getCpuStat().update(parts, timestamp)) {					
+						++updated;
+					}
 				}
-				else {
-					mCpuStat.update(parts, timestamp);
+				else if (mCpuStat.update(parts, timestamp)) {
 					++updated;
 				}
 			}
@@ -111,7 +113,10 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_max_freq");
 			if (list == null || list.isEmpty()) return 0;
-			return Integer.valueOf(list.get(0)) / 1000;
+			int value = 0;
+			try { value = Integer.valueOf(list.get(0)); }
+			catch (NumberFormatException ignored) {}
+			return  value / 1000;
 		}
 		
 		/** Get the minimum frequency in MHz */
@@ -119,7 +124,10 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_min_freq");
 			if (list == null || list.isEmpty()) return 0;
-			return Integer.valueOf(list.get(0)) / 1000;
+			int value = 0;
+			try { value = Integer.valueOf(list.get(0)); }
+			catch (NumberFormatException ignored) {}
+			return  value / 1000;
 		}
 		
 		/** Get the current frequency in MHz */
@@ -127,7 +135,10 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_cur_freq");
 			if (list == null || list.isEmpty()) return 0;
-			return Integer.valueOf(list.get(0)) / 1000;
+			int value = 0;
+			try { value = Integer.valueOf(list.get(0)); }
+			catch (NumberFormatException ignored) {}
+			return  value / 1000;
 		}
 		
 		/** Get the available frequencies in MHz */
@@ -136,10 +147,16 @@ public class Cpu extends Unit {
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_frequencies");
 			if (list == null || list.isEmpty()) return null;
 			String[] results = list.get(0).split("\\s");
+			if (results == null || results.length == 0) {
+				return null;
+			}
 			int len = results.length;
 			int[] freqs = new int[len];
 			for (int i = 0; i < len; ++i) {
-				freqs[i] = Integer.valueOf(results[i]) / 1000;
+				int value = 0;
+				try { value = Integer.valueOf(results[i]); }
+				catch (NumberFormatException ignored) {}
+				freqs[i] = value / 1000;
 			}
 			return freqs;
 		}
@@ -173,7 +190,10 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_transition_latency");
 			if (list == null || list.isEmpty()) return 0;
-			return Integer.valueOf(list.get(0));
+			int value = 0;
+			try { value = Integer.valueOf(list.get(0)); }
+			catch (NumberFormatException ignored) {}
+			return  value;			
 		}
 		
 		/** Get the total number of frequency transitions */
@@ -181,7 +201,10 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/stats/total_trans");
 			if (list == null || list.isEmpty()) return 0;
-			return Integer.valueOf(list.get(0));
+			int value = 0;
+			try { value = Integer.valueOf(list.get(0)); }
+			catch (NumberFormatException ignored) {}
+			return  value;			
 		}
 		
 		/** Get the total amount of time spent in frequency transitions in seconds */
@@ -203,8 +226,14 @@ public class Cpu extends Unit {
 					Log.d(LOG_TAG, "time in state did not have exactly 2 parts.");
 					continue;
 				}
-				times[i][0] = Integer.valueOf(parts[0]) / 1000;
-				times[i][1] = Integer.valueOf(parts[1]);
+				int freq = 0, time = 0;
+				try { 
+					freq = Integer.valueOf(parts[0]) / 1000;
+					time = Integer.valueOf(parts[1]);
+				}
+				catch (NumberFormatException ignored) {}
+				times[i][0] = freq;
+				times[i][1] = time;
 			}
 			return times;
 		}
@@ -212,6 +241,7 @@ public class Cpu extends Unit {
 		/** Get the total time (in Jiffies) spent a frequency given in MHz. */
 		public int getTimeInFrequency(int frequency) {
 			int[][] times = getTimeInFrequency();
+			if (times == null || times.length == 0) return 0;
 			for (int[] f : times) {
 				if (f[0] == frequency) return f[1];
 			}
@@ -219,15 +249,19 @@ public class Cpu extends Unit {
 		}
 		
 		/** Get a list of the percentage of time spent at each frequency (in MHz) */
-		public LinkedHashMap<Integer, Float> getPercentInFrequency() {
-			LinkedHashMap<Integer, Float> percents = new LinkedHashMap<Integer, Float>();
+		public Map<Integer, Float> getPercentInFrequency() {
+			Map<Integer, Float> percents = new LinkedHashMap<Integer, Float>();
 			
 			int[][] times = getTimeInFrequency();
+			if (times == null || times.length == 0) return null;
+			
 			long total = 0;
 			
 			for (int i = 0; i < times.length; ++i) {
 				total += times[i][1];
 			}
+			
+			if (total == 0) return null;
 			
 			for (int i = 0; i < times.length; ++i) {
 				percents.put(times[i][0], (float) times[i][1] / total * 100);				
@@ -235,10 +269,23 @@ public class Cpu extends Unit {
 			
 			return percents;
 		}
+		
+		/** Get the percentage of time spent a frequency given in MHz. */
+		public float getPercentInFrequency(int frequency) {
+			Map<Integer, Float> percents = getPercentInFrequency();
+			if (percents == null || percents.size() == 0) return 0;
+
+			for (int f : percents.keySet()) {
+				if (f == frequency) return percents.get(f);
+			}
+			return 0;
+		}
 	}
 	
 	private class CpuStat {
 		private final String LOG_TAG = CpuStat.class.getSimpleName();
+		
+		public final int OVERALL_ID = -1;
 		
 		private int mId;
 		
@@ -263,7 +310,7 @@ public class Cpu extends Unit {
 		
 		public CpuStat() {
 			// The overall cpu stat.
-			mId = -1;
+			mId = OVERALL_ID;
 		}
 		
 		public CpuStat(int id) {
@@ -286,7 +333,7 @@ public class Cpu extends Unit {
 			}
 			
 			String value = "cpu";			
-			if (mId >= 0) value += mId;
+			if (mId != OVERALL_ID) value += mId;
 			
 			if (!parts[0].equals(value)) {
 				Log.d(LOG_TAG, "Tried to perform update on wrong CpuStat. Got '" 
@@ -559,14 +606,18 @@ public class Cpu extends Unit {
 		contents.put(key + " MaxFrequency (MHz)", String.valueOf(cpu.getMaxFrequency()));
 		
 		int[] freqs = cpu.getAvailableFrequencies();
-		for (int i = 0; i < freqs.length; ++i) {
-			contents.put(key + " AvailableFrequency " + i + " (MHz)", 
-				String.valueOf(freqs[i]));
+		if (freqs != null) {
+			for (int i = 0; i < freqs.length; ++i) {
+				contents.put(key + " AvailableFrequency " + i + " (MHz)", 
+					String.valueOf(freqs[i]));
+			}
 		}
 		
 		String[] govs = cpu.getAvailableGovernors();
-		for (int i = 0; i < govs.length; ++i) {
-			contents.put(key + " AvailableGovernor " + i, govs[i]);
+		if (govs != null) {
+			for (int i = 0; i < govs.length; ++i) {
+				contents.put(key + " AvailableGovernor " + i, govs[i]);
+			}
 		}
 		
 		contents.put(key + " Governor", cpu.getGovernor());
@@ -577,15 +628,19 @@ public class Cpu extends Unit {
 		contents.put(key + " TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
 		
 		int[][] times = cpu.getTimeInFrequency();
-		for (int i = 0; i < times.length; ++i) {
-			contents.put(key + " TimeInFrequency " + times[i][0] + "MHz (Jiffies (10ms))", 
-					String.valueOf(times[i][1]));					
+		if (times != null) {
+			for (int i = 0; i < times.length; ++i) {
+				contents.put(key + " TimeInFrequency " + times[i][0] + "MHz (Jiffies (10ms))", 
+						String.valueOf(times[i][1]));					
+			}
 		}
 		
-		LinkedHashMap<Integer, Float> percents = cpu.getPercentInFrequency();
-		for (int freq : percents.keySet()) {
-			contents.put(key + " PercentInFrequency " + freq + "MHz", 
-					String.valueOf(percents.get(freq)));
+		Map<Integer, Float> percents = cpu.getPercentInFrequency();
+		if (percents != null && percents.size() > 0) {
+			for (int freq : percents.keySet()) {
+				contents.put(key + " PercentInFrequency " + freq + "MHz", 
+						String.valueOf(percents.get(freq)));
+			}
 		}
 		
 		contents.putAll(getCpuStatContents(cpu.getCpuStat(), key));

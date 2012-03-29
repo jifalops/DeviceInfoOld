@@ -16,15 +16,17 @@ import com.jphilli85.deviceinfo.ShellHelper;
 public class Display extends Unit {
 	
 	// Use a shorter name
-	private final int API = Build.VERSION.SDK_INT;
+	private static final int API = Build.VERSION.SDK_INT;
 	
 	private android.view.Display mDisplay;
     private DisplayMetrics mDisplayMetrics;
 	
 	public Display(Context context) {
-		mDisplay = ((Activity) context).getWindowManager().getDefaultDisplay();
-        mDisplayMetrics = new DisplayMetrics();
-        mDisplay.getMetrics(mDisplayMetrics);     
+		mDisplay = ((Activity) context).getWindowManager().getDefaultDisplay();		
+        mDisplayMetrics = new DisplayMetrics();        
+        if (mDisplay != null) {
+        	mDisplay.getMetrics(mDisplayMetrics);
+        }
 	}
 	
 	public android.view.Display getDisplay() {
@@ -37,35 +39,36 @@ public class Display extends Unit {
 	
 	/** Get the logical density */
 	public float getDensity() {
-		return mDisplayMetrics.density;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.density;
 	}
 	
 	public int getDensityDpi() {
-		return mDisplayMetrics.densityDpi;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.densityDpi;
 	}
 	
 	public int getHeight() {
-		return mDisplayMetrics.heightPixels;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.heightPixels;
 	}
 	
 	public float getScaledDensity() {
-		return mDisplayMetrics.scaledDensity;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.scaledDensity;
 	}
 	
 	public int getWidth() {
-		return mDisplayMetrics.widthPixels;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.widthPixels;
 	}
 	
 	public float getXDpi() {
-		return mDisplayMetrics.xdpi;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.xdpi;
 	}
 	
 	public float getYDpi() {
-		return mDisplayMetrics.ydpi;
+		return mDisplayMetrics == null ? 0 : mDisplayMetrics.ydpi;
 	}
 	
 	// TODO put strings in resources to support multiple languages
 	public String getDensityDpiString() {
+		if (mDisplayMetrics == null) return null;
 		int dpi = mDisplayMetrics.densityDpi;
 		if (dpi == DisplayMetrics.DENSITY_LOW) return "DENSITY_LOW";
 		else if (dpi == DisplayMetrics.DENSITY_MEDIUM) return "DENSITY_MEDIUM";
@@ -77,28 +80,33 @@ public class Display extends Unit {
 	
 	
 	public float getWidthInches() {
-		return mDisplayMetrics.widthPixels / mDisplayMetrics.xdpi;
+		return mDisplayMetrics == null ? 0 
+				: mDisplayMetrics.widthPixels / mDisplayMetrics.xdpi;
 	}
 	
 	public float getHeightInches() {
-		return mDisplayMetrics.heightPixels / mDisplayMetrics.ydpi;
+		return mDisplayMetrics == null ? 0 
+				: mDisplayMetrics.heightPixels / mDisplayMetrics.ydpi;
 	}
 	
-	public double getDiagonal() {
-		return Math.sqrt(Math.pow(mDisplayMetrics.widthPixels, 2) 
-				+ Math.pow(mDisplayMetrics.heightPixels, 2));
+	public float getDiagonal() {
+		return mDisplayMetrics == null ? 0 
+				: (float) (Math.sqrt(Math.pow(mDisplayMetrics.widthPixels, 2) 
+				+ Math.pow(mDisplayMetrics.heightPixels, 2)));
 	}
 	
-	public double getDiagonalInches() {
-        return Math.sqrt(Math.pow(getWidthInches(), 2) 
-        		+ Math.pow(getHeightInches(), 2));
+	public float getDiagonalInches() {
+        return mDisplayMetrics == null ? 0 
+        		: (float) (Math.sqrt(Math.pow(getWidthInches(), 2) 
+        		+ Math.pow(getHeightInches(), 2)));
     }
 	
 	public float getRefreshRate() { 
-		return mDisplay.getRefreshRate(); 
+		return mDisplay == null ? 0 : mDisplay.getRefreshRate(); 
 	}
 
     public int getRotation() { 
+    	if (mDisplay == null) return 0; 
         if (API < 8) return mDisplay.getOrientation();
         else return mDisplay.getRotation();
     }
@@ -109,11 +117,13 @@ public class Display extends Unit {
     }
     
     public int getPixelFormat() {
-    	return mDisplay.getPixelFormat();
+    	return mDisplay == null ? 0 : mDisplay.getPixelFormat();
     }
 
     // TODO ui facing strings, put in graphics
     public String getPixelFormatString() {
+    	if (mDisplay == null) return null;
+    	
     	int format = mDisplay.getPixelFormat();
     	
         if (API < 8) {
@@ -147,12 +157,15 @@ public class Display extends Unit {
     // TODO touch test
     public int getMaxSimultaneousTouch() {
     	String s = ShellHelper.getProp("ro.product.max_num_touch");
-    	if (s == null || !s.matches("[0-9]{2}")) return -1;
-    	return Integer.valueOf(s);
+    	if (s == null || !s.matches("[0-9]{1,4}")) return 0;
+    	int value = 0;
+    	try { value = Integer.valueOf(s); }
+    	catch (NumberFormatException ignored) {}    	
+    	return value;
     }
     
     public boolean isTouchScreen(Context context) {
-        Configuration config = context.getResources().getConfiguration();            
+        Configuration config = context.getResources().getConfiguration(); 
         return (config.touchscreen == Configuration.TOUCHSCREEN_FINGER ||
                 config.touchscreen == Configuration.TOUCHSCREEN_STYLUS);            
     }

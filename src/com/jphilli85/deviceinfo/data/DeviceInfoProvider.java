@@ -92,9 +92,9 @@ public class DeviceInfoProvider extends ContentProvider {
         			+ sg + "." + Subgroup.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_SUBGROUP_ID);
         	queryBuilder.appendWhere(" " + sgg + "." + SubgroupGroup.COL_GROUP_ID + "="
                     + uri.getLastPathSegment());
-        	if (selection == null || selection.isEmpty())
+        	if (selection == null || selection.length() == 0)
         		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
-        	if (sortOrder == null || sortOrder.isEmpty())
+        	if (sortOrder == null || sortOrder.length() == 0)
         		sortOrder = sgg + "." + SubgroupGroup.COL_INDEX + " ASC";
         	break;
         case GROUP_NAME:        	
@@ -103,9 +103,9 @@ public class DeviceInfoProvider extends ContentProvider {
         			+ " AND " + g + "." + Group.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_GROUP_ID);
         	queryBuilder.appendWhere(" " + g + "." + Group.COL_NAME + "="
                     + uri.getLastPathSegment());
-        	if (selection == null || selection.isEmpty())
+        	if (selection == null || selection.length() == 0)
         		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
-        	if (sortOrder == null || sortOrder.isEmpty())
+        	if (sortOrder == null || sortOrder.length() == 0)
         		sortOrder = sgg + "." + SubgroupGroup.COL_INDEX + " ASC";
         	break;
         case SUBGROUP:

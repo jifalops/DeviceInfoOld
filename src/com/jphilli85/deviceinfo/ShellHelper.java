@@ -48,7 +48,7 @@ public class ShellHelper {
             while ((s = stdInput.readLine()) != null) {
             	if (trimOutput)	{
             		s = s.trim();
-            		if (!s.isEmpty()) list.add(s);
+            		if (s.length() != 0) list.add(s);
             	}
             	else list.add(s);
             }
@@ -70,7 +70,7 @@ public class ShellHelper {
     public static List<String> cat(String filename) {    	
     	File f = new File(filename); 
     	if (!f.exists() || f.isDirectory()) return null;
-		List<String> list = null;                       
+		List<String> list = new ArrayList<String>();                       
         try { list = exec("cat " + f.getAbsolutePath()); }
         catch (IOException ignored) {}
         catch (SecurityException ignored) {}
@@ -106,11 +106,12 @@ public class ShellHelper {
     }
     
     public static String getProp(String prop) {
-        if (prop == null || prop.isEmpty()) return null;        
+        if (prop == null || prop.length() == 0) return null;        
         String s = null;         
         try { s = exec("getprop " + prop).get(0).trim(); }
         catch (IOException ignored) {}
         catch (SecurityException ignored) {}
+        catch (IndexOutOfBoundsException ignored) {}
         return s;           
     }
 

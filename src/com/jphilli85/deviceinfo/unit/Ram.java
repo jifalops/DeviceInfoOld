@@ -4,15 +4,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.util.Log;
+
 import com.jphilli85.deviceinfo.ShellHelper;
 
 public class Ram extends Unit {
+	private static final String LOG_TAG = Ram.class.getSimpleName();
+	
 	private LinkedHashMap<String, String> mMeminfo;
 	
 	public Ram() {
 		mMeminfo = new LinkedHashMap<String, String>();
 		if (!updateMeminfo()) {
-			throw new RuntimeException("Error reading from '/proc/meminfo'."); 
+			Log.e(LOG_TAG, "Error reading from '/proc/meminfo'."); 
 		}			
 	}
 	
@@ -25,7 +29,7 @@ public class Ram extends Unit {
         for (String s : meminfo) {
         	parts = s.split(":");
         	if (parts.length != 2) continue;
-        	mMeminfo.put(parts[0], parts[1]);
+        	mMeminfo.put(parts[0].trim(), parts[1].trim());
         }
         return !mMeminfo.isEmpty();
     }
