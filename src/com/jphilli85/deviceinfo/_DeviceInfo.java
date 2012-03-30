@@ -1,3 +1,4 @@
+package com.jphilli85.deviceinfo;
 ///*
 // * Copyright (C) 2011 Jacob Phillips
 // *

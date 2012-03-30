@@ -2,40 +2,38 @@ package com.jphilli85.deviceinfo.unit;
 
 import java.util.LinkedHashMap;
 
-import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
-import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 
-public class Graphics extends Unit {
+public class Graphics extends Unit implements GLSurfaceView.Renderer {
 
-	private GL10 mGL;
+	public interface OnGLSurfaceViewCreatedListener {
+		void onGLSurfaceViewCreated();
+	}
 	
-	public Graphics() {
-		
-		EGL10 egl = (EGL10) EGLContext.getEGL();
-		EGLDisplay disp = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
-		egl.eglInitialize(disp, new int[] {1, 0});
-		int[] configSpec = {EGL10.EGL_NONE};
-		EGLConfig[] config = new EGLConfig[1];
-		int num_configs[] = new int[1];
-		egl.eglChooseConfig(disp, configSpec, config, 1, num_configs);		
-		
-		EGLContext eglContext = egl.eglCreateContext(
-				disp, 
-				config[0], 
-				EGL10.EGL_NO_CONTEXT, 
-				null);
-		mGL = (GL10) eglContext.getGL();
-		
-		EGLSurface draw = new EGLSurface() {};
-		EGLSurface read = new EGLSurface() {};
-		
-		//egl.eglMakeCurrent(disp, draw, read, eglContext);
+	private GL10 mGL;
+	private OnGLSurfaceViewCreatedListener mListener;
+	
+	private String mRenderer;
+	private String mVersion;
+	private String mVendor;
+	private String mMaxTextureSize;
+	private String mMaxTextureUnits;
+	private String mMaxTextureStackDepth;
+	private String mExtensions;
+	
+	public Graphics(GLSurfaceView surfaceView) {
+		mListener = null;
+		surfaceView.setEGLContextClientVersion(2);
+		surfaceView.setRenderer(this);
+		surfaceView.onResume();
+	}
+	
+	public void setOnGLSurfaceViewCreatedListener(OnGLSurfaceViewCreatedListener l) {
+		mListener = l;
 	}
 
 	public float getOpenglVersion() {
@@ -44,35 +42,57 @@ public class Graphics extends Unit {
 	
 	
 	public String getRenderer() {
-		return mGL.glGetString(GL10.GL_RENDERER);
+		return mRenderer;
 	}
 	
 	public String getVersion() {
-		return mGL.glGetString(GL10.GL_VERSION);
+		return mVersion;
 	}
 	
 	public String getVendor() {
-		return mGL.glGetString(GL10.GL_VENDOR);
+		return mVendor;
 	}
 	
 	public String getMaxTextureSize() {
-		return mGL.glGetString(GL10.GL_MAX_TEXTURE_SIZE);
+		return mMaxTextureSize;
 	}
 	
 	public String getMaxTextureUnits() {
-		return mGL.glGetString(GL10.GL_MAX_TEXTURE_UNITS);
+		return mMaxTextureUnits;
 	}
 	
 	public String getMaxTextureStackDepth() {
-		return mGL.glGetString(GL10.GL_MAX_TEXTURE_STACK_DEPTH);
+		return mMaxTextureStackDepth;
 	}
 	
 	public String getExtensions() {
-		return mGL.glGetString(GL10.GL_EXTENSIONS);
+		return mExtensions;
 	}
 	
 	
 	
+	@Override
+	public void onDrawFrame(GL10 gl) {
+
+	}
+
+	@Override
+	public void onSurfaceChanged(GL10 gl, int width, int height) {
+
+	}
+
+	@Override
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		mRenderer = gl.glGetString(GL10.GL_RENDERER);
+		mVersion = gl.glGetString(GL10.GL_VERSION);
+		mVendor = gl.glGetString(GL10.GL_VENDOR);
+		mMaxTextureSize = gl.glGetString(GL10.GL_MAX_TEXTURE_SIZE);
+		mMaxTextureUnits = gl.glGetString(GL10.GL_MAX_TEXTURE_UNITS);
+		mMaxTextureStackDepth = gl.glGetString(GL10.GL_MAX_TEXTURE_STACK_DEPTH);
+		mExtensions = gl.glGetString(GL10.GL_EXTENSIONS);
+		
+		if (mListener != null) mListener.onGLSurfaceViewCreated();
+	}
 	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
