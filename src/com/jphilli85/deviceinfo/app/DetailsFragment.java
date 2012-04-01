@@ -14,7 +14,6 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,6 +22,8 @@ import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
+import com.jphilli85.deviceinfo.unit.Audio;
+import com.jphilli85.deviceinfo.unit.Camera;
 import com.jphilli85.deviceinfo.unit.Cpu;
 import com.jphilli85.deviceinfo.unit.Display;
 import com.jphilli85.deviceinfo.unit.Graphics;
@@ -104,6 +105,7 @@ public class DetailsFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    	if (cursor == null) return;
     	if (DeviceInfo.DEBUG) dumpResult(cursor);
     	if (!cursor.moveToFirst()) return;  
     	do {
@@ -127,26 +129,24 @@ public class DetailsFragment extends Fragment implements
     
     private void loadSubgroup(final String name) {
     	Unit unit = null;
-    	GLSurfaceView glView = new GLSurfaceView(getActivity());
-    	final Graphics graphics = new Graphics(glView);
+
     	
     	if (name.equals(Subgroup.SUBGROUP_CPU)) {
     		unit = new Cpu();
     		((Cpu) unit).updateCpuStats();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_DISPLAY)) {
-    		unit = new Display(getActivity());    		
+//    		unit = new Display(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_GRAPHICS)) {
-//    		GLSurfaceView glView = new GLSurfaceView(getActivity());
+        	GLSurfaceView glView = new GLSurfaceView(getActivity());
+        	final Graphics graphics = new Graphics(glView);
     		OnGLSurfaceViewCreatedListener listener = new OnGLSurfaceViewCreatedListener() {
 				@Override
 				public void onGLSurfaceViewCreated() {
 					showContents(graphics, name);
 				}
 			};
-//    		unit = new Graphics(glView);    
-//    		((Graphics) unit).setOnGLSurfaceViewCreatedListener(listener);
 			graphics.setOnGLSurfaceViewCreatedListener(listener);
     		mLayout.addView(glView);
     	}
@@ -155,6 +155,12 @@ public class DetailsFragment extends Fragment implements
     	}
     	else if (name.equals(Subgroup.SUBGROUP_STORAGE)) {
     		unit = new Storage();    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_AUDIO)) {
+//    		unit = new Audio(getActivity());    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_CAMERA)) {
+//    		unit = new Camera(getActivity());    		
     	}
     	else {
     		unit = null;
@@ -172,16 +178,17 @@ public class DetailsFragment extends Fragment implements
 		for (String s : contents.keySet()) {
 			tv.append(s + ": " + contents.get(s) + "\n");
 		}
+		if (mLayout == null) return;
 		mLayout.post(new Runnable() {			
 			@Override
-			public void run() {
+			public void run() {				
 				mLayout.addView(tv);
 			}
 		});
     }
     
-    private void dumpResult(Cursor c) {
-    	if (!c.moveToFirst()) return;    	   
+    private void dumpResult(Cursor c) {    	
+    	if (c == null || !c.moveToFirst() || mLayout == null) return;    	   
     	
     	String rows = getShownIndex() + "\n";
     	

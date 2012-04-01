@@ -13,7 +13,13 @@ import android.os.Build;
 
 // TODO use multiple egl contexts (1 gives different results than 2,
 // even if still using GLES20 methods.
+
+// TODO more values & limits
 public class Graphics extends Unit implements GLSurfaceView.Renderer {
+	public static final float OPENGLES_VERSION_10 = 1.0f;
+	public static final float OPENGLES_VERSION_11 = 1.1f;
+	public static final float OPENGLES_VERSION_20 = 2.0f;
+	
 
 	public interface OnGLSurfaceViewCreatedListener {
 		void onGLSurfaceViewCreated();
@@ -23,8 +29,10 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 
 	private OnGLSurfaceViewCreatedListener mListener;
 	private OpenGles mOpenGles;
+	private GLSurfaceView mSurfaceView;
 	
 	public Graphics(GLSurfaceView surfaceView) {
+		mSurfaceView = surfaceView;
 		mOpenGlesVersion = findOpenGlesVersion();	
 		mListener = null;
 
@@ -60,9 +68,9 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 			gles20 = false;
 		}
 		
-		if (gles10) ver = 1.0f;
-		if (gles11) ver = 1.1f;
-		if (gles20) ver = 2.0f;
+		if (gles10) ver = OPENGLES_VERSION_10;
+		if (gles11) ver = OPENGLES_VERSION_11;
+		if (gles20) ver = OPENGLES_VERSION_20;
 		
 		return ver;
 	}
@@ -121,11 +129,11 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 		
 		protected int getInt(int glConst) {
 			int[] placeholder = {0};		
-			if (mOpenGlesVersion == 1.0) 
+			if (mOpenGlesVersion == OPENGLES_VERSION_10) 
 				GLES10.glGetIntegerv(glConst, placeholder, 0);
-			else if (mOpenGlesVersion == 1.1) 
+			else if (mOpenGlesVersion == OPENGLES_VERSION_11) 
 				GLES11.glGetIntegerv(glConst, placeholder, 0);
-			else if (mOpenGlesVersion == 2.0) 
+			else if (mOpenGlesVersion == OPENGLES_VERSION_20) 
 				GLES20.glGetIntegerv(glConst, placeholder, 0);
 			return placeholder[0];
 		}
@@ -221,11 +229,14 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		if (mOpenGlesVersion == 1.0) mOpenGles = new OpenGles10();
-		else if (mOpenGlesVersion == 1.1) mOpenGles = new OpenGles11();
-		else if (mOpenGlesVersion == 2.0) mOpenGles = new OpenGles20();
+		if (mOpenGlesVersion == OPENGLES_VERSION_10) mOpenGles = new OpenGles10();
+		else if (mOpenGlesVersion == OPENGLES_VERSION_11) mOpenGles = new OpenGles11();
+		else if (mOpenGlesVersion == OPENGLES_VERSION_20) mOpenGles = new OpenGles20();
 
+		// Let the caller know the surface has been created.
 		if (mListener != null) mListener.onGLSurfaceViewCreated();
+		// No intention of drawing anything, just gathering info.
+		mSurfaceView.onPause();
 	}
 	
 	@Override
