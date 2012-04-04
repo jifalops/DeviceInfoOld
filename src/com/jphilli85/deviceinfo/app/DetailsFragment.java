@@ -23,6 +23,8 @@ import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 import com.jphilli85.deviceinfo.unit.Audio;
+import com.jphilli85.deviceinfo.unit.Battery;
+import com.jphilli85.deviceinfo.unit.Battery.OnBatteryChangedListener;
 import com.jphilli85.deviceinfo.unit.Camera;
 import com.jphilli85.deviceinfo.unit.Cpu;
 import com.jphilli85.deviceinfo.unit.Display;
@@ -39,7 +41,7 @@ public class DetailsFragment extends Fragment implements
 	
 	private LinearLayout mLayout;
 	private Map<String, String> mSubgroups;
-	
+	private GLSurfaceView mGLSurfaceView;
 
 	/**
      * Create a new instance of DetailsFragment, initialized to
@@ -81,9 +83,9 @@ public class DetailsFragment extends Fragment implements
 	}
 	
 	@Override
-	public void onResume() {	
-		super.onResume();
-		
+	public void onPause() {
+		super.onPause();
+		if (mGLSurfaceView != null) mGLSurfaceView.onPause();
 	}
 	
 	@Override
@@ -136,11 +138,11 @@ public class DetailsFragment extends Fragment implements
     		((Cpu) unit).updateCpuStats();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_DISPLAY)) {
-//    		unit = new Display(getActivity());    		
+    		unit = new Display(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_GRAPHICS)) {
-        	GLSurfaceView glView = new GLSurfaceView(getActivity());
-        	final Graphics graphics = new Graphics(glView);
+        	mGLSurfaceView = new GLSurfaceView(getActivity());
+        	final Graphics graphics = new Graphics(mGLSurfaceView);
     		OnGLSurfaceViewCreatedListener listener = new OnGLSurfaceViewCreatedListener() {
 				@Override
 				public void onGLSurfaceViewCreated() {
@@ -148,7 +150,7 @@ public class DetailsFragment extends Fragment implements
 				}
 			};
 			graphics.setOnGLSurfaceViewCreatedListener(listener);
-    		mLayout.addView(glView);
+    		if (mLayout != null) mLayout.addView(mGLSurfaceView);
     	}
     	else if (name.equals(Subgroup.SUBGROUP_RAM)) {
     		unit = new Ram();    		
@@ -157,17 +159,30 @@ public class DetailsFragment extends Fragment implements
     		unit = new Storage();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_AUDIO)) {
-//    		unit = new Audio(getActivity());    		
+    		unit = new Audio(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_CAMERA)) {
-//    		unit = new Camera(getActivity());    		
+    		unit = new Camera(getActivity());    		
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_BATTERY)) {
+    		final Battery battery = new Battery(getActivity());
+    		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
+				@Override
+				public void onBatteryChanged() {
+					// check if this is running on ui thread.
+					if (mLayout != null) mLayout.addView(new View(getActivity()));
+					
+					showContents(battery, name);
+				}
+			});
+    		battery.startReceiving();
     	}
     	else {
     		unit = null;
     	}
     	
-    	
-    	if (unit != null && !(unit instanceof Graphics)) {
+    	if (unit != null && !(unit instanceof Graphics) 
+    			 && !(unit instanceof Battery)) {
 	    	showContents(unit, name);
     	}
     }

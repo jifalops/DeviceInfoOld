@@ -228,7 +228,7 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 	}
 
 	@Override
-	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {		
 		if (mOpenGlesVersion == OPENGLES_VERSION_10) mOpenGles = new OpenGles10();
 		else if (mOpenGlesVersion == OPENGLES_VERSION_11) mOpenGles = new OpenGles11();
 		else if (mOpenGlesVersion == OPENGLES_VERSION_20) mOpenGles = new OpenGles20();
@@ -236,7 +236,7 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 		// Let the caller know the surface has been created.
 		if (mListener != null) mListener.onGLSurfaceViewCreated();
 		// No intention of drawing anything, just gathering info.
-		mSurfaceView.onPause();
+		//mSurfaceView.onPause();
 	}
 	
 	@Override
