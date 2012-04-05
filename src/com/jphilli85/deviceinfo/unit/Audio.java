@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
@@ -120,6 +121,7 @@ public class Audio extends Unit {
 		return mAudioManager.isBluetoothA2dpOn();
 	}
 	
+	@SuppressLint("NewApi")
 	public boolean isBluetoothScoAvailableOffCall() {
 		return API >= 8 && mAudioManager.isBluetoothScoAvailableOffCall();
 	}

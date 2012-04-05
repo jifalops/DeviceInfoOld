@@ -1,16 +1,15 @@
 package com.jphilli85.deviceinfo.app;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.app.GroupListFragment.OnGroupSelectedListener;
 import com.jphilli85.deviceinfo.data.DeviceInfoDatabaseHelper;
 
-public class DeviceInfoActivity extends FragmentActivity implements 
+public class DeviceInfoActivity extends SherlockFragmentActivity implements 
 		OnGroupSelectedListener {
 
 	private SQLiteDatabase mDatabase;

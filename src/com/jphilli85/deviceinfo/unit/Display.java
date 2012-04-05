@@ -2,6 +2,7 @@ package com.jphilli85.deviceinfo.unit;
 
 import java.util.LinkedHashMap;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -105,7 +106,8 @@ public class Display extends Unit {
 		return mDisplay == null ? 0 : mDisplay.getRefreshRate(); 
 	}
 
-    public int getRotation() { 
+    @SuppressLint("NewApi")
+	public int getRotation() { 
     	if (mDisplay == null) return 0; 
         if (API < 8) return mDisplay.getOrientation();
         else return mDisplay.getRotation();

@@ -7,16 +7,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
@@ -31,10 +32,11 @@ import com.jphilli85.deviceinfo.unit.Display;
 import com.jphilli85.deviceinfo.unit.Graphics;
 import com.jphilli85.deviceinfo.unit.Graphics.OnGLSurfaceViewCreatedListener;
 import com.jphilli85.deviceinfo.unit.Ram;
+import com.jphilli85.deviceinfo.unit.Sensors;
 import com.jphilli85.deviceinfo.unit.Storage;
 import com.jphilli85.deviceinfo.unit.Unit;
 
-public class DetailsFragment extends Fragment implements
+public class DetailsFragment extends SherlockFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	
 	private static final int SUBGROUP_LOADER = 1;
@@ -169,13 +171,18 @@ public class DetailsFragment extends Fragment implements
     		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
 				@Override
 				public void onBatteryChanged() {
-					// check if this is running on ui thread.
-					if (mLayout != null) mLayout.addView(new View(getActivity()));
-					
+					// Called on UI thread										
 					showContents(battery, name);
+					ImageView iv = new ImageView(getActivity());
+					iv.setImageResource(battery.getReceiver().getIconResourceId());
+					if (mLayout != null) mLayout.addView(iv);
 				}
 			});
     		battery.startReceiving();
+    	}
+    	else if (name.equals(Subgroup.SUBGROUP_SENSORS)) {
+    		unit = new Sensors(getActivity(), null);	
+    		((Sensors) unit).startListening();
     	}
     	else {
     		unit = null;
@@ -187,19 +194,19 @@ public class DetailsFragment extends Fragment implements
     	}
     }
     
-    private void showContents(Unit unit, String name) {
-    	Map<String, String> contents = unit.getContents();
-		final TextView tv = new DetailsTextView(getActivity(), name + "\n");
-		for (String s : contents.keySet()) {
-			tv.append(s + ": " + contents.get(s) + "\n");
-		}
+    private void showContents(final Unit unit, final String name) {
 		if (mLayout == null) return;
-		mLayout.post(new Runnable() {			
+		mLayout.postDelayed(new Runnable() {			
 			@Override
-			public void run() {				
+			public void run() {		
+				Map<String, String> contents = unit.getContents();
+				final TextView tv = new DetailsTextView(getActivity(), name + "\n");
+				for (String s : contents.keySet()) {
+					tv.append(s + ": " + contents.get(s) + "\n");
+				}
 				mLayout.addView(tv);
 			}
-		});
+		}, 2000);
     }
     
     private void dumpResult(Cursor c) {    	

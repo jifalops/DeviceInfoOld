@@ -28,6 +28,8 @@ public class DeviceInfoProvider extends ContentProvider {
     public static final int SUBGROUP_NAME = 8;
     /** Get all the mappings of subgroups to groups */
     public static final int SUBGROUPGROUP = 5; 
+    /** Get a custom list of groups and subgroups */
+    public static final int COMBINATION = 9; 
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -38,7 +40,8 @@ public class DeviceInfoProvider extends ContentProvider {
         sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME, SUBGROUP);
         sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME + "/#", SUBGROUP_ID);
         sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Subgroup.TABLE_NAME + "/*", SUBGROUP_NAME);
-        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);  
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, SubgroupGroup.TABLE_NAME, SUBGROUPGROUP);
+        sUriMatcher.addURI(DeviceInfoContract.AUTHORITY, Combination.TABLE_NAME + "/*", COMBINATION);  
     }
 
     @Override
@@ -64,6 +67,8 @@ public class DeviceInfoProvider extends ContentProvider {
         	return Subgroup.CONTENT_ITEM_TYPE;
         case SUBGROUPGROUP:
         	return SubgroupGroup.CONTENT_TYPE;
+        case COMBINATION:
+        	return Combination.CONTENT_TYPE;
         default:
             return null;
         }
@@ -75,10 +80,12 @@ public class DeviceInfoProvider extends ContentProvider {
 
     	final String g = Group.TABLE_NAME;
     	final String sg = Subgroup.TABLE_NAME;
-    	final String sgg = SubgroupGroup.TABLE_NAME;    	
+    	final String sgg = SubgroupGroup.TABLE_NAME;    
+    	
+    	final String lastSegment = uri.getLastPathSegment();
     	
     	// Last path segment contains invalid characters
-    	if (!uri.getLastPathSegment().matches("[0-9a-zA-Z_]+")) return null;
+    	if (!lastSegment.matches("[0-9a-zA-Z_,]+")) return null;
     	
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         
@@ -91,7 +98,7 @@ public class DeviceInfoProvider extends ContentProvider {
         	queryBuilder.setTables(sg + " INNER JOIN " + sgg + " ON " 
         			+ sg + "." + Subgroup.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_SUBGROUP_ID);
         	queryBuilder.appendWhere(" " + sgg + "." + SubgroupGroup.COL_GROUP_ID + "="
-                    + uri.getLastPathSegment());
+                    + lastSegment);
         	if (selection == null || selection.length() == 0)
         		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
         	if (sortOrder == null || sortOrder.length() == 0)
@@ -102,7 +109,7 @@ public class DeviceInfoProvider extends ContentProvider {
         			+ sg + "." + Subgroup.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_SUBGROUP_ID 
         			+ " AND " + g + "." + Group.COL_ID + "=" + sgg + "." + SubgroupGroup.COL_GROUP_ID);
         	queryBuilder.appendWhere(" " + g + "." + Group.COL_NAME + "="
-                    + uri.getLastPathSegment());
+                    + lastSegment);
         	if (selection == null || selection.length() == 0)
         		queryBuilder.appendWhere(" AND " + sg + "." + Subgroup.COL_HIDDEN + "=0");
         	if (sortOrder == null || sortOrder.length() == 0)
@@ -114,16 +121,20 @@ public class DeviceInfoProvider extends ContentProvider {
         case SUBGROUP_ID:        	
         	queryBuilder.setTables(sg);
         	queryBuilder.appendWhere(Subgroup.COL_ID + "="
-                    + uri.getLastPathSegment());
+                    + lastSegment);
         	break;
         case SUBGROUP_NAME:     
         	queryBuilder.setTables(sg);
         	queryBuilder.appendWhere(Subgroup.COL_NAME + "="
-                    + uri.getLastPathSegment());
+                    + lastSegment);
         	break;
         case SUBGROUPGROUP:
         	queryBuilder.setTables(sgg);
-        	break;        
+        	break; 
+        case COMBINATION:
+        	// not supported yet
+        	return null;
+        	//break;  
         default:
         	throw new IllegalArgumentException(LOG_TAG + ": Unknown URI " + uri);
         }
@@ -146,7 +157,7 @@ public class DeviceInfoProvider extends ContentProvider {
 //                    selection, selectionArgs);
 //            break;
 //        case TUTORIAL_ID:
-//            String id = uri.getLastPathSegment();
+//            String id = lastSegment;
 //            if (TextUtils.isEmpty(selection)) {
 //                rowsAffected = sqlDB.delete(TutListDatabase.TABLE_TUTORIALS,
 //                        TutListDatabase.ID + "=" + id, null);
@@ -198,7 +209,7 @@ public class DeviceInfoProvider extends ContentProvider {
 //
 //        switch (uriType) {
 //        case TUTORIAL_ID:
-//            String id = uri.getLastPathSegment();
+//            String id = lastSegment;
 //            StringBuilder modSelection = new StringBuilder(TutListDatabase.ID
 //                    + "=" + id);
 //

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera.CameraInfo;
@@ -18,6 +19,7 @@ public class Camera extends Unit {
 	private final List<CameraWrapper> mCameras;
 	private final int mNumCameras;
 	
+	@SuppressLint({ "NewApi", "NewApi" })
 	public Camera(Context context) {
 		mCameras = new ArrayList<CameraWrapper>();
 		
@@ -47,6 +49,7 @@ public class Camera extends Unit {
 		releaseCameras();
 	}
 	
+	@SuppressLint("NewApi")
 	private android.hardware.Camera getCamera(int id) {
 		android.hardware.Camera c = null;
 	    try {

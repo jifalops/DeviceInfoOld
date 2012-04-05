@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -15,12 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.R.id;
-import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract;
 
-public class GroupListFragment extends ListFragment implements
+public class GroupListFragment extends SherlockListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 
 	/** Interface for communication with container Activity. */

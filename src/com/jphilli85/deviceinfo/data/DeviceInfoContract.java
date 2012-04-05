@@ -122,4 +122,22 @@ public final class DeviceInfoContract {
 	     */ 
 	    public static final String COL_INDEX = "index_";
 	}
+	
+	/**
+     * Custom combination of Groups and Subgroups
+     * 
+     * Content Uris should take the form of:<br>
+     * CONTENT_URI + (GROUP_KEY|SUBGROUP_KEY)id[,(GROUP_KEY|SUBGROUP_KEY)id]... such as<br>
+     * "content://com.jphilli85.deviceinfo/combination/g3,e2,g6,g7,e26,e12"
+     */ 
+	public static final class Combination {
+		private Combination() { /* Not instantiable */ }
+		
+		/** Not an actual table */
+		public static final String TABLE_NAME = "combination";
+	    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + TABLE_NAME);	  
+	    public static final String CONTENT_TYPE = AUTHORITY + ".cursor/combination";
+	    public static final String GROUP_KEY = "g_";
+	    public static final String SUBGROUP_KEY = "s_";
+	}
 }
