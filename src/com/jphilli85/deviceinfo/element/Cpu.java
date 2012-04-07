@@ -1,18 +1,23 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import android.util.Log;
 
+import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
 //TODO exact current frequency???
-public class Cpu extends Unit {
+public class Cpu implements ContentsMapper {
+	
+	
+	
 	private List<String> mCpuinfo;
 	private List<LogicalCpu> mLogicalCpus;
 	private CpuStat mCpuStat;
@@ -75,7 +80,7 @@ public class Cpu extends Unit {
 	
 	
 	
-	private class LogicalCpu {
+	public class LogicalCpu implements ContentsMapper {
 		private final String LOG_TAG = LogicalCpu.class.getSimpleName();
 		
 //		public final float bogoMips;
@@ -146,7 +151,7 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_frequencies");
 			if (list == null || list.isEmpty()) return null;
-			String[] results = list.get(0).split("\\s");
+			String[] results = list.get(0).split("\\s+");
 			if (results == null || results.length == 0) {
 				return null;
 			}
@@ -166,7 +171,7 @@ public class Cpu extends Unit {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_governors");
 			if (list == null || list.isEmpty()) return null;
-			return list.get(0).split("\\s");
+			return list.get(0).split("\\s+");
 		}
 		
 		/** Get the current governor */
@@ -221,7 +226,7 @@ public class Cpu extends Unit {
 			int[][] times = new int[len][2];
 			String[] parts = null;
 			for (int i = 0; i < len; ++i) {
-				parts = list.get(i).split("\\s");
+				parts = list.get(i).split("\\s+");
 				if (parts.length != 2) {
 					Log.d(LOG_TAG, "time in state did not have exactly 2 parts.");
 					continue;
@@ -280,9 +285,66 @@ public class Cpu extends Unit {
 			}
 			return 0;
 		}
+
+		@Override
+		public LinkedHashMap<String, String> getContents() {
+			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+			LinkedHashMap<String, String> subcontents;
+			
+			contents.put("ID", String.valueOf(getId()));
+			contents.put("Root", getRoot().getAbsolutePath());
+			contents.put("Frequency (MHz)", String.valueOf(getFrequency()));
+			contents.put("MinFrequency (MHz)", String.valueOf(getMinFrequency()));
+			contents.put("MaxFrequency (MHz)", String.valueOf(getMaxFrequency()));
+			
+			int[] freqs = getAvailableFrequencies();
+			if (freqs != null) {
+				for (int i = 0; i < freqs.length; ++i) {
+					contents.put("AvailableFrequency " + i + " (MHz)", 
+						String.valueOf(freqs[i]));
+				}
+			}
+			
+			String[] govs = getAvailableGovernors();
+			if (govs != null) {
+				for (int i = 0; i < govs.length; ++i) {
+					contents.put("AvailableGovernor " + i, govs[i]);
+				}
+			}
+			
+			contents.put("Governor", getGovernor());
+			contents.put("Driver", getDriver());
+			contents.put("TransitionLatency (ns)", String.valueOf(getTransitionLatency()));
+			contents.put("TotalTransitions", String.valueOf(getTotalTransitions()));
+			contents.put("TimeInTransitions (s)", String.valueOf(getTimeInTransitions()));
+			contents.put("TimeInTransitions (s)", String.valueOf(getTimeInTransitions()));
+			
+			int[][] times = getTimeInFrequency();
+			if (times != null) {
+				for (int i = 0; i < times.length; ++i) {
+					contents.put("TimeInFrequency " + times[i][0] + "MHz (Jiffies (10ms))", 
+							String.valueOf(times[i][1]));					
+				}
+			}
+			
+			Map<Integer, Float> percents = getPercentInFrequency();
+			if (percents != null && percents.size() > 0) {
+				for (int freq : percents.keySet()) {
+					contents.put("PercentInFrequency " + freq + "MHz", 
+							String.valueOf(percents.get(freq)));
+				}
+			}
+			
+			subcontents = getCpuStat().getContents();
+			for (Entry<String, String> e : subcontents.entrySet()) {
+				contents.put("CpuStat " + e.getKey(), e.getValue());
+			}
+			
+			return contents;
+		}
 	}
 	
-	private class CpuStat {
+	public class CpuStat implements ContentsMapper {
 		private final String LOG_TAG = CpuStat.class.getSimpleName();
 		
 		public final int OVERALL_ID = -1;
@@ -297,7 +359,7 @@ public class Cpu extends Unit {
 		private long mIoWait = 0;
 		private long mIntr = 0;
 		private long mSoftIrq = 0;		
-		// The other two fields, Steal and Guest seem to always be zero.
+		// The other two fields, Steal and Guest, seem to always be zero.
 		
 		private long mTimestampPrevious = 0;
 		private long mUserPrevious = 0;
@@ -307,6 +369,15 @@ public class Cpu extends Unit {
 		private long mIoWaitPrevious = 0;
 		private long mIntrPrevious = 0;
 		private long mSoftIrqPrevious = 0;
+		
+		private long mTimestampDifference = 0;
+		private long mUserDifference = 0;
+		private long mNiceDifference = 0;
+		private long mSystemDifference = 0;
+		private long mIdleDifference = 0;
+		private long mIoWaitDifference = 0;
+		private long mIntrDifference = 0;
+		private long mSoftIrqDifference = 0;
 		
 		public CpuStat() {
 			// The overall cpu stat.
@@ -370,6 +441,15 @@ public class Cpu extends Unit {
 			mIntr = values[5];
 			mSoftIrq = values[6];
 			
+			mTimestampDifference = mTimestamp - mTimestampPrevious;
+			mUserDifference = mUser - mUserPrevious;
+			mNiceDifference = mNice - mNicePrevious;
+			mSystemDifference = mSystem - mSystemPrevious;
+			mIdleDifference = mIdle - mIdlePrevious;
+			mIoWaitDifference = mIoWait - mIoWaitPrevious;
+			mIntrDifference = mIntr - mIntrPrevious;
+			mSoftIrqDifference = mSoftIrq - mSoftIrqPrevious;
+			
 			return true;
 		}
 		
@@ -380,50 +460,50 @@ public class Cpu extends Unit {
 		public float getUserPercent() {
 			float divisor = mUserPrevious;
 			if (divisor == 0) return 0;
-			return (mUser - mUserPrevious) / divisor  * 100;
+			return mUserDifference / divisor  * 100;
 		}
 		
 		public float getNicePercent() {
 			float divisor = mNicePrevious;
 			if (divisor == 0) return 0;
-			return (mNice - mNicePrevious) / divisor * 100;
+			return mNiceDifference / divisor * 100;
 		}
 		
 		public float getSystemPercent() {
 			float divisor = mSystemPrevious;
 			if (divisor == 0) return 0;
-			return (mSystem - mSystemPrevious) / divisor * 100;
+			return mSystemDifference / divisor * 100;
 		}
 		
 		public float getIdlePercent() {
 			float divisor = mIdlePrevious;
 			if (divisor == 0) return 0;
-			return (mIdle - mIdlePrevious) / divisor * 100;
+			return mIdleDifference / divisor * 100;
 		}
 		
 		public float getIoWaitPercent() {
 			float divisor = mIoWaitPrevious;
 			if (divisor == 0) return 0;
-			return (mIoWait - mIoWaitPrevious) / divisor * 100;
+			return mIoWaitDifference / divisor * 100;
 		}
 		
 		public float getIntrPercent() {
 			float divisor = mIntrPrevious;
 			if (divisor == 0) return 0;
-			return (mIntr - mIntrPrevious) / divisor * 100;
+			return mIntrDifference / divisor * 100;
 		}
 		
 		public float getSoftIrqPercent() {
 			float divisor = mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return (mSoftIrq - mSoftIrqPrevious) / divisor * 100;
+			return mSoftIrqDifference / divisor * 100;
 		}
 		
 		/** User + Nice */
 		public float getUserTotalPercent() {
 			float divisor = mUserPrevious + mNicePrevious;
 			if (divisor == 0) return 0;
-			return ((mUser - mUserPrevious) + (mNice - mNicePrevious))
+			return (mUserDifference + mNiceDifference)
 				/ divisor * 100;
 		}
 		
@@ -431,9 +511,9 @@ public class Cpu extends Unit {
 		public float getSystemTotalPercent() {
 			float divisor = mSystemPrevious + mIntrPrevious + mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return ((mSystem - mSystemPrevious) 
-				+ (mIntr - mIntrPrevious)
-				+ (mSoftIrq - mSoftIrqPrevious))
+			return (mSystemDifference 
+				+ mIntrDifference 
+				+ mSoftIrqDifference)
 				/ divisor * 100;
 		}
 		
@@ -441,7 +521,7 @@ public class Cpu extends Unit {
 		public float getIdleTotalPercent() {
 			float divisor = mIdlePrevious + mIoWaitPrevious;
 			if (divisor == 0) return 0;
-			return ((mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious))
+			return (mIdleDifference + mIoWaitDifference)
 					/ divisor * 100;
 		}
 		
@@ -454,13 +534,13 @@ public class Cpu extends Unit {
 					+ mIntrPrevious 
 					+ mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return ((mUser - mUserPrevious)
-				+ (mNice - mNicePrevious)
-				+ (mSystem - mSystemPrevious) 
-				+ (mIdle - mIdlePrevious)
-				+ (mIoWait - mIoWaitPrevious)
-				+ (mIntr - mIntrPrevious)				
-				+ (mSoftIrq - mSoftIrqPrevious))
+			return (mUserDifference
+				+ mNiceDifference
+				+ mSystemDifference 
+				+ mIdleDifference
+				+ mIoWaitDifference
+				+ mIntrDifference				
+				+ mSoftIrqDifference)
 				/ divisor * 100;
 		}
 		
@@ -575,118 +655,141 @@ public class Cpu extends Unit {
 		}
 		
 		
+		
+		
+		
+		public long getTimestampDifference() {
+			return mTimestampDifference;
+		}
+		
+		public long getUserDifference() {
+			return mUserDifference;
+		}
+		
+		public long getNiceDifference() {
+			return mNiceDifference;
+		}
+		
+		public long getSystemDifference() {
+			return mSystemDifference;
+		}
+		
+		public long getIdleDifference() {
+			return mIdleDifference;
+		}
+		
+		public long getIoWaitDifference() {
+			return mIoWaitDifference;
+		}
+		
+		public long getIntrDifference() {
+			return mIntrDifference;
+		}
+		
+		public long getSoftIrqDifference() {
+			return mSoftIrqDifference;
+		}
+		
+		/** User + Nice */
+		public long getUserTotalDifference() {
+			return mUserDifference + mNiceDifference;
+		}
+		
+		/** System + Intr + SoftIrq */
+		public long getSystemTotalDifference() {
+			return mSystemDifference + mIntrDifference + mSoftIrqDifference;
+		}
+		
+		/** Idle + IoWait */
+		public long getIdleTotalDifference() {
+			return mIdleDifference + mIoWaitDifference;
+		}
+		
+		public long getTotalDifference() {
+			return mUserDifference + mNiceDifference + mSystemDifference
+				+ mIdleDifference + mIoWaitDifference + mIntrDifference + mSoftIrqDifference;
+		}
+
+		@Override
+		public LinkedHashMap<String, String> getContents() {
+			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+			
+			contents.put("ID", String.valueOf(getId()));
+			contents.put("Timestamp", String.valueOf(getTimestamp()));
+			contents.put("TimestampPrevious", String.valueOf(getTimestampPrevious()));
+			contents.put("TimestampDifference", String.valueOf(getTimestampDifference()));
+			contents.put("User", String.valueOf(getUser()));
+			contents.put("UserPrevious", String.valueOf(getUserPrevious()));
+			contents.put("UserDifference", String.valueOf(getUserDifference()));
+			contents.put("UserPercent", String.valueOf(getUserPercent()));
+			contents.put("Nice", String.valueOf(getNice()));
+			contents.put("NicePrevious", String.valueOf(getNicePrevious()));
+			contents.put("NiceDifference", String.valueOf(getNiceDifference()));
+			contents.put("NicePercent", String.valueOf(getNicePercent()));
+			contents.put("System", String.valueOf(getSystem()));
+			contents.put("SystemPrevious", String.valueOf(getSystemPrevious()));
+			contents.put("SystemDifference", String.valueOf(getSystemDifference()));
+			contents.put("SystemPercent", String.valueOf(getSystemPercent()));
+			contents.put("Idle", String.valueOf(getIdle()));
+			contents.put("IdlePrevious", String.valueOf(getIdlePrevious()));
+			contents.put("IdleDifference", String.valueOf(getIdleDifference()));
+			contents.put("IdlePercent", String.valueOf(getIdlePercent()));
+			contents.put("IoWait", String.valueOf(getIoWait()));
+			contents.put("IoWaitPrevious", String.valueOf(getIoWaitPrevious()));
+			contents.put("IoWaitDifference", String.valueOf(getIoWaitDifference()));
+			contents.put("IoWaitPercent", String.valueOf(getIoWaitPercent()));
+			contents.put("Intr", String.valueOf(getIntr()));
+			contents.put("IntrPrevious", String.valueOf(getIntrPrevious()));
+			contents.put("IntrDifference", String.valueOf(getIntrDifference()));
+			contents.put("IntrPercent", String.valueOf(getIntrPercent()));
+			contents.put("SoftIrq", String.valueOf(getSoftIrq()));
+			contents.put("SoftIrqPrevious", String.valueOf(getSoftIrqPrevious()));
+			contents.put("SoftIrqDifference", String.valueOf(getSoftIrqDifference()));
+			contents.put("SoftIrqPercent", String.valueOf(getSoftIrqPercent()));
+			contents.put("UserTotal", String.valueOf(getUserTotal()));
+			contents.put("UserTotalPrevious", String.valueOf(getUserTotalPrevious()));
+			contents.put("UserTotalDifference", String.valueOf(getUserTotalDifference()));
+			contents.put("UserTotalPercent", String.valueOf(getUserTotalPercent()));
+			contents.put("SystemTotal", String.valueOf(getSystemTotal()));
+			contents.put("SystemTotalPrevious", String.valueOf(getSystemTotalPrevious()));
+			contents.put("SystemTotalDifference", String.valueOf(getSystemTotalDifference()));
+			contents.put("SystemTotalPercent", String.valueOf(getSystemTotalPercent()));
+			contents.put("IdleTotal", String.valueOf(getIdleTotal()));
+			contents.put("IdleTotalPrevious", String.valueOf(getIdleTotalPrevious()));
+			contents.put("IdleTotalDifference", String.valueOf(getIdleTotalDifference()));
+			contents.put("IdleTotalPercent", String.valueOf(getIdleTotalPercent()));
+			contents.put("Total", String.valueOf(getTotal()));
+			contents.put("TotalPrevious", String.valueOf(getTotalPrevious()));
+			contents.put("TotalDifference", String.valueOf(getTotalDifference()));
+			contents.put("TotalPercent", String.valueOf(getTotalPercent()));
+			
+			return contents; 
+		}
 	}
 
 
 	@Override
 	public LinkedHashMap<String, String> getContents() {
 		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> subcontents;
 		
 		for (int i = 0; i < mCpuinfo.size(); ++i) {
 			contents.put("CPU Info " + i, mCpuinfo.get(i));
 		}
 		
-		contents.putAll(getCpuStatContents(mCpuStat, "Overall"));
+		subcontents = mCpuStat.getContents();
+		for (String s : subcontents.keySet()) {
+			contents.put("Overall CpuStat " + s, subcontents.get(s));
+		}
 		
+		int i = 0;
 		for (LogicalCpu logicalCpu : mLogicalCpus) {
-			contents.putAll(getLogicalCpuContents(logicalCpu));
-		}
-		
-		return contents; 
-	}
-	
-	private LinkedHashMap<String, String> getLogicalCpuContents(LogicalCpu cpu) {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-		String key = "LogicalCpu " + cpu.getId();
-		
-		contents.put(key + " ID", String.valueOf(cpu.getId()));
-		contents.put(key + " Root", cpu.getRoot().getAbsolutePath());
-		contents.put(key + " Frequency (MHz)", String.valueOf(cpu.getFrequency()));
-		contents.put(key + " MinFrequency (MHz)", String.valueOf(cpu.getMinFrequency()));
-		contents.put(key + " MaxFrequency (MHz)", String.valueOf(cpu.getMaxFrequency()));
-		
-		int[] freqs = cpu.getAvailableFrequencies();
-		if (freqs != null) {
-			for (int i = 0; i < freqs.length; ++i) {
-				contents.put(key + " AvailableFrequency " + i + " (MHz)", 
-					String.valueOf(freqs[i]));
+			subcontents = logicalCpu.getContents();
+			for (String s : subcontents.keySet()) {				
+				contents.put("Logical CPU " + i + " " + s, subcontents.get(s));				
 			}
+			++i;
 		}
-		
-		String[] govs = cpu.getAvailableGovernors();
-		if (govs != null) {
-			for (int i = 0; i < govs.length; ++i) {
-				contents.put(key + " AvailableGovernor " + i, govs[i]);
-			}
-		}
-		
-		contents.put(key + " Governor", cpu.getGovernor());
-		contents.put(key + " Driver", cpu.getDriver());
-		contents.put(key + " TransitionLatency (ns)", String.valueOf(cpu.getTransitionLatency()));
-		contents.put(key + " TotalTransitions", String.valueOf(cpu.getTotalTransitions()));
-		contents.put(key + " TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
-		contents.put(key + " TimeInTransitions (s)", String.valueOf(cpu.getTimeInTransitions()));
-		
-		int[][] times = cpu.getTimeInFrequency();
-		if (times != null) {
-			for (int i = 0; i < times.length; ++i) {
-				contents.put(key + " TimeInFrequency " + times[i][0] + "MHz (Jiffies (10ms))", 
-						String.valueOf(times[i][1]));					
-			}
-		}
-		
-		Map<Integer, Float> percents = cpu.getPercentInFrequency();
-		if (percents != null && percents.size() > 0) {
-			for (int freq : percents.keySet()) {
-				contents.put(key + " PercentInFrequency " + freq + "MHz", 
-						String.valueOf(percents.get(freq)));
-			}
-		}
-		
-		contents.putAll(getCpuStatContents(cpu.getCpuStat(), key));
-		
-		return contents;
-	}
-	
-	private LinkedHashMap<String, String> getCpuStatContents(CpuStat cpuStat, String key) {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-		
-		contents.put(key + " CpuStat ID", String.valueOf(cpuStat.getId()));
-		contents.put(key + " CpuStat Timestamp", String.valueOf(cpuStat.getTimestamp()));
-		contents.put(key + " CpuStat TimestampPrevious", String.valueOf(cpuStat.getTimestampPrevious()));
-		contents.put(key + " CpuStat User", String.valueOf(cpuStat.getUser()));
-		contents.put(key + " CpuStat UserPrevious", String.valueOf(cpuStat.getUserPrevious()));
-		contents.put(key + " CpuStat UserPercent", String.valueOf(cpuStat.getUserPercent()));
-		contents.put(key + " CpuStat Nice", String.valueOf(cpuStat.getNice()));
-		contents.put(key + " CpuStat NicePrevious", String.valueOf(cpuStat.getNicePrevious()));
-		contents.put(key + " CpuStat NicePercent", String.valueOf(cpuStat.getNicePercent()));
-		contents.put(key + " CpuStat System", String.valueOf(cpuStat.getSystem()));
-		contents.put(key + " CpuStat SystemPrevious", String.valueOf(cpuStat.getSystemPrevious()));
-		contents.put(key + " CpuStat SystemPercent", String.valueOf(cpuStat.getSystemPercent()));
-		contents.put(key + " CpuStat Idle", String.valueOf(cpuStat.getIdle()));
-		contents.put(key + " CpuStat IdlePrevious", String.valueOf(cpuStat.getIdlePrevious()));
-		contents.put(key + " CpuStat IdlePercent", String.valueOf(cpuStat.getIdlePercent()));
-		contents.put(key + " CpuStat IoWait", String.valueOf(cpuStat.getIoWait()));
-		contents.put(key + " CpuStat IoWaitPrevious", String.valueOf(cpuStat.getIoWaitPrevious()));
-		contents.put(key + " CpuStat IoWaitPercent", String.valueOf(cpuStat.getIoWaitPercent()));
-		contents.put(key + " CpuStat Intr", String.valueOf(cpuStat.getIntr()));
-		contents.put(key + " CpuStat IntrPrevious", String.valueOf(cpuStat.getIntrPrevious()));
-		contents.put(key + " CpuStat IntrPercent", String.valueOf(cpuStat.getIntrPercent()));
-		contents.put(key + " CpuStat SoftIrq", String.valueOf(cpuStat.getSoftIrq()));
-		contents.put(key + " CpuStat SoftIrqPrevious", String.valueOf(cpuStat.getSoftIrqPrevious()));
-		contents.put(key + " CpuStat SoftIrqPercent", String.valueOf(cpuStat.getSoftIrqPercent()));
-		contents.put(key + " CpuStat UserTotal", String.valueOf(cpuStat.getUserTotal()));
-		contents.put(key + " CpuStat UserTotalPrevious", String.valueOf(cpuStat.getUserTotalPrevious()));
-		contents.put(key + " CpuStat UserTotalPercent", String.valueOf(cpuStat.getUserTotalPercent()));
-		contents.put(key + " CpuStat SystemTotal", String.valueOf(cpuStat.getSystemTotal()));
-		contents.put(key + " CpuStat SystemTotalPrevious", String.valueOf(cpuStat.getSystemTotalPrevious()));
-		contents.put(key + " CpuStat SystemTotalPercent", String.valueOf(cpuStat.getSystemTotalPercent()));
-		contents.put(key + " CpuStat IdleTotal", String.valueOf(cpuStat.getIdleTotal()));
-		contents.put(key + " CpuStat IdleTotalPrevious", String.valueOf(cpuStat.getIdleTotalPrevious()));
-		contents.put(key + " CpuStat IdleTotalPercent", String.valueOf(cpuStat.getIdleTotalPercent()));
-		contents.put(key + " CpuStat Total", String.valueOf(cpuStat.getTotal()));
-		contents.put(key + " CpuStat TotalPrevious", String.valueOf(cpuStat.getTotalPrevious()));
-		contents.put(key + " CpuStat TotalPercent", String.valueOf(cpuStat.getTotalPercent()));
 		
 		return contents; 
 	}

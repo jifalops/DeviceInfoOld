@@ -1,15 +1,17 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 
-public class Audio extends Unit {
+public class Audio implements ContentsMapper {
 	
 	private static final int API = Build.VERSION.SDK_INT;
 	

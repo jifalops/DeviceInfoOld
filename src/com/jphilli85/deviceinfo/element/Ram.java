@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -6,9 +6,10 @@ import java.util.Map;
 
 import android.util.Log;
 
+import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Ram extends Unit {
+public class Ram implements ContentsMapper {
 	private static final String LOG_TAG = Ram.class.getSimpleName();
 	
 	private LinkedHashMap<String, String> mMeminfo;

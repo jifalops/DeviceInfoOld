@@ -16,11 +16,14 @@ public class DeviceInfo {
 	public static long getTimestamp() {
 		long ts = 0;
 		try { ts = Calendar.getInstance().getTimeInMillis(); }
-		catch (IllegalArgumentException ignored) {}
+		catch (Exception ignored) {}
 		return ts;
 	}
 	
 	public static class DetailsTextView extends TextView {
+		public DetailsTextView(Context context) {
+			this (context, null);
+		}
 		public DetailsTextView(Context context, CharSequence text) {
 			super(context);
 			setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, 

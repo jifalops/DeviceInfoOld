@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo;
 
 import java.util.LinkedHashMap;
 

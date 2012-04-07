@@ -1,8 +1,10 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -13,7 +15,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
-public class Sensors extends Unit implements SensorEventListener {
+// TODO add microphone
+public class Sensors implements ContentsMapper, SensorEventListener {
 	private static final String LOG_TAG = Sensors.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	
@@ -21,9 +24,16 @@ public class Sensors extends Unit implements SensorEventListener {
 	public static final String CATEGORY_POSITION = "CATEGORY_POSITION";
 	public static final String CATEGORY_ENVIRONMENT = "CATEGORY_ENVIRONMENT";
 	
+	public interface Callback {
+		/** Corresponds to SensorEventListener.onAccuracyChanged() */
+		void onAccuracyChanged(Sensor sensor, int accuracy);
+		/** Corresponds to SensorEventListener.onSensorChanged() */
+		void onSensorChanged(SensorEvent event);		
+	}
+	
 	private final SensorManager mSensorManager;
 	private final List<SensorWrapper> mSensors;
-	private final SensorEventCallback mEventCallback;
+	private final Callback mCallback;
 	
 	// Sensor types
 	private boolean mHasAccelerometer;
@@ -39,21 +49,16 @@ public class Sensors extends Unit implements SensorEventListener {
 	private boolean mHasRelativeHumidity;
 	private boolean mHasRotationVector;
 	private boolean mHasTemperature;	
-	
-	public interface SensorEventCallback {
-		void onSensorChanged(SensorWrapper sensorWrapper);
-		void onAccuracyChanged(SensorWrapper sensorWrapper);
-	}
-	
-	public Sensors(Context context, SensorEventCallback eventCallback) {
+
+	public Sensors(Context context, Callback eventCallback) {
 		mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mEventCallback = eventCallback;
+		mCallback = eventCallback;
 		mSensors = new ArrayList<SensorWrapper>();
 		List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 		for (Sensor s : sensors) mSensors.add(new SensorWrapper(s));
 	}
 
-	private class SensorWrapper implements ContentsMapper {
+	public class SensorWrapper implements ContentsMapper {
 		private final Sensor mSensor;		
 		private String mSensorTypeString;
 		private final boolean mIsDefault;
@@ -204,6 +209,7 @@ public class Sensors extends Unit implements SensorEventListener {
 			return mLastAccuracyStatus;
 		}
 		
+		// TODO ui facing strings
 		public String getLastAccuracyStatusString() {
 			switch(mLastAccuracyStatus) {
 			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH: return "SENSOR_STATUS_ACCURACY_HIGH";
@@ -231,6 +237,7 @@ public class Sensors extends Unit implements SensorEventListener {
 			return mCategory;
 		}
 		
+		@Override
 		public LinkedHashMap<String, String> getContents() {
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 			
@@ -328,7 +335,7 @@ public class Sensors extends Unit implements SensorEventListener {
 		for (SensorWrapper sw : mSensors) {
 			if (sw.getSensor() == sensor) {
 				sw.setLastAccuracyStatus(accuracy);				
-				if (mEventCallback != null) mEventCallback.onAccuracyChanged(sw);
+				if (mCallback != null) mCallback.onAccuracyChanged(sensor, accuracy);
 				break;
 			}
 		}
@@ -339,7 +346,7 @@ public class Sensors extends Unit implements SensorEventListener {
 		for (SensorWrapper sw : mSensors) {
 			if (sw.getSensor() == event.sensor) {
 				sw.setLastEventInfo(event.timestamp, event.accuracy, event.values.clone());
-				if (mEventCallback != null) mEventCallback.onSensorChanged(sw);
+				if (mCallback != null) mCallback.onSensorChanged(event);
 				break;
 			}
 		}		

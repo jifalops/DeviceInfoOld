@@ -1,9 +1,11 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.opengl.GLES10;
 import android.opengl.GLES11;
@@ -15,36 +17,37 @@ import android.os.Build;
 // even if still using GLES20 methods.
 
 // TODO more values & limits
-public class Graphics extends Unit implements GLSurfaceView.Renderer {
+public class Graphics implements ContentsMapper, GLSurfaceView.Renderer {
 	public static final float OPENGLES_VERSION_10 = 1.0f;
 	public static final float OPENGLES_VERSION_11 = 1.1f;
 	public static final float OPENGLES_VERSION_20 = 2.0f;
-	
 
-	public interface OnGLSurfaceViewCreatedListener {
-		void onGLSurfaceViewCreated();
+	public interface Callback {
+		/** Corresponds to GLSurfaceView.Renderer.onSurfaceCreated(); */
+		void onSurfaceCreated(GL10 gl, EGLConfig config);
+		/** Corresponds to GLSurfaceView.Renderer.onSurfaceChanged(); */
+		void onSurfaceChanged(GL10 gl, int width, int height);
+		/** Corresponds to GLSurfaceView.Renderer.onDrawFrame(); */
+		void onDrawFrame(GL10 gl);
 	}
 	
 	private final float mOpenGlesVersion;
 
-	private OnGLSurfaceViewCreatedListener mListener;
+	private final Callback mCallback;
 	private OpenGles mOpenGles;
-	private GLSurfaceView mSurfaceView;
+	private final GLSurfaceView mGlSurfaceView;
 	
-	public Graphics(GLSurfaceView surfaceView) {
-		mSurfaceView = surfaceView;
+	public Graphics(GLSurfaceView glSurfaceView, Callback callback) {
+		mGlSurfaceView = glSurfaceView;
 		mOpenGlesVersion = findOpenGlesVersion();	
-		mListener = null;
+		mCallback = callback;
 
 		if (Build.VERSION.SDK_INT >= 8) {
-			surfaceView.setEGLContextClientVersion((int) mOpenGlesVersion);
+			glSurfaceView.setEGLContextClientVersion((int) mOpenGlesVersion);
 		}
 
-		surfaceView.setRenderer(this);
-	}
-	
-	public void setOnGLSurfaceViewCreatedListener(OnGLSurfaceViewCreatedListener l) {
-		mListener = l;
+		glSurfaceView.setRenderer(this);
+		glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
 	
 	private float findOpenGlesVersion() {
@@ -79,6 +82,14 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 		return mOpenGles;
 	}
 	
+	public Callback getCallback() {
+		return mCallback;
+	}
+	
+	public GLSurfaceView getGlSurfaceView() {
+		return mGlSurfaceView;
+	}
+	
 	/** Get the highest supported OpenGL ES version.
 	 * This will be available immediately after instantiation
 	 * whereas getOpenGles() will only be ready after the GLSurfaceView
@@ -89,7 +100,7 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 	}
 	
 	
-	private abstract class OpenGles {
+	private abstract class OpenGles implements ContentsMapper {
 		protected final float mOpenGlesVersion;
 		
 		protected String mRenderer;
@@ -138,6 +149,7 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 			return placeholder[0];
 		}
 		
+		@Override
 		public LinkedHashMap<String, String> getContents() {
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 			
@@ -145,10 +157,11 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 			contents.put("OpenGL ES Renderer", getRenderer());
 			contents.put("OpenGL ES Version", getVersion());
 			contents.put("OpenGL ES Vendor", getVendor());
-			contents.put("OpenGL ES MaxTextureSize", String.valueOf(getMaxTextureSize()));			
-			if (mExtensions != null) {
-				for (int i = 0; i < mExtensions.length; ++i) {
-					contents.put("OpenGL ES Extension " + i, mExtensions[i]);
+			contents.put("OpenGL ES MaxTextureSize", String.valueOf(getMaxTextureSize()));	
+			String[] extensions = getExtensions();
+			if (extensions != null) {
+				for (int i = 0; i < extensions.length; ++i) {
+					contents.put("OpenGL ES Extension " + i, extensions[i]);
 				}
 			}
 			return contents;
@@ -226,27 +239,35 @@ public class Graphics extends Unit implements GLSurfaceView.Renderer {
 			return contents;
 		}
 	}
+	
+	public void onPause() {
+		mGlSurfaceView.onPause();
+	}
+	
+	public void onResume() {
+		mGlSurfaceView.onResume();
+	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {		
-		if (mOpenGlesVersion == OPENGLES_VERSION_10) mOpenGles = new OpenGles10();
-		else if (mOpenGlesVersion == OPENGLES_VERSION_11) mOpenGles = new OpenGles11();
-		else if (mOpenGlesVersion == OPENGLES_VERSION_20) mOpenGles = new OpenGles20();
-
-		// Let the caller know the surface has been created.
-		if (mListener != null) mListener.onGLSurfaceViewCreated();
-		// No intention of drawing anything, just gathering info.
-		//mSurfaceView.onPause();
+		if (mOpenGles == null) {
+			if (mOpenGlesVersion == OPENGLES_VERSION_10) mOpenGles = new OpenGles10();
+			else if (mOpenGlesVersion == OPENGLES_VERSION_11) mOpenGles = new OpenGles11();
+			else if (mOpenGlesVersion == OPENGLES_VERSION_20) mOpenGles = new OpenGles20();
+		}
+		if (mCallback != null) mCallback.onSurfaceCreated(gl, config);
 	}
 	
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 
+		if (mCallback != null) mCallback.onSurfaceChanged(gl, width, height);
 	}
 	
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		
+		if (mCallback != null) mCallback.onDrawFrame(gl);
 	}
 
 	

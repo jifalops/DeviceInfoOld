@@ -1,8 +1,10 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -12,7 +14,7 @@ import android.hardware.Camera.Parameters;
 import android.os.Build;
 import android.util.Log;
 
-public class Camera extends Unit {
+public class Camera implements ContentsMapper {
 	private static final String LOG_TAG = Camera.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	
@@ -71,7 +73,7 @@ public class Camera extends Unit {
 	    return c;
 	}
 	
-	private class CameraWrapper {
+	public class CameraWrapper {
 		private android.hardware.Camera mCamera;
 		private CameraInfo mCameraInfo;
 		private Parameters mParameters;
@@ -84,7 +86,7 @@ public class Camera extends Unit {
 			mParameters = camera.getParameters();
 			mParametersMap = parseParameters(mParameters, true);
 		}
-		
+				
 		private LinkedHashMap<String, String> parseParameters(Parameters cameraParams, boolean replaceHyphen) {
 			if (cameraParams == null) return null;
 			LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
@@ -103,7 +105,7 @@ public class Camera extends Unit {
 			return map;
 		}
 		
-		public void setCameraInfo(CameraInfo info) {
+		private void setCameraInfo(CameraInfo info) {
 			mCameraInfo = info;
 		}
 		
@@ -124,7 +126,7 @@ public class Camera extends Unit {
 			return mParametersMap;
 		}
 		
-		
+		// TODO ui facing strings
 		public String getCameraDirection() {
 			if (API < 9 || mCameraInfo == null) return null;
 			switch (mCameraInfo.facing) {
@@ -134,14 +136,16 @@ public class Camera extends Unit {
 			}
 		}
 		
+		/**  		 
+		 * @return Orientation in degrees (0, 90, 180, 270),
+		 * or -1 if not supported or an error occurred
+		 */
 		public int getCameraOrientation() {
 			if (API < 9 || mCameraInfo == null) return -1;
 			return mCameraInfo.orientation;
 		}
 	}
 
-	
-	
 	private void releaseCameras() {
 		for (CameraWrapper cw : mCameras) {
 			android.hardware.Camera c = cw.getCamera();

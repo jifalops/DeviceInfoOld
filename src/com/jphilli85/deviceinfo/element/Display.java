@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.unit;
+package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
@@ -11,10 +11,11 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.DisplayMetrics;
 
+import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Display extends Unit {
+public class Display implements ContentsMapper {
 	
 	// Use a shorter name
 	private static final int API = Build.VERSION.SDK_INT;
@@ -38,8 +39,8 @@ public class Display extends Unit {
 		return mDisplayMetrics;
 	}
 	
-	/** Get the logical density */
-	public float getDensity() {
+	/** Get the logical density. Base density (1.0) is 160 dpi. */
+	public float getLogicalDensity() {
 		return mDisplayMetrics == null ? 0 : mDisplayMetrics.density;
 	}
 	
@@ -67,7 +68,7 @@ public class Display extends Unit {
 		return mDisplayMetrics == null ? 0 : mDisplayMetrics.ydpi;
 	}
 	
-	// TODO put strings in resources to support multiple languages
+	// TODO ui facing strings
 	public String getDensityDpiString() {
 		if (mDisplayMetrics == null) return null;
 		int dpi = mDisplayMetrics.densityDpi;
@@ -230,7 +231,7 @@ public class Display extends Unit {
 		contents.put("Density DPI", String.valueOf(getDensityDpi()));
 		contents.put("X DPI", String.valueOf(getXDpi()));
 		contents.put("Y DPI", String.valueOf(getYDpi()));
-		contents.put("Density", String.valueOf(getDensity()));
+		contents.put("Logical Density", String.valueOf(getLogicalDensity()));
 		contents.put("Scaled Density", String.valueOf(getScaledDensity()));
 		contents.put("Font Scale", String.valueOf(getFontScale(context)));
 		contents.put("Width (pixel)", String.valueOf(getWidth()));

@@ -259,7 +259,7 @@
 //    // Version
 //    public String getProcVersion() { return getProc("version").get(0); }
 //    public String getProcVersionKernel() { 
-//        String[] parts = getProc("version").get(0).split("\\s");
+//        String[] parts = getProc("version").get(0).split("\\s+");
 //        return parts[2];
 //    }
 //    //public String getProcVersionDate() { 

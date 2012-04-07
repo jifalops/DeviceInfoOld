@@ -1,9 +1,17 @@
 package com.jphilli85.deviceinfo.app;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -23,27 +31,47 @@ import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
-import com.jphilli85.deviceinfo.unit.Audio;
-import com.jphilli85.deviceinfo.unit.Battery;
-import com.jphilli85.deviceinfo.unit.Battery.OnBatteryChangedListener;
-import com.jphilli85.deviceinfo.unit.Camera;
-import com.jphilli85.deviceinfo.unit.Cpu;
-import com.jphilli85.deviceinfo.unit.Display;
-import com.jphilli85.deviceinfo.unit.Graphics;
-import com.jphilli85.deviceinfo.unit.Graphics.OnGLSurfaceViewCreatedListener;
-import com.jphilli85.deviceinfo.unit.Ram;
-import com.jphilli85.deviceinfo.unit.Sensors;
-import com.jphilli85.deviceinfo.unit.Storage;
-import com.jphilli85.deviceinfo.unit.Unit;
+import com.jphilli85.deviceinfo.element.Audio;
+import com.jphilli85.deviceinfo.element.Battery;
+import com.jphilli85.deviceinfo.element.Camera;
+import com.jphilli85.deviceinfo.element.Cpu;
+import com.jphilli85.deviceinfo.element.Display;
+import com.jphilli85.deviceinfo.element.Graphics;
+import com.jphilli85.deviceinfo.element.Graphics.Callback;
+import com.jphilli85.deviceinfo.element.Location;
+import com.jphilli85.deviceinfo.element.Ram;
+import com.jphilli85.deviceinfo.element.Sensors;
+import com.jphilli85.deviceinfo.element.Storage;
 
 public class DetailsFragment extends SherlockFragment implements
-		LoaderManager.LoaderCallbacks<Cursor> {
+		LoaderManager.LoaderCallbacks<Cursor>,
+		Battery.Callback, Graphics.Callback, Location.Callback,
+		Sensors.Callback {
 	
 	private static final int SUBGROUP_LOADER = 1;
 	
 	private LinearLayout mLayout;
 	private Map<String, String> mSubgroups;
-	private GLSurfaceView mGLSurfaceView;
+	
+	private Audio mAudio;
+	private Battery mBattery;
+	private Camera mCamera;
+	private Cpu mCpu;
+	private Display mDisplay;
+	private Graphics mGraphics;
+	private Location mLocation;
+	private Ram mRam;
+	private Sensors mSensors;
+	private Storage mStorage;
+	
+	private boolean mIsPaused;
+	
+	private TextView mLiveBatteryInfo;
+	private TextView mLiveCpuInfo;
+	private TextView mLiveLocationInfo;
+	private TextView mLiveRamInfo;
+	private TextView mLiveSensorsInfo;
+	private TextView mLiveStorageInfo;
 
 	/**
      * Create a new instance of DetailsFragment, initialized to
@@ -80,14 +108,38 @@ public class DetailsFragment extends SherlockFragment implements
 	
 		View v = inflater.inflate(R.layout.details, container, false);
 		mLayout = (LinearLayout) v.findViewById(R.id.detailsLayout);
-
+		if (mLayout != null) {
+			mLiveBatteryInfo = new DetailsTextView(getActivity());
+			mLiveCpuInfo = new DetailsTextView(getActivity());
+			mLiveLocationInfo = new DetailsTextView(getActivity());
+			mLiveRamInfo = new DetailsTextView(getActivity());
+			mLiveSensorsInfo = new DetailsTextView(getActivity());
+			mLiveStorageInfo = new DetailsTextView(getActivity());
+			mLayout.addView(mLiveBatteryInfo);
+			mLayout.addView(mLiveCpuInfo);
+			mLayout.addView(mLiveLocationInfo);
+			mLayout.addView(mLiveRamInfo);
+			mLayout.addView(mLiveSensorsInfo);
+			mLayout.addView(mLiveStorageInfo);
+		}
 		return v; 		
+	}
+	
+	@Override
+	public void onResume() {	
+		super.onResume();
+		mIsPaused = false;
+		if (mGraphics != null) mGraphics.onResume();
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mGLSurfaceView != null) mGLSurfaceView.onPause();
+		if (mBattery != null) mBattery.stopListening();
+		if (mGraphics != null) mGraphics.onPause();
+		if (mLocation != null) mLocation.stopListening();
+		if (mSensors != null) mSensors.stopListening();
+		mIsPaused = true;
 	}
 	
 	@Override
@@ -129,81 +181,91 @@ public class DetailsFragment extends SherlockFragment implements
     	for (String name : mSubgroups.keySet()) {
     		loadSubgroup(name);
     	}
+    	showContents();
     }
     
     private void loadSubgroup(final String name) {
-    	Unit unit = null;
-
-    	
     	if (name.equals(Subgroup.SUBGROUP_CPU)) {
-    		unit = new Cpu();
-    		((Cpu) unit).updateCpuStats();    		
+    		mCpu = new Cpu();
+    		mCpu.updateCpuStats();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_DISPLAY)) {
-    		unit = new Display(getActivity());    		
+    		mDisplay = new Display(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_GRAPHICS)) {
-        	mGLSurfaceView = new GLSurfaceView(getActivity());
-        	final Graphics graphics = new Graphics(mGLSurfaceView);
-    		OnGLSurfaceViewCreatedListener listener = new OnGLSurfaceViewCreatedListener() {
-				@Override
-				public void onGLSurfaceViewCreated() {
-					showContents(graphics, name);
-				}
-			};
-			graphics.setOnGLSurfaceViewCreatedListener(listener);
-    		if (mLayout != null) mLayout.addView(mGLSurfaceView);
+        	GLSurfaceView glSurfaceView = new GLSurfaceView(getActivity());
+        	mGraphics = new Graphics(glSurfaceView, this);
+//    		Callback listener = new Callback() {
+//				@Override
+//				public void onGLSurfaceViewCreated() {
+//					showContents(graphics, name);
+//				}
+//			};
+        	// TODO maybe pausing the surfaceview in this fragment is needed.
+    		if (mLayout != null) mLayout.addView(glSurfaceView);
     	}
     	else if (name.equals(Subgroup.SUBGROUP_RAM)) {
-    		unit = new Ram();    		
+    		mRam = new Ram();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_STORAGE)) {
-    		unit = new Storage();    		
+    		mStorage = new Storage();    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_AUDIO)) {
-    		unit = new Audio(getActivity());    		
+    		mAudio = new Audio(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_CAMERA)) {
-    		unit = new Camera(getActivity());    		
+    		mCamera = new Camera(getActivity());    		
     	}
     	else if (name.equals(Subgroup.SUBGROUP_BATTERY)) {
-    		final Battery battery = new Battery(getActivity());
-    		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
-				@Override
-				public void onBatteryChanged() {
-					// Called on UI thread										
-					showContents(battery, name);
-					ImageView iv = new ImageView(getActivity());
-					iv.setImageResource(battery.getReceiver().getIconResourceId());
-					if (mLayout != null) mLayout.addView(iv);
-				}
-			});
-    		battery.startReceiving();
+    		mBattery = new Battery(getActivity(), this);
+//    		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
+//				@Override
+//				public void onBatteryChanged() {
+//					// Called on UI thread										
+//					showContents(battery, name);
+//					ImageView iv = new ImageView(getActivity());
+//					iv.setImageResource(battery.getReceiver().getIconResourceId());
+//					if (mLayout != null) mLayout.addView(iv);
+//				}
+//			});
+    		if (!mIsPaused) mBattery.startListening();
     	}
     	else if (name.equals(Subgroup.SUBGROUP_SENSORS)) {
-    		unit = new Sensors(getActivity(), null);	
-    		((Sensors) unit).startListening();
+    		mSensors = new Sensors(getActivity(), this);	
+    		if (!mIsPaused) mSensors.startListening();
     	}
-    	else {
-    		unit = null;
+    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
+    		mLocation = new Location(getActivity(), this);	 
+    		if (!mIsPaused) mLocation.startListening();
     	}
     	
-    	if (unit != null && !(unit instanceof Graphics) 
-    			 && !(unit instanceof Battery)) {
-	    	showContents(unit, name);
-    	}
+//    	if (unit != null && !(unit instanceof Graphics) 
+//    			 && !(unit instanceof Battery)) {
+//	    	showContents(unit, name);
+//    	}
     }
     
-    private void showContents(final Unit unit, final String name) {
-		if (mLayout == null) return;
+    private void showContents(/*final Unit unit, final String name*/) {
+    	if (mLayout == null) return;		
 		mLayout.postDelayed(new Runnable() {			
 			@Override
 			public void run() {		
-				Map<String, String> contents = unit.getContents();
-				final TextView tv = new DetailsTextView(getActivity(), name + "\n");
+				Map<String, String> contents = new LinkedHashMap<String, String>();				
+				if (mAudio != null) contents.putAll(mAudio.getContents());
+				if (mBattery != null) contents.putAll(mBattery.getContents());
+				if (mCamera != null) contents.putAll(mCamera.getContents());
+				if (mCpu != null) contents.putAll(mCpu.getContents());
+				if (mDisplay != null) contents.putAll(mDisplay.getContents());
+				if (mGraphics != null) contents.putAll(mGraphics.getContents());
+				if (mLocation != null) contents.putAll(mLocation.getContents());
+				if (mRam != null) contents.putAll(mRam.getContents());
+				if (mSensors != null) contents.putAll(mSensors.getContents());
+				if (mStorage != null) contents.putAll(mStorage.getContents());
+
+				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
 				for (String s : contents.keySet()) {
 					tv.append(s + ": " + contents.get(s) + "\n");
-				}
+				}				
 				mLayout.addView(tv);
 			}
 		}, 2000);
@@ -226,6 +288,78 @@ public class DetailsFragment extends SherlockFragment implements
     	} while (c.moveToNext());     	    	
 		mLayout.addView(new DetailsTextView(getActivity(), rows));
     }
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLocationChanged(android.location.Location location) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGpsStatusChanged(int event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onNmeaReceived(long timestamp, String nmea) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSurfaceChanged(GL10 gl, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDrawFrame(GL10 gl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		
+	}
     
    
 }
