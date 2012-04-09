@@ -1,9 +1,7 @@
 package com.jphilli85.deviceinfo;
 
-import java.util.Calendar;
-
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.os.Looper;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
@@ -14,10 +12,15 @@ public class DeviceInfo {
 	public static Context sAppContext;
 	
 	public static long getTimestamp() {
-		long ts = 0;
-		try { ts = Calendar.getInstance().getTimeInMillis(); }
-		catch (Exception ignored) {}
-		return ts;
+		return System.currentTimeMillis();
+//		long ts = 0;
+//		try { ts = Calendar.getInstance().getTimeInMillis(); }
+//		catch (Exception ignored) {}
+//		return ts;
+	}
+	
+	public static boolean isOnMainThread() {
+		return Looper.getMainLooper().getThread() == Thread.currentThread();
 	}
 	
 	public static class DetailsTextView extends TextView {

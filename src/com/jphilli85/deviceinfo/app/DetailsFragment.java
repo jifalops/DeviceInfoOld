@@ -1,17 +1,18 @@
 package com.jphilli85.deviceinfo.app;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -21,7 +22,6 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -37,10 +37,10 @@ import com.jphilli85.deviceinfo.element.Camera;
 import com.jphilli85.deviceinfo.element.Cpu;
 import com.jphilli85.deviceinfo.element.Display;
 import com.jphilli85.deviceinfo.element.Graphics;
-import com.jphilli85.deviceinfo.element.Graphics.Callback;
 import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Ram;
 import com.jphilli85.deviceinfo.element.Sensors;
+import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 import com.jphilli85.deviceinfo.element.Storage;
 
 public class DetailsFragment extends SherlockFragment implements
@@ -70,7 +70,7 @@ public class DetailsFragment extends SherlockFragment implements
 	private TextView mLiveCpuInfo;
 	private TextView mLiveLocationInfo;
 	private TextView mLiveRamInfo;
-	private TextView mLiveSensorsInfo;
+	private List<TextView> mLiveSensorsInfo;
 	private TextView mLiveStorageInfo;
 
 	/**
@@ -93,6 +93,12 @@ public class DetailsFragment extends SherlockFragment implements
         return args != null ? args.getInt("index", 1) : 1;
     }
     
+    @Override
+    public void onAttach(Activity activity) {    
+    	super.onAttach(activity);
+    	mLiveSensorsInfo = new ArrayList<TextView>();
+    }
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -113,13 +119,13 @@ public class DetailsFragment extends SherlockFragment implements
 			mLiveCpuInfo = new DetailsTextView(getActivity());
 			mLiveLocationInfo = new DetailsTextView(getActivity());
 			mLiveRamInfo = new DetailsTextView(getActivity());
-			mLiveSensorsInfo = new DetailsTextView(getActivity());
+//			mLiveSensorsInfo = new DetailsTextView(getActivity());
 			mLiveStorageInfo = new DetailsTextView(getActivity());
 			mLayout.addView(mLiveBatteryInfo);
 			mLayout.addView(mLiveCpuInfo);
 			mLayout.addView(mLiveLocationInfo);
 			mLayout.addView(mLiveRamInfo);
-			mLayout.addView(mLiveSensorsInfo);
+//			mLayout.addView(mLiveSensorsInfo);
 			mLayout.addView(mLiveStorageInfo);
 		}
 		return v; 		
@@ -130,13 +136,16 @@ public class DetailsFragment extends SherlockFragment implements
 		super.onResume();
 		mIsPaused = false;
 		if (mGraphics != null) mGraphics.onResume();
+		if (mBattery != null) mBattery.startListening();		
+		if (mLocation != null) mLocation.startListening();
+		if (mSensors != null) mSensors.startListening();
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mBattery != null) mBattery.stopListening();
 		if (mGraphics != null) mGraphics.onPause();
+		if (mBattery != null) mBattery.stopListening();		
 		if (mLocation != null) mLocation.stopListening();
 		if (mSensors != null) mSensors.stopListening();
 		mIsPaused = true;
@@ -185,6 +194,7 @@ public class DetailsFragment extends SherlockFragment implements
     }
     
     private void loadSubgroup(final String name) {
+    	if (mLayout == null) return;
     	if (name.equals(Subgroup.SUBGROUP_CPU)) {
     		mCpu = new Cpu();
     		mCpu.updateCpuStats();    		
@@ -216,28 +226,33 @@ public class DetailsFragment extends SherlockFragment implements
     	else if (name.equals(Subgroup.SUBGROUP_CAMERA)) {
     		mCamera = new Camera(getActivity());    		
     	}
-    	else if (name.equals(Subgroup.SUBGROUP_BATTERY)) {
-    		mBattery = new Battery(getActivity(), this);
-//    		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
-//				@Override
-//				public void onBatteryChanged() {
-//					// Called on UI thread										
-//					showContents(battery, name);
-//					ImageView iv = new ImageView(getActivity());
-//					iv.setImageResource(battery.getReceiver().getIconResourceId());
-//					if (mLayout != null) mLayout.addView(iv);
-//				}
-//			});
-    		if (!mIsPaused) mBattery.startListening();
-    	}
+//    	else if (name.equals(Subgroup.SUBGROUP_BATTERY)) {
+//    		mBattery = new Battery(getActivity(), this);
+////    		battery.getReceiver().setOnBatteryChangedListener(new OnBatteryChangedListener() {				
+////				@Override
+////				public void onBatteryChanged() {
+////					// Called on UI thread										
+////					showContents(battery, name);
+////					ImageView iv = new ImageView(getActivity());
+////					iv.setImageResource(battery.getReceiver().getIconResourceId());
+////					if (mLayout != null) mLayout.addView(iv);
+////				}
+////			});
+//    		if (!mIsPaused) mBattery.startListening();
+//    	}
     	else if (name.equals(Subgroup.SUBGROUP_SENSORS)) {
-    		mSensors = new Sensors(getActivity(), this);	
+    		mSensors = new Sensors(getActivity(), this);
+    		for (SensorWrapper sw : mSensors.getSensors()) {
+    			TextView tv = new DetailsTextView(getActivity());
+    			mLiveSensorsInfo.add(tv);
+    			mLayout.addView(tv);
+    		}
     		if (!mIsPaused) mSensors.startListening();
     	}
-    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
-    		mLocation = new Location(getActivity(), this);	 
-    		if (!mIsPaused) mLocation.startListening();
-    	}
+//    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
+//    		mLocation = new Location(getActivity(), this);	 
+//    		if (!mIsPaused) mLocation.startListening();
+//    	}
     	
 //    	if (unit != null && !(unit instanceof Graphics) 
 //    			 && !(unit instanceof Battery)) {
@@ -259,7 +274,7 @@ public class DetailsFragment extends SherlockFragment implements
 				if (mGraphics != null) contents.putAll(mGraphics.getContents());
 				if (mLocation != null) contents.putAll(mLocation.getContents());
 				if (mRam != null) contents.putAll(mRam.getContents());
-				if (mSensors != null) contents.putAll(mSensors.getContents());
+//				if (mSensors != null) contents.putAll(mSensors.getContents());
 				if (mStorage != null) contents.putAll(mStorage.getContents());
 
 				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
@@ -288,17 +303,50 @@ public class DetailsFragment extends SherlockFragment implements
     	} while (c.moveToNext());     	    	
 		mLayout.addView(new DetailsTextView(getActivity(), rows));
     }
+    
+    
+    
+    // TODO Map<SensorWrapper, TextView> textViewMap;
+    public void setLiveSensorInfo(SensorWrapper sw) {
+    	String type;
+    	String accuracyStatus;
+    	int accuracy;
+    	long timestamp;
+    	float[] values;
+    	SensorWrapper sw = mSensors.getSensor(index);
+    	TextView tv = mLiveSensorsInfo.get(index);
+    	
+//    	mLiveSensorsInfo.append(mSensors.getAbsoluteHumidity() + "\n" + mSensors.getDewPoint() + "\n");
+//    	values = mSensors.getOrientationInWorldCoordinateSystem();
+//    	if (values != null) {
+//    		for (float v : values) {
+//    			mLiveSensorsInfo.append(v + "\n");
+//    		}
+//		}
+    	
+		type = sw.getTypeString();
+		accuracyStatus = sw.getLastAccuracyStatusString();
+		accuracy = sw.getLastAccuracy();
+		timestamp = sw.getLastTimestamp();
+		values = sw.getLastValues();
+		
+		tv.setText(type + "\n" + timestamp + "\n" + accuracy + "\n" + accuracyStatus + "\n");
+		if (values != null) {
+    		for (float v : values) {
+    			tv.append(v + "\n");
+    		}
+		}
+    	
+    }
 
 	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-		
+	public void onAccuracyChanged(SensorWrapper sw) {
+		setLiveSensorInfo(sw);
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
-		
+	public void onSensorChanged(SensorWrapper sw) {
+		setLiveSensorInfo(sw);
 	}
 
 	@Override
@@ -359,7 +407,5 @@ public class DetailsFragment extends SherlockFragment implements
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 		
-	}
-    
-   
+	}   
 }

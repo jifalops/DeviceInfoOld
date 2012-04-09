@@ -52,11 +52,13 @@ public class Battery implements ContentsMapper {
 	}
 	
 	public void startListening() {
+		if (mIsListening) return;
 		mAppContext.registerReceiver(mBatteryReceiver, mIntentFilter);
 		mIsListening = true;
 	}
 	
 	public void stopListening() {
+		if (!mIsListening) return;
 		mAppContext.unregisterReceiver(mBatteryReceiver);
 		mIsListening = false;
 	}
