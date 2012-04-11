@@ -9,7 +9,9 @@ import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jphilli85.deviceinfo.R;
@@ -17,34 +19,77 @@ import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 
 public class SensorsView {
+	private static final String LOG_TAG = SensorView.class.getSimpleName();
+	private static final int API = Build.VERSION.SDK_INT;
+	
 	public static final int FLAG_PROPERTIES = 0x1;
 	public static final int FLAG_EVENTS = 0x2;
 	
 	private final Sensors mSensors;
 	
 	private final ViewGroup mOuterLayout;
+	private final ViewGroup mContentWrapper;
 	private final ViewGroup mMotionGroup;
 	private final ViewGroup mPositionGroup;
 	private final ViewGroup mEnvironmentGroup;
 	
+	private final ImageView mMasterExpandCollapseImageView;
+	private final ImageView mMasterPlayPauseImageView;
+	
 	private final SensorView[] mSensorViews;
+	
+	private boolean mIsCollapsed;
 	
 	public SensorsView(Context context) {
 		mSensors = new Sensors(context);
 		
 		mOuterLayout = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.sensor_views_wrapper, null);
+		mContentWrapper = (ViewGroup) mOuterLayout.findViewById(R.id.sensorViewsContent);
 		mMotionGroup = (ViewGroup) mOuterLayout.findViewById(R.id.categoryMotionWrapper);
 		mPositionGroup = (ViewGroup) mOuterLayout.findViewById(R.id.categoryPositionWrapper);
 		mEnvironmentGroup = (ViewGroup) mOuterLayout.findViewById(R.id.categoryEnvironmentWrapper);
 		
+		mMasterPlayPauseImageView = (ImageView) mOuterLayout.findViewById(R.id.masterPlayPauseImageView);
+		mMasterPlayPauseImageView.setImageResource(R.drawable.play);
+		mMasterPlayPauseImageView.setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				if (!isListening()) startListening();
+				else stopListening();
+			}
+		});
+		
+		mMasterExpandCollapseImageView = (ImageView) mOuterLayout.findViewById(R.id.masterExpandCollapseImageView);
+		mMasterExpandCollapseImageView.setImageResource(R.drawable.collapse);
+		mMasterExpandCollapseImageView.setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				if (mIsCollapsed) {
+					mContentWrapper.setVisibility(View.VISIBLE);
+					mMasterExpandCollapseImageView.setImageResource(R.drawable.collapse);
+					updateImage();
+					mIsCollapsed = false;
+				}
+				else {
+					mContentWrapper.setVisibility(View.GONE);
+					mMasterExpandCollapseImageView.setImageResource(R.drawable.expand);
+					stopListening();
+					mMasterPlayPauseImageView.setVisibility(View.GONE);					
+					mIsCollapsed = true;
+				}
+			}
+		});
+		
+		String sensors = context.getString(R.string.sensors_title);
+		
 		((TextView) mOuterLayout.findViewById(R.id.sensorsTitleTextView))
-			.setText(R.string.sensors_title);
+			.setText(sensors);
 		((TextView) mOuterLayout.findViewById(R.id.categoryMotionTextView))
-		.setText(R.string.sensor_category_motion);
+		.setText(context.getString(R.string.sensor_category_motion) + " " + sensors);
 		((TextView) mOuterLayout.findViewById(R.id.categoryPositionTextView))
-		.setText(R.string.sensor_category_position);
+		.setText(context.getString(R.string.sensor_category_position) + " " + sensors);
 		((TextView) mOuterLayout.findViewById(R.id.categoryEnvironmentTextView))
-		.setText(R.string.sensor_category_environment);
+		.setText(context.getString(R.string.sensor_category_environment) + " " + sensors);
 		
 		List<SensorView> list = new ArrayList<SensorView>();
 		SensorView sv;
@@ -64,6 +109,64 @@ public class SensorsView {
 			list.add(sv);
 		}
 		mSensorViews = list.toArray(new SensorView[list.size()]);
+	}
+	
+	public void startListening() {
+		startListening(true);
+	}
+	
+	public void startListening(boolean onlyIfCallbackSet) {
+		for (SensorView sv : mSensorViews) {
+			sv.startListening();
+		}
+		mMasterPlayPauseImageView.setImageResource(R.drawable.pause);
+	}
+	
+	public void stopListening() {
+		for (SensorView sv : mSensorViews) {
+			sv.stopListening();
+		}
+		mMasterPlayPauseImageView.setImageResource(R.drawable.play);
+	}
+	
+	public void onPause() {
+		for (SensorView sv : mSensorViews) {
+			sv.onPause();
+		}
+		mMasterPlayPauseImageView.setImageResource(R.drawable.play);
+	}
+	
+	public void onResume() {
+		for (SensorView sv : mSensorViews) {
+			sv.onResume();
+		}
+		updateImage();
+	}
+	
+	public boolean isListening() {
+		for (SensorView sv : mSensorViews) {
+			if (sv.isListening()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void updateImage() {
+		if (!showImage()) return;
+		if (isListening()) mMasterPlayPauseImageView.setImageResource(R.drawable.pause);
+		else mMasterPlayPauseImageView.setImageResource(R.drawable.play);		
+	}
+	
+	private boolean showImage() {
+		for (SensorView sv : mSensorViews) {
+			if ((sv.getDetailsFlags() & FLAG_EVENTS) > 0) {
+				mMasterPlayPauseImageView.setVisibility(View.VISIBLE);
+				return true;
+			}
+		}
+		mMasterPlayPauseImageView.setVisibility(View.GONE);
+		return false;
 	}
 	
 	public Sensors getSensors() {
@@ -96,15 +199,15 @@ public class SensorsView {
 		}
 	}
 
-	public static class SensorView implements Sensors.Callback {
-		private static final String LOG_TAG = SensorView.class.getSimpleName();
-		private static final int API = Build.VERSION.SDK_INT;
-		
+	public class SensorView implements Sensors.Callback {
 		private final SensorWrapper mSensor;
 		
 		private final ViewGroup mLayout;
 		private final ViewGroup mProperties;
 		private final ViewGroup mLiveValues;
+		
+		private ImageView mExpandCollapseImageView;
+		private ImageView mPlayPauseImageView;
 		
 		private TextView mValue0TextView;
 		private TextView mValue1TextView;
@@ -117,12 +220,32 @@ public class SensorsView {
 		private boolean mHasInitProperties;
 		private boolean mHasInitEvents;
 		
-		public SensorView(Context context, SensorWrapper sw) {	
+		private boolean mIsCollapsed;
+		
+		private SensorView(Context context, SensorWrapper sw) {	
 			mSensor = sw;
 			
 			mLayout = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.sensor_view, null);		
 			mProperties = (ViewGroup) mLayout.findViewById(R.id.propertiesWrapper);
 			mLiveValues = (ViewGroup) mLayout.findViewById(R.id.liveValuesWrapper);
+			
+			mExpandCollapseImageView = (ImageView) mLayout.findViewById(R.id.sensorExpandCollapseImageView);
+			mExpandCollapseImageView.setImageResource(R.drawable.collapse);
+			mExpandCollapseImageView.setOnClickListener(new OnClickListener() {			
+				@Override
+				public void onClick(View v) {
+					if (mIsCollapsed) {
+						setDetails(FLAG_PROPERTIES | FLAG_EVENTS);
+						mExpandCollapseImageView.setImageResource(R.drawable.collapse);
+						mIsCollapsed = false;
+					}
+					else {
+						setDetails(0);
+						mExpandCollapseImageView.setImageResource(R.drawable.expand);
+						mIsCollapsed = true;
+					}
+				}
+			});
 			
 			String def = "";
 			if (sw.isDefaultForType()) def = " (" + context.getString(R.string.sensor_default) + ")";
@@ -149,17 +272,64 @@ public class SensorsView {
 					initEvents();
 				}
 				mLiveValues.setVisibility(View.VISIBLE);
+				mPlayPauseImageView.setVisibility(View.VISIBLE);				
 				mSensor.setCallback(this);
+//				onResume();
 			}
 			else {
+//				onPause();
 				mLiveValues.setVisibility(View.GONE);
-				mSensor.setCallback(null);
+				mPlayPauseImageView.setVisibility(View.GONE);
+				mSensor.setCallback(null);				
 			}
+			
+			try { SensorsView.this.updateImage(); }
+			catch (NullPointerException ignored) {}
 		}
+		
 		
 		public int getDetailsFlags() {
 			return mFlags;
-		}				
+		}
+		
+		private void updateImage() {
+			if (mPlayPauseImageView == null) return;
+			if (isListening()) mPlayPauseImageView.setImageResource(R.drawable.pause);
+			else mPlayPauseImageView.setImageResource(R.drawable.play);
+			SensorsView.this.updateImage();
+		}
+		
+		public void startListening() {
+			startListening(true);
+		}
+		
+		public void startListening(boolean onlyIfCallbackSet) {
+			mSensor.startListening(onlyIfCallbackSet);
+			updateImage();
+		}
+		
+		public void stopListening() {
+			mSensor.stopListening();
+			updateImage();
+		}
+		
+		public void onPause() {
+			mSensor.onPause();
+			updateImage();
+		}
+		
+		public void onResume() {
+			mSensor.onResume();
+			updateImage();
+		}
+		
+		public boolean isListening() {
+			return mSensor.isListening();
+		}
+		
+		public boolean isPaused() {
+			return mSensor.isPaused();
+		}
 		
 		private void initProperties() {
 			Context context = mLayout.getContext();
@@ -196,6 +366,16 @@ public class SensorsView {
 		
 		private void initEvents() {
 			Context context = mLayout.getContext();
+			
+			mPlayPauseImageView = (ImageView) mLayout.findViewById(R.id.sensorPlayPauseImageView);
+			mPlayPauseImageView.setImageResource(R.drawable.play);
+			mPlayPauseImageView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (!isListening()) startListening();
+					else stopListening();
+				}
+			});
 			
 			mValue0TextView = (TextView) mLayout.findViewById(R.id.value0TextView);
 			mValue1TextView = (TextView) mLayout.findViewById(R.id.value1TextView);

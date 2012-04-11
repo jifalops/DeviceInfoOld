@@ -132,7 +132,7 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mGraphics != null) mGraphics.onResume();
 		if (mBattery != null) mBattery.startListening();		
 		if (mLocation != null) mLocation.startListening();
-		if (mSensorsView != null) mSensorsView.getSensors().onResume();
+		if (mSensorsView != null) mSensorsView.onResume();
 	}
 	
 	@Override
@@ -141,7 +141,7 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mGraphics != null) mGraphics.onPause();
 		if (mBattery != null) mBattery.stopListening();		
 		if (mLocation != null) mLocation.stopListening();
-		if (mSensorsView != null) mSensorsView.getSensors().onPause();
+		if (mSensorsView != null) mSensorsView.onPause();
 		mIsPaused = true;
 	}
 	
@@ -250,7 +250,7 @@ public class DetailsFragment extends SherlockFragment implements
 //    		}
     		mSensorsView = new SensorsView(getActivity());
     		mLayout.addView(mSensorsView.getLayoutWrapper());    		
-    		if (!mIsPaused) mSensorsView.getSensors().startListening();
+//    		if (!mIsPaused) mSensorsView.getSensors().startListening();
     	
     		
     	}

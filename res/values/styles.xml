@@ -10,12 +10,12 @@
     </style>
     
     <style name="SensorsTitleTextView">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
     <style name="SensorsCategoryTextView">
         <item name="android:layout_width">match_parent</item>
@@ -24,7 +24,7 @@
         <item name="android:paddingTop">8dp</item>
     </style>
     <style name="SensorTypeTextView">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textStyle">bold</item>
@@ -42,5 +42,16 @@
         <item name="android:layout_height">wrap_content</item>    
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>  
         <item name="android:textSize">@dimen/textSizeMicro</item>
+    </style>
+    
+    <style name="SensorPlayPauseImageView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:contentDescription">Play/Pause</item>
+    </style>
+    <style name="SensorExpandCollapseImageView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:contentDescription">Expand/Collapse</item>
     </style>
 </resources>

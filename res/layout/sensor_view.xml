@@ -3,14 +3,18 @@
     android:id="@+id/sensorLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
+    <ImageView 
+   	    android:id="@+id/sensorExpandCollapseImageView"
+   	    style="@style/SensorExpandCollapseImageView"/>
     <TextView 
         android:id="@+id/typeTextView"
-        style="@style/SensorTypeTextView" />
+        style="@style/SensorTypeTextView"
+        android:layout_toRightOf="@id/sensorExpandCollapseImageView" />    
     <RelativeLayout 
         android:id="@+id/propertiesWrapper"
         android:layout_width="match_parent"
     	android:layout_height="wrap_content"
-    	android:layout_below="@id/typeTextView" >
+    	android:layout_below="@id/sensorExpandCollapseImageView" >
     	<TextView 
     	    android:id="@+id/nameLabelTextView"
     		style="@style/SensorLabelTextView" />
@@ -84,10 +88,14 @@
         android:id="@+id/liveValuesWrapper"
         android:layout_width="match_parent"
     	android:layout_height="wrap_content"
-    	android:layout_below="@id/propertiesWrapper" >        
+    	android:layout_below="@id/propertiesWrapper" >  
+    	<ImageView 
+	   	    android:id="@+id/sensorPlayPauseImageView"
+	   	    style="@style/SensorPlayPauseImageView" />      
         <TextView 
     	    android:id="@+id/value0LabelTextView"
-    		style="@style/SensorLabelTextView" />
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/sensorPlayPauseImageView" />
         <TextView 
     	    android:id="@+id/value0TextView"
     		style="@style/SensorValueTextView"
