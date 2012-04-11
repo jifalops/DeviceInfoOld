@@ -1,15 +1,12 @@
 package com.jphilli85.deviceinfo.app;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +26,8 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.app.component.SensorsView;
+import com.jphilli85.deviceinfo.app.component.SensorsView.SensorView;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 import com.jphilli85.deviceinfo.element.Audio;
@@ -45,8 +44,7 @@ import com.jphilli85.deviceinfo.element.Storage;
 
 public class DetailsFragment extends SherlockFragment implements
 		LoaderManager.LoaderCallbacks<Cursor>,
-		Battery.Callback, Graphics.Callback, Location.Callback,
-		Sensors.Callback {
+		Battery.Callback, Graphics.Callback, Location.Callback {
 	
 	private static final int SUBGROUP_LOADER = 1;
 	
@@ -61,7 +59,7 @@ public class DetailsFragment extends SherlockFragment implements
 	private Graphics mGraphics;
 	private Location mLocation;
 	private Ram mRam;
-	private Sensors mSensors;
+//	private Sensors mSensors;
 	private Storage mStorage;
 	
 	private boolean mIsPaused;
@@ -69,10 +67,11 @@ public class DetailsFragment extends SherlockFragment implements
 	private TextView mLiveBatteryInfo;
 	private TextView mLiveCpuInfo;
 	private TextView mLiveLocationInfo;
-	private TextView mLiveRamInfo;
-	private List<TextView> mLiveSensorsInfo;
+	private TextView mLiveRamInfo;	
 	private TextView mLiveStorageInfo;
-
+	
+	private SensorsView mSensorsView;
+	
 	/**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
@@ -93,15 +92,10 @@ public class DetailsFragment extends SherlockFragment implements
         return args != null ? args.getInt("index", 1) : 1;
     }
     
-    @Override
-    public void onAttach(Activity activity) {    
-    	super.onAttach(activity);
-    	mLiveSensorsInfo = new ArrayList<TextView>();
-    }
-    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		setRetainInstance(true);
 		mSubgroups = new HashMap<String, String>();
 		getLoaderManager().initLoader(SUBGROUP_LOADER, null, this);		
 		setHasOptionsMenu(true);
@@ -138,7 +132,7 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mGraphics != null) mGraphics.onResume();
 		if (mBattery != null) mBattery.startListening();		
 		if (mLocation != null) mLocation.startListening();
-		if (mSensors != null) mSensors.startListening();
+		if (mSensorsView != null) mSensorsView.getSensors().onResume();
 	}
 	
 	@Override
@@ -147,7 +141,7 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mGraphics != null) mGraphics.onPause();
 		if (mBattery != null) mBattery.stopListening();		
 		if (mLocation != null) mLocation.stopListening();
-		if (mSensors != null) mSensors.stopListening();
+		if (mSensorsView != null) mSensorsView.getSensors().onPause();
 		mIsPaused = true;
 	}
 	
@@ -172,12 +166,14 @@ public class DetailsFragment extends SherlockFragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     	if (cursor == null) return;
     	if (DeviceInfo.DEBUG) dumpResult(cursor);
-    	if (!cursor.moveToFirst()) return;  
-    	do {
-    		// name, label
-    		mSubgroups.put(cursor.getString(0), cursor.getString(1));
-    	} while(cursor.moveToNext());   
-    	loadSubgroups();
+    	if (cursor.moveToFirst()) {  
+	    	do {
+	    		// name, label
+	    		mSubgroups.put(cursor.getString(0), cursor.getString(1));
+	    	} while(cursor.moveToNext());   
+	    	loadSubgroups();
+    	}
+    	cursor.close();
     }
 
     @Override
@@ -241,13 +237,22 @@ public class DetailsFragment extends SherlockFragment implements
 //    		if (!mIsPaused) mBattery.startListening();
 //    	}
     	else if (name.equals(Subgroup.SUBGROUP_SENSORS)) {
-    		mSensors = new Sensors(getActivity(), this);
-    		for (SensorWrapper sw : mSensors.getSensors()) {
-    			TextView tv = new DetailsTextView(getActivity());
-    			mLiveSensorsInfo.add(tv);
-    			mLayout.addView(tv);
-    		}
-    		if (!mIsPaused) mSensors.startListening();
+//    		mSensorMap = new HashMap<SensorWrapper, ViewGroup>();
+//    		mSensors = new Sensors(getActivity());
+////    		View v;
+//    		
+//    		SensorView sv;
+//    		for (SensorWrapper sw : mSensors.getAllSensors()) {
+//    			sv = new SensorView(getActivity(), sw);
+//    			mSensorViews.add(sv);
+//    			mLayout.addView(sv.getLayoutWrapper());
+//    			if (!mIsPaused) sw.startListening();
+//    		}
+    		mSensorsView = new SensorsView(getActivity());
+    		mLayout.addView(mSensorsView.getLayoutWrapper());    		
+    		if (!mIsPaused) mSensorsView.getSensors().startListening();
+    	
+    		
     	}
 //    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
 //    		mLocation = new Location(getActivity(), this);	 
@@ -313,8 +318,8 @@ public class DetailsFragment extends SherlockFragment implements
     	int accuracy;
     	long timestamp;
     	float[] values;
-    	SensorWrapper sw = mSensors.getSensor(index);
-    	TextView tv = mLiveSensorsInfo.get(index);
+//    	SensorWrapper sw = mSensors.getSensor(index);
+//    	TextView tv = mLiveSensorsInfo.get(index);
     	
 //    	mLiveSensorsInfo.append(mSensors.getAbsoluteHumidity() + "\n" + mSensors.getDewPoint() + "\n");
 //    	values = mSensors.getOrientationInWorldCoordinateSystem();
@@ -323,31 +328,36 @@ public class DetailsFragment extends SherlockFragment implements
 //    			mLiveSensorsInfo.append(v + "\n");
 //    		}
 //		}
-    	
-		type = sw.getTypeString();
-		accuracyStatus = sw.getLastAccuracyStatusString();
-		accuracy = sw.getLastAccuracy();
-		timestamp = sw.getLastTimestamp();
-		values = sw.getLastValues();
-		
-		tv.setText(type + "\n" + timestamp + "\n" + accuracy + "\n" + accuracyStatus + "\n");
-		if (values != null) {
-    		for (float v : values) {
-    			tv.append(v + "\n");
-    		}
-		}
+//    	
+//		type = sw.getTypeString();
+//		accuracyStatus = sw.getLastAccuracyStatusString();
+//		accuracy = sw.getLastAccuracy();
+//		timestamp = sw.getLastEventTimestamp();
+//		values = sw.getLastValues();
+//		
+//		tv.setText(type + "\n" + timestamp + "\n" + accuracy + "\n" + accuracyStatus + "\n");
+//		if (values != null) {
+//    		for (float v : values) {
+//    			tv.append(v + "\n");
+//    		}
+//		}
     	
     }
 
-	@Override
-	public void onAccuracyChanged(SensorWrapper sw) {
-		setLiveSensorInfo(sw);
-	}
-
-	@Override
-	public void onSensorChanged(SensorWrapper sw) {
-		setLiveSensorInfo(sw);
-	}
+//	@Override
+//	public void onAccuracyChanged(SensorWrapper sw) {
+//		//setLiveSensorInfo(sw);
+//	}
+//
+//	@Override
+//	public void onSensorChanged(SensorWrapper sw) {
+//		//setLiveSensorInfo(sw);
+//		float[] values = sw.getLastValues();
+//		if (values == null) return;
+//		((TextView) mSensorMap.get(sw).findViewById(R.id.value0TextView)).setText(String.valueOf(values[0]));
+//		((TextView) mSensorMap.get(sw).findViewById(R.id.value1TextView)).setText(String.valueOf(values[1]));
+//		((TextView) mSensorMap.get(sw).findViewById(R.id.value2TextView)).setText(String.valueOf(values[2]));
+//	}
 
 	@Override
 	public void onLocationChanged(android.location.Location location) {

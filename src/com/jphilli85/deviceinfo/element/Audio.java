@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

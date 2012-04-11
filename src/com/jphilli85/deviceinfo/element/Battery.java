@@ -2,7 +2,6 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.DeviceInfo;
 
 import android.app.Activity;

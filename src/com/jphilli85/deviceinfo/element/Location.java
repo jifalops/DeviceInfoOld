@@ -3,7 +3,6 @@ package com.jphilli85.deviceinfo.element;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.content.Context;
 import android.location.GpsStatus;

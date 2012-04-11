@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sensors_title">Sensors</string>
+    
+    <string name="sensor_type">Type</string>
+    <string name="sensor_type_accelerometer">Accelerometer</string>
+    <string name="sensor_type_ambient_temperature">Ambient Temperature</string>
+    <string name="sensor_type_gravity">Gravity</string>
+    <string name="sensor_type_gyroscope">Gyroscope</string>
+    <string name="sensor_type_light">Light</string>
+    <string name="sensor_type_linear_acceleration">Linear Acceleration</string>
+    <string name="sensor_type_magnetic_field">Magnetic Field</string>
+    <string name="sensor_type_orientation">Orientation</string>
+    <string name="sensor_type_pressure">Pressure</string>
+    <string name="sensor_type_proximity">Proximity</string>
+    <string name="sensor_type_relative_humidity">Relative Humidity</string>
+    <string name="sensor_type_rotation_vector">Rotation Vector</string>
+    <string name="sensor_type_temperature">Temperature</string>
+    
+    <string name="sensor_category_motion">Motion</string>
+    <string name="sensor_category_position">Position</string>
+    <string name="sensor_category_environment">Environment</string>
+    
+    <string name="sensor_default">Default</string>
+    <string name="sensor_name">Name</string>
+    <string name="sensor_vendor">Vendor</string>
+    <string name="sensor_version">Version</string>
+    <string name="sensor_power">Power</string>
+    <string name="sensor_resolution">Resolution</string>
+    <string name="sensor_max_range">Max Range</string>
+    <string name="sensor_min_delay">Min Delay</string>
+    
+    <string name="sensor_accuracy_high">High</string>
+    <string name="sensor_accuracy_medium">Medium</string>
+    <string name="sensor_accuracy_low">Low</string>
+    <string name="sensor_accuracy_unreliable">Unreliable</string>
+    
+    <string name="sensor_value_x">X</string>
+    <string name="sensor_value_y">Y</string>
+    <string name="sensor_value_z">Z</string>
+    <string name="sensor_value_angular_speed">Angular speed</string>
+    <string name="sensor_value_azimuth">Azimuth</string>    
+    <string name="sensor_value_pitch">Pitch</string>
+    <string name="sensor_value_roll">Roll</string>
+    <string name="sensor_value_rotation_x">x*sin(θ/2)</string>
+    <string name="sensor_value_rotation_y">y*sin(θ/2)</string>
+    <string name="sensor_value_rotation_z">z*sin(θ/2)</string>
+    <string name="sensor_value_rotation_extra">cos(θ/2)</string>
+    
+    <string name="sensor_value_timestamp">Timestamp</string>
+    <string name="sensor_value_accuracy">Accuracy</string>
+    
+    <string name="sensor_value_value">Value</string>
+    <string name="sensor_proximity_disclaimer">may only indicate near or far</string>
+</resources>

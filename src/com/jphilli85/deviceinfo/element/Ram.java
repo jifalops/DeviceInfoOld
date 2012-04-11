@@ -6,7 +6,6 @@ import java.util.Map;
 
 import android.util.Log;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.ShellHelper;
 
 public class Ram implements ContentsMapper {

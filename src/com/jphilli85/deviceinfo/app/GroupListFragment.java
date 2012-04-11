@@ -175,6 +175,7 @@ public class GroupListFragment extends SherlockListFragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
+//        cursor.close();
     }
 
     @Override

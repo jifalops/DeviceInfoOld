@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unit_unitless">(unitless)</string>
+    <string name="unit_meters_per_second_squared">m/s²</string>
+    <string name="unit_degrees_celsius">°C</string>
+    <string name="unit_degrees_fahrenheit">°F</string>
+    <string name="unit_degrees">°</string>
+    <string name="unit_radians_per_second">rad/s</string>
+    <string name="unit_lux">lx</string>
+    <string name="unit_micro_tesla">μT</string>
+    <string name="unit_hecto_pascal">hPa</string>
+    <string name="unit_centimeter">cm</string>
+    <string name="unit_percent">%</string>   
+    <string name="unit_milli_amps">mA</string> 
+    <string name="unit_micro_seconds">μs</string>
+    <string name="unit_nano_seconds">ns</string> 
+</resources>

@@ -7,7 +7,6 @@ import java.util.List;
 import android.os.StatFs;
 import android.util.Log;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 import com.jphilli85.deviceinfo.ShellHelper;
 
 public class Storage implements ContentsMapper {
@@ -17,6 +16,8 @@ public class Storage implements ContentsMapper {
 	private List<Partition> mPartitions;
 	
 	// TODO use singleton
+	
+	//TODO android.os.Environment
 	public Storage() {
 		mMounts = new ArrayList<Mount>();
 		mPartitions = new ArrayList<Partition>();

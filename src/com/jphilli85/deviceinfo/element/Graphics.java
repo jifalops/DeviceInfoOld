@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
 
 import android.opengl.GLES10;
 import android.opengl.GLES11;

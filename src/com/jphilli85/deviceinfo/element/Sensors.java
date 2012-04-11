@@ -12,35 +12,21 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 
-import com.jphilli85.deviceinfo.ContentsMapper;
+import com.jphilli85.deviceinfo.R;
 
 // TODO add microphone
 public class Sensors implements ContentsMapper {
 	private static final String LOG_TAG = Sensors.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	
-	public static final String TYPE_ACCELEROMETER = "TYPE_ACCELEROMETER";
-	public static final String TYPE_AMBIENT_TEMPERATURE = "TYPE_AMBIENT_TEMPERATURE";
-	public static final String TYPE_GRAVITY = "TYPE_GRAVITY";
-	public static final String TYPE_GYROSCOPE = "TYPE_GYROSCOPE";
-	public static final String TYPE_LIGHT = "TYPE_LIGHT";
-	public static final String TYPE_LINEAR_ACCELERATION = "TYPE_LINEAR_ACCELERATION";
-	public static final String TYPE_MAGNETIC_FIELD = "TYPE_MAGNETIC_FIELD";
-	public static final String TYPE_ORIENTATION = "TYPE_ORIENTATION";
-	public static final String TYPE_PRESSURE = "TYPE_PRESSURE";
-	public static final String TYPE_PROXIMITY = "TYPE_PROXIMITY";
-	public static final String TYPE_RELATIVE_HUMIDITY = "TYPE_RELATIVE_HUMIDITY";
-	public static final String TYPE_ROTATION_VECTOR = "TYPE_ROTATION_VECTOR";
-	public static final String TYPE_TEMPERATURE = "TYPE_TEMPERATURE";
+	public static final int CATEGORY_UNKNOWN = 0;
+	public static final int CATEGORY_MOTION = 1;
+	public static final int CATEGORY_POSITION = 2;
+	public static final int CATEGORY_ENVIRONMENT = 3;
 	
-	public static final String CATEGORY_MOTION = "CATEGORY_MOTION";
-	public static final String CATEGORY_POSITION = "CATEGORY_POSITION";
-	public static final String CATEGORY_ENVIRONMENT = "CATEGORY_ENVIRONMENT";
-	
-	public static final String SENSOR_STATUS_ACCURACY_HIGH = "SENSOR_STATUS_ACCURACY_HIGH";
-	public static final String SENSOR_STATUS_ACCURACY_LOW = "SENSOR_STATUS_ACCURACY_LOW";
-	public static final String SENSOR_STATUS_ACCURACY_MEDIUM = "SENSOR_STATUS_ACCURACY_MEDIUM";
-	public static final String SENSOR_STATUS_UNRELIABLE = "SENSOR_STATUS_UNRELIABLE";
+	public static final int FREQUENCY_HIGH = 100;
+	public static final int FREQUENCY_DEFAULT = 200;
+	public static final int FREQUENCY_LOW = 500;
 	
 	public interface Callback {
 		/** Corresponds to SensorEventListener.onAccuracyChanged() */
@@ -50,8 +36,6 @@ public class Sensors implements ContentsMapper {
 	}
 	
 	private final SensorManager mSensorManager;
-//	private final List<SensorWrapper> mSensors;
-	private final Callback mCallback;	
 	
 	// Sensor types
 	private final List<AccelerometerSensor> mAccelerometerSensors;
@@ -67,12 +51,17 @@ public class Sensors implements ContentsMapper {
 	private final List<RelativeHumiditySensor> mRelativeHumiditySensors;
 	private final List<RotationVectorSensor> mRotationVectorSensors;
 	private final List<TemperatureSensor> mTemperatureSensors;	
+	
+	private final SensorWrapper[] mSensors;
+	
+	private final String ACCURACY_HIGH;
+	private final String ACCURACY_MEDIUM;
+	private final String ACCURACY_LOW;
+	private final String ACCURACY_UNRELIABLE;
 
 	// TODO singleton?
-	public Sensors(Context context, Callback callback) {
-		mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mCallback = callback;
-//		mSensors = new ArrayList<SensorWrapper>();		
+	public Sensors(Context context) {
+		mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);	
 		
 		mAccelerometerSensors = new ArrayList<AccelerometerSensor>(1);
 		mAmbientTemperatureSensors = new ArrayList<AmbientTemperatureSensor>(1);
@@ -88,79 +77,124 @@ public class Sensors implements ContentsMapper {
 		mRotationVectorSensors = new ArrayList<RotationVectorSensor>(1);
 		mTemperatureSensors = new ArrayList<TemperatureSensor>(1);
 		
+		ACCURACY_HIGH = context.getString(R.string.sensor_accuracy_high);
+		ACCURACY_MEDIUM = context.getString(R.string.sensor_accuracy_medium);
+		ACCURACY_LOW = context.getString(R.string.sensor_accuracy_low);
+		ACCURACY_UNRELIABLE = context.getString(R.string.sensor_accuracy_unreliable);
+		
 		
 		List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 		// Add default sensors first.
 		for (Sensor s : sensors) {
 			if (s == mSensorManager.getDefaultSensor(s.getType())) 
-				addSensor(s, true); 				
+				addSensor(context, s, true); 				
 		}
 		// Then other sensors.
 		for (Sensor s : sensors) {
 			if (s != mSensorManager.getDefaultSensor(s.getType())) 
-				addSensor(s, false);
+				addSensor(context, s, false);
 		}
+		
+		List<SensorWrapper> list = new ArrayList<SensorWrapper>();
+		list.addAll(mAccelerometerSensors);
+		list.addAll(mAmbientTemperatureSensors);
+		list.addAll(mGravitySensors);
+		list.addAll(mGyroscopeSensors);
+		list.addAll(mLightSensors);
+		list.addAll(mLinearAccelerationSensors);
+		list.addAll(mMagneticFieldSensors);
+		list.addAll(mOrientationSensors);
+		list.addAll(mPressureSensors);
+		list.addAll(mProximitySensors);
+		list.addAll(mRelativeHumiditySensors);
+		list.addAll(mRotationVectorSensors);
+		list.addAll(mTemperatureSensors);	
+		mSensors = list.toArray(new SensorWrapper[list.size()]);
 	}
 	
-	private void addSensor(Sensor sensor, boolean isDefault) {
+	private void addSensor(Context context, Sensor sensor, boolean isDefault) {
 		int type = sensor.getType();
 		
 		if (type == Sensor.TYPE_ACCELEROMETER) 
-			 mAccelerometerSensors.add(new AccelerometerSensor(sensor, isDefault));
+			 mAccelerometerSensors.add(new AccelerometerSensor(context, sensor, isDefault));
         else if (API >= 14 && type == Sensor.TYPE_AMBIENT_TEMPERATURE)
-        	mAmbientTemperatureSensors.add(new AmbientTemperatureSensor(sensor, isDefault));
+        	mAmbientTemperatureSensors.add(new AmbientTemperatureSensor(context, sensor, isDefault));
         else if (API >= 9 && type == Sensor.TYPE_GRAVITY) 
-        	mGravitySensors.add(new GravitySensor(sensor, isDefault));
+        	mGravitySensors.add(new GravitySensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_GYROSCOPE) 
-        	mGyroscopeSensors.add(new GyroscopeSensor(sensor, isDefault));
+        	mGyroscopeSensors.add(new GyroscopeSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_LIGHT) 
-        	mLightSensors.add(new LightSensor(sensor, isDefault));
+        	mLightSensors.add(new LightSensor(context, sensor, isDefault));
         else if (API >= 9 && type == Sensor.TYPE_LINEAR_ACCELERATION) 
-        	mLinearAccelerationSensors.add(new LinearAccelerationSensor(sensor, isDefault));
+        	mLinearAccelerationSensors.add(new LinearAccelerationSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_MAGNETIC_FIELD)
-        	mMagneticFieldSensors.add(new MagneticFieldSensor(sensor, isDefault));
+        	mMagneticFieldSensors.add(new MagneticFieldSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_ORIENTATION) 
-        	mOrientationSensors.add(new OrientationSensor(sensor, isDefault));
+        	mOrientationSensors.add(new OrientationSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_PRESSURE) 
-        	mPressureSensors.add(new PressureSensor(sensor, isDefault));
+        	mPressureSensors.add(new PressureSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_PROXIMITY) 
-        	mProximitySensors.add(new ProximitySensor(sensor, isDefault));
+        	mProximitySensors.add(new ProximitySensor(context, sensor, isDefault));
         else if (API >= 14 && type == Sensor.TYPE_RELATIVE_HUMIDITY)
-        	mRelativeHumiditySensors.add(new RelativeHumiditySensor(sensor, isDefault));
+        	mRelativeHumiditySensors.add(new RelativeHumiditySensor(context, sensor, isDefault));
         else if (API >= 9 && type == Sensor.TYPE_ROTATION_VECTOR) 
-        	mRotationVectorSensors.add(new RotationVectorSensor(sensor, isDefault));
+        	mRotationVectorSensors.add(new RotationVectorSensor(context, sensor, isDefault));
         else if (type == Sensor.TYPE_TEMPERATURE)
-        	mTemperatureSensors.add(new TemperatureSensor(sensor, isDefault));		
+        	mTemperatureSensors.add(new TemperatureSensor(context, sensor, isDefault));		
 	}
 
 	public abstract class SensorWrapper implements ContentsMapper, SensorEventListener {		
 		private final Sensor mSensor;	
 		private final boolean mIsDefault;		
 		private final String mSensorTypeString;
-		private final String mCategory;
+		private final int mCategory;
+		private final String mCategoryString;
 		private final String mUnit;
 		
-		private boolean mIsListening;
+		private Callback mCallback;
 		
 		private int mLastAccuracyStatus;
 		private int mLastAccuracy;
-		private long mLastTimestamp;
-		protected float[] mLastValues;
+		private long mLastEventTimestamp;
+		protected float[] mLastValues;		
 		
+		private boolean mIsListening;		
+		private int mFrequency;
+		private long mLastAccuracyTimestamp;
 		
+		private boolean mIsPaused;
 		
-		private SensorWrapper(Sensor sensor, boolean isDefault,
-				String type, String category, String unit) {
+		private SensorWrapper(Context context, Sensor sensor, boolean isDefault,
+				String type, int category, String unit) {
 			mSensor = sensor;
 			mIsDefault = isDefault;
 			mSensorTypeString = type;
 			mCategory = category;
 			mUnit = unit;
+			mFrequency = FREQUENCY_DEFAULT;
+			
+			switch (category) {
+			case CATEGORY_MOTION: 
+				mCategoryString = context.getString(R.string.sensor_category_motion);
+				break;
+			case CATEGORY_POSITION: 
+				mCategoryString = context.getString(R.string.sensor_category_position);
+				break;
+			case CATEGORY_ENVIRONMENT: 
+				mCategoryString = context.getString(R.string.sensor_category_environment);
+				break;
+			default:
+				mCategoryString = null;
+			}
 		}
 
 		public Sensor getSensor() {
 			return mSensor;
 		}			
+		
+		public Callback getCallback() {
+			return mCallback;
+		}
 		
 		public String getUnit() {
 			return mUnit;
@@ -211,21 +245,20 @@ public class Sensors implements ContentsMapper {
 		public int getLastAccuracyStatus() {
 			return mLastAccuracyStatus;
 		}
-		
-		// TODO ui facing strings
-		public String getLastAccuracyStatusString() {
-			switch(mLastAccuracyStatus) {
-			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH: return SENSOR_STATUS_ACCURACY_HIGH;
-			case SensorManager.SENSOR_STATUS_ACCURACY_LOW: return SENSOR_STATUS_ACCURACY_LOW;
-			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM: return SENSOR_STATUS_ACCURACY_MEDIUM;
-			case SensorManager.SENSOR_STATUS_UNRELIABLE: return SENSOR_STATUS_UNRELIABLE;			
+
+		public String getAccuracyString(int accuracy) {
+			switch(accuracy) {
+			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH: return ACCURACY_HIGH;
+			case SensorManager.SENSOR_STATUS_ACCURACY_LOW: return ACCURACY_LOW;
+			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM: return ACCURACY_MEDIUM;
+			case SensorManager.SENSOR_STATUS_UNRELIABLE: return ACCURACY_UNRELIABLE;			
 			}
 			return null;
 		}
 		
-		/** The SensorEvent's timestamp in ns */
-		public long getLastTimestamp() {
-			return mLastTimestamp;
+		/** The SensorEvent's timestamp in nanoseconds */
+		public long getLastEventTimestamp() {
+			return mLastEventTimestamp;
 		}
 		
 		public int getLastAccuracy() {
@@ -236,16 +269,60 @@ public class Sensors implements ContentsMapper {
 			return mLastValues;
 		}
 		
-		public String getCategory() {
+		public float getLastValue(int index) {
+			if (mLastValues == null || mLastValues.length <= index) return 0;
+			return mLastValues[index];
+		}
+		
+		public int getCategory() {
 			return mCategory;
 		}
+		
+		public String getCategoryString() {
+			return mCategoryString;
+		}
+		
+		/** The last onAccuracyChanged() event's timestamp in milliseconds */
+		public long getLastAccuracyTimestamp() {
+			return mLastAccuracyTimestamp;
+		}
+		
+		/** 
+		 * Returns the minimum time between two events in milliseconds 
+		 * that this sensor's listener will respond to events.
+		 */
+		public int getMinUpdateFrequency() {
+			return mFrequency;
+		}
+		
+		/** 
+		 * Sets the minimum time between two events in milliseconds 
+		 * that this sensor's listener will respond to events.
+		 */
+		public void setMinUpdateFrequency(int frequency) {
+			mFrequency = frequency;
+		}
+		
+		public void setCallback(Callback callback) {
+			mCallback = callback;
+		}				
+		
 		
 		public boolean isListening() {
 			return mIsListening;
 		}
 		
+		/** Whether onPause() was used to stop listening */
+		public boolean isPaused() {
+			return mIsPaused;
+		}
+
 		public void startListening() {
-			if (mIsListening) return;		
+			startListening(true);
+		}
+		
+		public void startListening(boolean onlyIfCallbackSet) {
+			if (mIsListening || (onlyIfCallbackSet && mCallback == null)) return;
 			mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_UI);
 			mIsListening = true;
 		}
@@ -256,15 +333,41 @@ public class Sensors implements ContentsMapper {
 			mIsListening = false;
 		}
 		
+		/** 
+		 * Meant to be used with the Activity or Fragment life-cycle.  
+		 * If this is used to stop listening then onResume() will cause it
+		 * to continue listening.
+		 */
+		public void onPause() {
+			if (mIsListening) {
+				stopListening();
+				mIsPaused = true;				
+			}
+		}
+		
+		/** 
+		 * Meant to be used with the Activity or Fragment life-cycle.  
+		 * If onPause() was used to stop listening then this will cause it
+		 * to continue listening.
+		 */
+		public void onResume() {
+			if (mIsPaused) {
+				startListening();
+				mIsPaused = false;
+			}
+		}
+		
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			if (System.currentTimeMillis() - mLastAccuracyTimestamp < mFrequency) return;
 			mLastAccuracyStatus = accuracy;
 			if (mCallback != null) mCallback.onAccuracyChanged(this);
 		}
 
 		@Override
 		public void onSensorChanged(SensorEvent event) {
-			mLastTimestamp = event.timestamp;
+			if (event.timestamp - mLastEventTimestamp < (mFrequency * 1E6)) return;
+			mLastEventTimestamp = event.timestamp;
 			mLastAccuracy = event.accuracy;
 			mLastValues = event.values.clone();
 			if (mCallback != null) mCallback.onSensorChanged(this);
@@ -275,7 +378,7 @@ public class Sensors implements ContentsMapper {
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 			
 			contents.put("Type", getTypeString());
-			contents.put("Category", getCategory());
+			contents.put("Category", getCategoryString());
 			contents.put("Unit", getUnit());
 			contents.put("Default for Type", String.valueOf(isDefaultForType()));
 			contents.put("Name", getName());
@@ -286,9 +389,13 @@ public class Sensors implements ContentsMapper {
 			contents.put("Max Range (" + getUnit() + ")", String.valueOf(getMaximumRange()));
 			contents.put("Min Delay (us)", String.valueOf(getMinDelay()));
 			contents.put("Is Listening", String.valueOf(isListening()));
-			contents.put("Last Event Timestmp (ns)", String.valueOf(getLastTimestamp()));
-			contents.put("Last Event Accuracy", String.valueOf(getLastAccuracy()));
-			contents.put("Last Event Accuracy Status", getLastAccuracyStatusString());
+			contents.put("Is Listening Stopped By Pause", String.valueOf(isPaused()));
+			contents.put("MinUpdateFrequency (ms)", String.valueOf(getMinUpdateFrequency()));
+			contents.put("Last Event Timestmp (ns)", String.valueOf(getLastEventTimestamp()));
+			contents.put("Last Event Accuracy", String.valueOf(getLastAccuracy())); 
+			//FIXME accuracy shit
+			contents.put("Last Accuracy Status", getAccuracyString(getLastAccuracy()));
+			contents.put("Last Accuracy Status Timestamp (ms)", String.valueOf(getLastAccuracyTimestamp()));
 			
 			contents.putAll(getValuesContents());
 			
@@ -305,218 +412,226 @@ public class Sensors implements ContentsMapper {
 		}
 	}
 	
-	public class AccelerometerSensor extends SensorWrapper {
-		public static final String UNIT = "m/s²";
-		
-		private AccelerometerSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_ACCELEROMETER, CATEGORY_MOTION, UNIT);			
+	public class AccelerometerSensor extends SensorWrapper {		
+		private AccelerometerSensor(Context context, Sensor sensor, boolean isDefault) {
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_accelerometer), 
+					CATEGORY_MOTION, 
+					context.getString(R.string.unit_meters_per_second_squared));			
 		}
 		
 		/** Acceleration minus Gx on the x-axis in m/s² */
 		public float getAccelerationX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** Acceleration minus Gy on the y-axis in m/s² */
 		public float getAccelerationY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** Acceleration minus Gz on the z-axis in m/s² */
 		public float getAccelerationZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("X Acceleration (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Y Acceleration (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Z Acceleration (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("X Acceleration (" + getUnit() + ")", String.valueOf(getAccelerationX()));
+			contents.put("Y Acceleration (" + getUnit() + ")", String.valueOf(getAccelerationY()));
+			contents.put("Z Acceleration (" + getUnit() + ")", String.valueOf(getAccelerationZ()));
 			return contents;
 		}
 	}
 	
-	public class AmbientTemperatureSensor extends SensorWrapper {
-		public static final String UNIT = "°C";
-		
-		private AmbientTemperatureSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_AMBIENT_TEMPERATURE, CATEGORY_ENVIRONMENT, UNIT);
+	public class AmbientTemperatureSensor extends SensorWrapper {		
+		private AmbientTemperatureSensor(Context context, Sensor sensor, boolean isDefault) {
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_ambient_temperature), 
+					CATEGORY_ENVIRONMENT, 
+					context.getString(R.string.unit_degrees_celsius));			
 		}
-		
+	
 		/** Ambient (room) temperature in °C */
 		public float getAmbientTemperature() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Ambient temperature (" + UNIT + ")", String.valueOf(mLastValues[0]));
+			contents.put("Ambient temperature (" + getUnit() + ")", String.valueOf(getAmbientTemperature()));
 			return contents;
 		}
 	}
 	
 	public class GravitySensor extends SensorWrapper {
-		public static final String UNIT = "m/s²";
-		
-		private GravitySensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_GRAVITY, CATEGORY_MOTION, UNIT);
+		private GravitySensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_gravity), 
+					CATEGORY_MOTION, 
+					context.getString(R.string.unit_meters_per_second_squared));
 		}
 		
 		/** Gravity on the x-axis in m/s² */
 		public float getGravityX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** Gravity on the y-axis in m/s² */
 		public float getGravityY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** Gravity on the z-axis in m/s² */
 		public float getGravityZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("X Gravity (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Y Gravity (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Z Gravity (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("X Gravity (" + getUnit() + ")", String.valueOf(getGravityX()));
+			contents.put("Y Gravity (" + getUnit() + ")", String.valueOf(getGravityY()));
+			contents.put("Z Gravity (" + getUnit() + ")", String.valueOf(getGravityZ()));
 			return contents;
 		}
 	}
 	
-	public class GyroscopeSensor extends SensorWrapper {
-		public static final String UNIT = "rad/s";
-		
-		private GyroscopeSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_GYROSCOPE, CATEGORY_MOTION, UNIT);
+	public class GyroscopeSensor extends SensorWrapper {		
+		private GyroscopeSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_gyroscope), 
+					CATEGORY_MOTION, 
+					context.getString(R.string.unit_radians_per_second));
 		}
 		
 		/** Angular speed around the x-axis in rad/s */
 		public float getAngularSpeedX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** Angular speed around the y-axis in rad/s */
 		public float getAngularSpeedY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** Angular speed around the z-axis in rad/s */
 		public float getAngularSpeedZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("X AngularSpeed (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Y AngularSpeed (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Z AngularSpeed (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("X AngularSpeed (" + getUnit() + ")", String.valueOf(getAngularSpeedX()));
+			contents.put("Y AngularSpeed (" + getUnit() + ")", String.valueOf(getAngularSpeedY()));
+			contents.put("Z AngularSpeed (" + getUnit() + ")", String.valueOf(getAngularSpeedZ()));
 			return contents;
 		}
 	}
 	
 	public class LightSensor extends SensorWrapper {
-		public static final String UNIT = "lx";
-		
-		private LightSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_LIGHT, CATEGORY_ENVIRONMENT, UNIT);
+		private LightSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_light), 
+					CATEGORY_ENVIRONMENT, 
+					context.getString(R.string.unit_lux));
 		}
 		
 		/** Ambient light level in lux */
 		public float getLightLevel() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Ambient light level (" + UNIT + ")", String.valueOf(mLastValues[0]));
+			contents.put("Ambient light level (" + getUnit() + ")", String.valueOf(getLightLevel()));
 			return contents;
 		}
 	}
 	
 	public class LinearAccelerationSensor extends SensorWrapper {
-		public static final String UNIT = "m/s²";
-		
-		private LinearAccelerationSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_LINEAR_ACCELERATION, CATEGORY_MOTION, UNIT);
+		private LinearAccelerationSensor(Context context, Sensor sensor, boolean isDefault) {
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_linear_acceleration), 
+					CATEGORY_MOTION, 
+					context.getString(R.string.unit_meters_per_second_squared));
 		}
 		
 		/** Linear acceleration on the x-axis in m/s² */
 		public float getLinearAccelerationX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** Linear acceleration on the y-axis in m/s² */
 		public float getLinearAccelerationY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** Linear acceleration on the z-axis in m/s² */
 		public float getLinearAccelerationZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("X LinearAcceleration (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Y LinearAcceleration (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Z LinearAcceleration (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("X LinearAcceleration (" + getUnit() + ")", String.valueOf(getLinearAccelerationX()));
+			contents.put("Y LinearAcceleration (" + getUnit() + ")", String.valueOf(getLinearAccelerationY()));
+			contents.put("Z LinearAcceleration (" + getUnit() + ")", String.valueOf(getLinearAccelerationZ()));
 			return contents;
 		}
 	}
 	
-	public class MagneticFieldSensor extends SensorWrapper {
-		public static final String UNIT = "μT";
-		
-		private MagneticFieldSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_MAGNETIC_FIELD, CATEGORY_POSITION, UNIT);
+	public class MagneticFieldSensor extends SensorWrapper {		
+		private MagneticFieldSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_magnetic_field), 
+					CATEGORY_POSITION, 
+					context.getString(R.string.unit_micro_tesla));
 		}
 		
 		/** Ambient magnetic field on the x-axis in μT */
 		public float getMagneticFieldX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** Ambient magnetic field on the y-axis in μT */
 		public float getMagneticFieldY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** Ambient magnetic field on the z-axis in μT */
 		public float getMagneticFieldZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("X MagneticField (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Y MagneticField (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Z MagneticField (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("X MagneticField (" + getUnit() + ")", String.valueOf(getMagneticFieldX()));
+			contents.put("Y MagneticField (" + getUnit() + ")", String.valueOf(getMagneticFieldY()));
+			contents.put("Z MagneticField (" + getUnit() + ")", String.valueOf(getMagneticFieldZ()));
 			return contents;
 		}
 	}
 	
 	public class OrientationSensor extends SensorWrapper {
-		public static final String UNIT = "°";
-		
-		private OrientationSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_ORIENTATION, CATEGORY_POSITION, UNIT);
+		private OrientationSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_orientation), 
+					CATEGORY_POSITION, 
+					context.getString(R.string.unit_degrees));
 		}
 		
 		/** 
@@ -524,7 +639,7 @@ public class Sensors implements ContentsMapper {
 		 * around the z-axis (0 to 359). 0=North, 90=East, 180=South, 270=West 
 		 */
 		public float getAzimuth() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** 
@@ -532,7 +647,7 @@ public class Sensors implements ContentsMapper {
 		 * values when the z-axis moves toward the y-axis.
 		 */
 		public float getPitch() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/**  
@@ -540,46 +655,48 @@ public class Sensors implements ContentsMapper {
 		 * values when the x-axis moves toward the z-axis. 
 		 */
 		public float getRoll() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Azimuth (" + UNIT + ")", String.valueOf(mLastValues[0]));
-			contents.put("Pitch (" + UNIT + ")", String.valueOf(mLastValues[1]));
-			contents.put("Roll (" + UNIT + ")", String.valueOf(mLastValues[2]));
+			contents.put("Azimuth (" + getUnit() + ")", String.valueOf(getAzimuth()));
+			contents.put("Pitch (" + getUnit() + ")", String.valueOf(getPitch()));
+			contents.put("Roll (" + getUnit() + ")", String.valueOf(getRoll()));
 			return contents;
 		}
 	}
 
 	public class PressureSensor extends SensorWrapper {
-		public static final String UNIT = "hPa";
-		
-		private PressureSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_PRESSURE, CATEGORY_ENVIRONMENT, UNIT);
+		private PressureSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_pressure), 
+					CATEGORY_ENVIRONMENT, 
+					context.getString(R.string.unit_hecto_pascal));
 		}
 		
 		/** Atmospheric pressure in hPa (millibar) */
 		public float getPressure() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Atmospheric pressure (" + UNIT + ")", String.valueOf(mLastValues[0]));
+			contents.put("Atmospheric pressure (" + getUnit() + ")", String.valueOf(getPressure()));
 			return contents;
 		}
 	}
 	
 	public class ProximitySensor extends SensorWrapper {
-		public static final String UNIT = "cm";
-		
-		private ProximitySensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_PROXIMITY, CATEGORY_POSITION, UNIT);
+		private ProximitySensor(Context context, Sensor sensor, boolean isDefault) {
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_proximity), 
+					CATEGORY_POSITION, 
+					context.getString(R.string.unit_centimeter));
 		}
 		
 		/** 
@@ -589,90 +706,100 @@ public class Sensors implements ContentsMapper {
 		 * range value in the far state and a lesser value in the near state.  
 		 */
 		public float getProximity() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Proximity (" + UNIT + ") (may only indicate 'near' or 'far')", String.valueOf(mLastValues[0]));
+			contents.put("Proximity (" + getUnit() + ") (may only indicate 'near' or 'far')", String.valueOf(getProximity()));
 			return contents;
 		}
 	}
 
 	public class RelativeHumiditySensor extends SensorWrapper {
-		public static final String UNIT = "%";
-		
-		private RelativeHumiditySensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_RELATIVE_HUMIDITY, CATEGORY_ENVIRONMENT, UNIT);
+		private RelativeHumiditySensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_relative_humidity), 
+					CATEGORY_ENVIRONMENT, 
+					context.getString(R.string.unit_percent));
 		}
 		
 		/** Relative ambient air humidity in % */
 		public float getRelativeHumidity() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Relative humidity (" + UNIT + ")", String.valueOf(mLastValues[0]));
+			contents.put("Relative humidity (" + getUnit() + ")", String.valueOf(getRelativeHumidity()));
 			return contents;
 		}
 	}
 	
 	// TODO Math!
 	public class RotationVectorSensor extends SensorWrapper {
-		public static final String UNIT = "";
-		
-		private RotationVectorSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_ROTATION_VECTOR, CATEGORY_MOTION, UNIT);
+		private RotationVectorSensor(Context context, Sensor sensor, boolean isDefault) {			
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_rotation_vector), 
+					CATEGORY_MOTION, 
+					context.getString(R.string.unit_unitless));
 		}
 		
 		/** x*sin(θ/2) (unitless) */
 		public float getRotationVectorX() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		/** y*sin(θ/2) (unitless) */
 		public float getRotationVectorY() {
-			return mLastValues == null ? 0 : mLastValues[1];
+			return getLastValue(1);
 		}
 		
 		/** z*sin(θ/2) (unitless) */
 		public float getRotationVectorZ() {
-			return mLastValues == null ? 0 : mLastValues[2];
+			return getLastValue(2);
 		}	
+		
+		/** cos(θ/2) (unitless) */
+		public float getRotationVectorExtra() {
+			if (mLastValues == null || mLastValues.length < 4) return 0;
+			return mLastValues[3];
+		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("RotationVectorX (unitless)", String.valueOf(mLastValues[0]));
-			contents.put("RotationVectorY (unitless)", String.valueOf(mLastValues[1]));
-			contents.put("RotationVectorZ (unitless)", String.valueOf(mLastValues[2]));
+			contents.put("RotationVectorX (unitless)", String.valueOf(getRotationVectorX()));
+			contents.put("RotationVectorY (unitless)", String.valueOf(getRotationVectorY()));
+			contents.put("RotationVectorZ (unitless)", String.valueOf(getRotationVectorZ()));
+			contents.put("RotationVectorExtra (unitless)", String.valueOf(getRotationVectorExtra()));
 			return contents;
 		}
 	}
 	
 	public class TemperatureSensor extends SensorWrapper {
-		public static final String UNIT = "°C";
-		
-		private TemperatureSensor(Sensor sensor, boolean isDefault) {
-			super (sensor, isDefault, TYPE_TEMPERATURE, CATEGORY_ENVIRONMENT, UNIT);
+		private TemperatureSensor(Context context, Sensor sensor, boolean isDefault) {
+			super (context, sensor, isDefault, 
+					context.getString(R.string.sensor_type_temperature), 
+					CATEGORY_ENVIRONMENT, 
+					context.getString(R.string.unit_degrees_celsius));
 		}
 		
 		/** Temperature in °C */
 		public float getTemperature() {
-			return mLastValues == null ? 0 : mLastValues[0];
+			return getLastValue(0);
 		}
 		
 		@Override
 		protected LinkedHashMap<String, String> getValuesContents() {
 			if (mLastValues != null) return null;
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("Temperature (" + UNIT + ")", String.valueOf(mLastValues[0]));
+			contents.put("Temperature (" + getUnit() + ")", String.valueOf(getTemperature()));
 			return contents;
 		}
 	}
@@ -680,27 +807,47 @@ public class Sensors implements ContentsMapper {
 	public SensorManager getSensorManager() {
 		return mSensorManager;
 	}
-	
-	public Callback getCallback() {
-		return mCallback;
+
+	public SensorWrapper[] getAllSensors() {
+		return mSensors;
 	}
 	
-	public List<SensorWrapper> getAllSensors() {
+	/** 
+	 * Gathers the default sensor from each type of sensor list into a single list.
+	 * Not optimized for repetitive use.<br><br>
+	 * <b>Note:</b> This returns the first sensor in each type of sensor list, which should be
+	 * the one that is marked <i>default</i>. However, if there is at least one sensor of that type
+	 * and none of them are defined as <i>default</i>, the first of those sensors would be included 
+	 * in this list.
+	 * @return List of default sensors
+	 */
+	public SensorWrapper[] getDefaultSensors() {
 		List<SensorWrapper> list = new ArrayList<SensorWrapper>();
-		list.addAll(mAccelerometerSensors);
-		list.addAll(mAmbientTemperatureSensors);
-		list.addAll(mGravitySensors);
-		list.addAll(mGyroscopeSensors);
-		list.addAll(mLightSensors);
-		list.addAll(mLinearAccelerationSensors);
-		list.addAll(mMagneticFieldSensors);
-		list.addAll(mOrientationSensors);
-		list.addAll(mPressureSensors);
-		list.addAll(mProximitySensors);
-		list.addAll(mRelativeHumiditySensors);
-		list.addAll(mRotationVectorSensors);
-		list.addAll(mTemperatureSensors);		
-		return list;
+		if (mAccelerometerSensors.size() > 0) list.add(mAccelerometerSensors.get(0));
+		if (mAmbientTemperatureSensors.size() > 0) list.add(mAmbientTemperatureSensors.get(0));
+		if (mGravitySensors.size() > 0) list.add(mGravitySensors.get(0));
+		if (mGyroscopeSensors.size() > 0) list.add(mGyroscopeSensors.get(0));
+		if (mLightSensors.size() > 0) list.add(mLightSensors.get(0));
+		if (mLinearAccelerationSensors.size() > 0) list.add(mLinearAccelerationSensors.get(0));
+		if (mMagneticFieldSensors.size() > 0) list.add(mMagneticFieldSensors.get(0));
+		if (mOrientationSensors.size() > 0) list.add(mOrientationSensors.get(0));
+		if (mPressureSensors.size() > 0) list.add(mPressureSensors.get(0));
+		if (mProximitySensors.size() > 0) list.add(mProximitySensors.get(0));
+		if (mRelativeHumiditySensors.size() > 0) list.add(mRelativeHumiditySensors.get(0));
+		if (mRotationVectorSensors.size() > 0) list.add(mRotationVectorSensors.get(0));
+		if (mTemperatureSensors.size() > 0) list.add(mTemperatureSensors.get(0));
+		return list.toArray(new SensorWrapper[list.size()]);
+	}
+	
+	/** Not optimized for repetitive use */
+	public SensorWrapper[] getSensorsByCategory(int category) {
+		List<SensorWrapper> list = new ArrayList<SensorWrapper>();
+		for (SensorWrapper sw : mSensors) {
+			if (sw.getCategory() == category) {
+				list.add(sw);
+			}
+		}
+		return list.toArray(new SensorWrapper[list.size()]);
 	}
 	
 	/** The default sensor will be the first element */
@@ -787,12 +934,8 @@ public class Sensors implements ContentsMapper {
 	/** Calculates the dew point in degrees Celsius */
 	public float getDewPoint() {
 		if (mRelativeHumiditySensors.size() < 1 || mAmbientTemperatureSensors.size() < 1) return 0;
-		float rh = 0, t = 0;
-		float[] values = mRelativeHumiditySensors.get(0).getLastValues();
-		if (values != null) rh = values[0];
-		values = mAmbientTemperatureSensors.get(0).getLastValues();
-		if (values != null) t = values[0];
-		
+		float rh = mRelativeHumiditySensors.get(0).getRelativeHumidity();;
+		float t = mAmbientTemperatureSensors.get(0).getAmbientTemperature();		
 		double h = Math.log(rh / 100.0) + (17.62 * t) / (243.12 + t);
 		return (float) (243.12 * h / (17.62 - h));
 	}
@@ -800,13 +943,43 @@ public class Sensors implements ContentsMapper {
 	/** Calculates the absolute humidity in g/m^3 */
 	public float getAbsoluteHumidity() {
 		if (mRelativeHumiditySensors.size() < 1 || mAmbientTemperatureSensors.size() < 1) return 0;
-		float rh = 0, t = 0;
-		float[] values = mRelativeHumiditySensors.get(0).getLastValues();
-		if (values != null) rh = values[0];
-		values = mAmbientTemperatureSensors.get(0).getLastValues();
-		if (values != null) t = values[0];
-		
+		float rh = mRelativeHumiditySensors.get(0).getRelativeHumidity();;
+		float t = mAmbientTemperatureSensors.get(0).getAmbientTemperature();		
 		return (float) (216.7 * (rh / 100.0 * 6.112 * Math.exp(17.62 * t / (243.12 + t)) / (273.15 + t)));
+	}
+	
+	public void startListening() {
+		startListening(true);
+	}
+	
+	/** @param onlyIfCallbackSet defaults to true. */
+	public void startListening(boolean onlyIfCallbackSet) {
+		for (SensorWrapper sw : mSensors) {
+			if (onlyIfCallbackSet && sw.getCallback() == null) {
+				continue;
+			}
+			sw.startListening(onlyIfCallbackSet);
+		}
+	}
+	
+	public void stopListening() {
+		for (SensorWrapper sw : mSensors) {
+			sw.stopListening();
+		}
+	}
+	
+	/** Pauses all sensors */
+	public void onPause() {
+		for (SensorWrapper sw : mSensors) {
+			sw.onPause();
+		}
+	}
+	
+	/** Resumes listening on sensors that were stopped with onPause() */
+	public void onResume() {
+		for (SensorWrapper sw : mSensors) {
+			sw.onResume();
+		}
 	}
 
 	@Override

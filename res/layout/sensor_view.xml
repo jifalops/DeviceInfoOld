@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sensorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+    <TextView 
+        android:id="@+id/typeTextView"
+        style="@style/SensorTypeTextView" />
+    <RelativeLayout 
+        android:id="@+id/propertiesWrapper"
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_below="@id/typeTextView" >
+    	<TextView 
+    	    android:id="@+id/nameLabelTextView"
+    		style="@style/SensorLabelTextView" />
+        <TextView 
+    	    android:id="@+id/nameTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_toRightOf="@id/nameLabelTextView"
+    		android:layout_alignBaseline="@id/nameLabelTextView" />
+        <TextView 
+    	    android:id="@+id/vendorLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/nameLabelTextView" />
+        <TextView 
+    	    android:id="@+id/vendorTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/nameTextView"
+    		android:layout_toRightOf="@id/vendorLabelTextView"
+    		android:layout_alignBaseline="@id/vendorLabelTextView" />  
+   		<TextView 
+    	    android:id="@+id/versionLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/vendorLabelTextView" />
+        <TextView 
+    	    android:id="@+id/versionTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/vendorTextView"
+    		android:layout_toRightOf="@id/versionLabelTextView"
+    		android:layout_alignBaseline="@id/versionLabelTextView" />  
+   		<TextView 
+    	    android:id="@+id/powerLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/versionLabelTextView" />
+        <TextView 
+    	    android:id="@+id/powerTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/versionTextView"
+    		android:layout_toRightOf="@id/powerLabelTextView"
+    		android:layout_alignBaseline="@id/powerLabelTextView" />
+        <TextView 
+    	    android:id="@+id/resolutionLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/powerLabelTextView" />
+        <TextView 
+    	    android:id="@+id/resolutionTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/powerTextView"
+    		android:layout_toRightOf="@id/resolutionLabelTextView"
+    		android:layout_alignBaseline="@id/resolutionLabelTextView" />
+        <TextView 
+    	    android:id="@+id/maxRangeLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/resolutionLabelTextView" />
+        <TextView 
+    	    android:id="@+id/maxRangeTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/resolutionTextView"
+    		android:layout_toRightOf="@id/maxRangeLabelTextView"
+    		android:layout_alignBaseline="@id/maxRangeLabelTextView" /> 
+   		<TextView 
+    	    android:id="@+id/minDelayLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/maxRangeLabelTextView" />
+        <TextView 
+    	    android:id="@+id/minDelayTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/maxRangeTextView"
+    		android:layout_toRightOf="@id/minDelayLabelTextView"
+    		android:layout_alignBaseline="@id/minDelayLabelTextView" />    
+    </RelativeLayout>	
+    <RelativeLayout 
+        android:id="@+id/liveValuesWrapper"
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_below="@id/propertiesWrapper" >        
+        <TextView 
+    	    android:id="@+id/value0LabelTextView"
+    		style="@style/SensorLabelTextView" />
+        <TextView 
+    	    android:id="@+id/value0TextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_toRightOf="@id/value0LabelTextView"
+    		android:layout_alignBaseline="@id/value0LabelTextView" />
+        <TextView 
+    	    android:id="@+id/value1LabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/value0LabelTextView" />
+        <TextView 
+    	    android:id="@+id/value1TextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/value0TextView"
+    		android:layout_toRightOf="@id/value1LabelTextView"
+    		android:layout_alignBaseline="@id/value1LabelTextView" />    
+   		<TextView 
+    	    android:id="@+id/value2LabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/value1LabelTextView" />
+        <TextView 
+    	    android:id="@+id/value2TextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/value1TextView"
+    		android:layout_toRightOf="@id/value2LabelTextView"
+    		android:layout_alignBaseline="@id/value2LabelTextView" />
+        <TextView 
+    	    android:id="@+id/value3LabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/value2LabelTextView" />
+        <TextView 
+    	    android:id="@+id/value3TextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/value2TextView"
+    		android:layout_toRightOf="@id/value3LabelTextView"
+    		android:layout_alignBaseline="@id/value3LabelTextView" />
+        <TextView 
+    	    android:id="@+id/timestampLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/value3LabelTextView" />
+        <TextView 
+    	    android:id="@+id/timestampTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/value3TextView"
+    		android:layout_toRightOf="@id/timestampLabelTextView"
+    		android:layout_alignBaseline="@id/timestampLabelTextView" />
+        <TextView 
+    	    android:id="@+id/accuracyLabelTextView"
+    		style="@style/SensorLabelTextView"
+    		android:layout_below="@id/timestampLabelTextView" />
+        <TextView 
+    	    android:id="@+id/accuracyTextView"
+    		style="@style/SensorValueTextView"
+    		android:layout_below="@id/timestampTextView"
+    		android:layout_toRightOf="@id/accuracyLabelTextView"
+    		android:layout_alignBaseline="@id/accuracyLabelTextView" />
+	</RelativeLayout>
+</RelativeLayout>
