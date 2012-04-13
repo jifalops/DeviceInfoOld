@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_available">Available</string>
+    <string name="location_out_of_service">Out of Service</string>
+    <string name="location_temporarily_unavailable">Temporarily Unavailable</string>
+    
+    <string name="gps_first_fix">First fix</string>
+    <string name="gps_satellite_status">Satellite status</string>
+    <string name="gps_started">Started</string>
+    <string name="gps_stopped">Stopped</string>
+</resources>

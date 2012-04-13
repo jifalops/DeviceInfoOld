@@ -12,6 +12,8 @@
     <string name="unit_centimeter">cm</string>
     <string name="unit_percent">%</string>   
     <string name="unit_milli_amps">mA</string> 
+    <string name="unit_milli_seconds">ms</string>
     <string name="unit_micro_seconds">μs</string>
     <string name="unit_nano_seconds">ns</string> 
+    <string name="unit_meters">m</string> 
 </resources>
