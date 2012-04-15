@@ -37,6 +37,7 @@ import com.jphilli85.deviceinfo.element.Cpu;
 import com.jphilli85.deviceinfo.element.Display;
 import com.jphilli85.deviceinfo.element.Graphics;
 import com.jphilli85.deviceinfo.element.Location;
+import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
 import com.jphilli85.deviceinfo.element.Ram;
 import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
@@ -248,16 +249,16 @@ public class DetailsFragment extends SherlockFragment implements
 //    			mLayout.addView(sv.getLayoutWrapper());
 //    			if (!mIsPaused) sw.startListening();
 //    		}
-    		mSensorsView = new SensorsView(getActivity());
-    		mLayout.addView(mSensorsView.getLayoutWrapper());    		
+    		/*mSensorsView = new SensorsView(getActivity());
+    		mLayout.addView(mSensorsView.getLayoutWrapper());    */		
 //    		if (!mIsPaused) mSensorsView.getSensors().startListening();
     	
     		
     	}
-//    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
-//    		mLocation = new Location(getActivity(), this);	 
-//    		if (!mIsPaused) mLocation.startListening();
-//    	}
+    	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
+    		mLocation = new Location(getActivity());	 
+    		if (!mIsPaused) mLocation.startListening(false);
+    	}
     	
 //    	if (unit != null && !(unit instanceof Graphics) 
 //    			 && !(unit instanceof Battery)) {
@@ -288,7 +289,7 @@ public class DetailsFragment extends SherlockFragment implements
 				}				
 				mLayout.addView(tv);
 			}
-		}, 2000);
+		}, 5000);
     }
     
     private void dumpResult(Cursor c) {    	
@@ -359,41 +360,6 @@ public class DetailsFragment extends SherlockFragment implements
 //		((TextView) mSensorMap.get(sw).findViewById(R.id.value2TextView)).setText(String.valueOf(values[2]));
 //	}
 
-	@Override
-	public void onLocationChanged(android.location.Location location) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onGpsStatusChanged(int event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onNmeaReceived(long timestamp, String nmea) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -415,6 +381,48 @@ public class DetailsFragment extends SherlockFragment implements
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLocationChanged(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGeocoderFinished(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGpsStatusChanged(ProviderWrapper providerWrapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onNmeaReceived(ProviderWrapper providerWrapper) {
 		// TODO Auto-generated method stub
 		
 	}   

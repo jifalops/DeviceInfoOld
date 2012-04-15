@@ -8,4 +8,12 @@
     <string name="gps_satellite_status">Satellite status</string>
     <string name="gps_started">Started</string>
     <string name="gps_stopped">Stopped</string>
+    
+    <string name="location_accuracy_coarse">Coarse</string>
+    <string name="location_accuracy_fine">Fine</string>
+    
+    <string name="location_power_requirement_high">High</string>
+    <string name="location_power_requirement_low">Low</string>
+    <string name="location_power_requirement_medium">Medium</string>
+    <string name="location_power_requirement_none">None</string>
 </resources>
