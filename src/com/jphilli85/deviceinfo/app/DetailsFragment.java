@@ -27,25 +27,24 @@ import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.DeviceInfo.DetailsTextView;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.app.component.SensorsView;
-import com.jphilli85.deviceinfo.app.component.SensorsView.SensorView;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 import com.jphilli85.deviceinfo.element.Audio;
 import com.jphilli85.deviceinfo.element.Battery;
 import com.jphilli85.deviceinfo.element.Camera;
+import com.jphilli85.deviceinfo.element.Cellular;
 import com.jphilli85.deviceinfo.element.Cpu;
 import com.jphilli85.deviceinfo.element.Display;
 import com.jphilli85.deviceinfo.element.Graphics;
 import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
 import com.jphilli85.deviceinfo.element.Ram;
-import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 import com.jphilli85.deviceinfo.element.Storage;
 
 public class DetailsFragment extends SherlockFragment implements
 		LoaderManager.LoaderCallbacks<Cursor>,
-		Battery.Callback, Graphics.Callback, Location.Callback {
+		Battery.Callback, Graphics.Callback, Location.ProviderCallback {
 	
 	private static final int SUBGROUP_LOADER = 1;
 	
@@ -62,6 +61,7 @@ public class DetailsFragment extends SherlockFragment implements
 	private Ram mRam;
 //	private Sensors mSensors;
 	private Storage mStorage;
+	private Cellular mCellular;
 	
 	private boolean mIsPaused;
 	
@@ -131,8 +131,8 @@ public class DetailsFragment extends SherlockFragment implements
 		super.onResume();
 		mIsPaused = false;
 		if (mGraphics != null) mGraphics.onResume();
-		if (mBattery != null) mBattery.startListening();		
-		if (mLocation != null) mLocation.startListening();
+//		if (mBattery != null) mBattery.startListening();		
+//		if (mLocation != null) mLocation.startListening();
 		if (mSensorsView != null) mSensorsView.onResume();
 	}
 	
@@ -141,8 +141,9 @@ public class DetailsFragment extends SherlockFragment implements
 		super.onPause();
 		if (mGraphics != null) mGraphics.onPause();
 		if (mBattery != null) mBattery.stopListening();		
-		if (mLocation != null) mLocation.stopListening();
+		if (mLocation != null) mLocation.stopListeningAll();
 		if (mSensorsView != null) mSensorsView.onPause();
+		if (mCellular != null) mCellular.stopListening();
 		mIsPaused = true;
 	}
 	
@@ -257,7 +258,11 @@ public class DetailsFragment extends SherlockFragment implements
     	}
     	else if (name.equals(Subgroup.SUBGROUP_GPS)) {
     		mLocation = new Location(getActivity());	 
-    		if (!mIsPaused) mLocation.startListening(false);
+    		if (!mIsPaused) mLocation.startListeningAll(false);
+    	}    	
+    	else if (name.equals(Subgroup.SUBGROUP_MOBILE)) {
+    		mCellular = new Cellular(getActivity());	 
+    		if (!mIsPaused) mCellular.startListening(false);
     	}
     	
 //    	if (unit != null && !(unit instanceof Graphics) 
@@ -282,14 +287,15 @@ public class DetailsFragment extends SherlockFragment implements
 				if (mRam != null) contents.putAll(mRam.getContents());
 //				if (mSensors != null) contents.putAll(mSensors.getContents());
 				if (mStorage != null) contents.putAll(mStorage.getContents());
-
+				if (mCellular != null) contents.putAll(mCellular.getContents());
+				
 				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
 				for (String s : contents.keySet()) {
 					tv.append(s + ": " + contents.get(s) + "\n");
 				}				
 				mLayout.addView(tv);
 			}
-		}, 5000);
+		}, 10000);
     }
     
     private void dumpResult(Cursor c) {    	
@@ -410,20 +416,8 @@ public class DetailsFragment extends SherlockFragment implements
 	}
 
 	@Override
-	public void onGeocoderFinished(ProviderWrapper providerWrapper) {
+	public void onAddressChanged(ProviderWrapper providerWrapper) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void onGpsStatusChanged(ProviderWrapper providerWrapper) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onNmeaReceived(ProviderWrapper providerWrapper) {
-		// TODO Auto-generated method stub
-		
-	}   
+	}  
 }

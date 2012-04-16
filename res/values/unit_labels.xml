@@ -15,5 +15,9 @@
     <string name="unit_milli_seconds">ms</string>
     <string name="unit_micro_seconds">μs</string>
     <string name="unit_nano_seconds">ns</string> 
-    <string name="unit_meters">m</string> 
+    <string name="unit_meters">m</string>
+    <string name="unit_arbitrary_scale_unit">asu</string>
+    <string name="unit_decibel">dB</string>
+    <string name="unit_decibel_milli_watt">dBm</string>
+    <string name="unit_watt">W</string>
 </resources>

@@ -20,11 +20,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.jphilli85.deviceinfo.R;
-
-public class Location implements ContentsMapper {
-//	private static final int API = Build.VERSION.SDK_INT;
-	
-	public interface Callback {
+//TODO keep a best-guess location
+public class Location implements ContentsMapper, GpsStatus.Listener, GpsStatus.NmeaListener {
+	public interface ProviderCallback {
 		/** Corresponds to LocationListener.onLocationChanged() */
 		void onLocationChanged(ProviderWrapper providerWrapper);
 		/** Corresponds to LocationListener.onProviderDisabled() */
@@ -33,68 +31,95 @@ public class Location implements ContentsMapper {
 		void onProviderEnabled(ProviderWrapper providerWrapper);
 		/** Corresponds to LocationListener.onStatusChanged() */
 		void onStatusChanged(ProviderWrapper providerWrapper);		
-		/** Custom callback for use with the Geocoder. Use with geocodeLocation(). */
-		void onGeocoderFinished(ProviderWrapper providerWrapper);
-		/** Corresponds to GpsStatus.Listener.onGpsStatusChanged() */
-		void onGpsStatusChanged(ProviderWrapper providerWrapper);
-		/** Corresponds to GpsStatus.NmeaListener.onNmeaReceived() */		
-		void onNmeaReceived(ProviderWrapper providerWrapper);
+		/** Custom callback that is called after the Geocoder updates the closest address */
+		void onAddressChanged(ProviderWrapper providerWrapper);		
 	}
+	
+	public interface GpsCallback {
+		/** Corresponds to GpsStatus.Listener.onGpsStatusChanged() */
+		void onGpsStatusChanged(Location location);
+		/** Corresponds to GpsStatus.NmeaListener.onNmeaReceived() */		
+		void onNmeaReceived(Location location);
+	}
+	
+	// GPS Status update throttle (ms)
+	public static final int GPSSTATUS_FREQUENCY_HIGH = 500;
+	public static final int GPSSTATUS_FREQUENCY_MEDIUM = 1000;
+	public static final int GPSSTATUS_FREQUENCY_LOW = 2000;
+	
+	// Network/GPS location update throttle (ms)
+	public static final int LOCATION_FREQUENCY_HIGH = 1000;
+	public static final int LOCATION_FREQUENCY_MEDIUM = 2000;
+	public static final int LOCATION_FREQUENCY_LOW = 5000;
+	
+	// Reverse geocoding of location to an address throttle (ms)
+	public static final int ADDRESS_FREQUENCY_HIGH = 2000;
+	public static final int ADDRESS_FREQUENCY_MEDIUM = 5000;
+	public static final int ADDRESS_FREQUENCY_LOW = 10000;
 	
 	private final LocationManager mLocationManager;
 	private final Geocoder mGeocoder;	
 	private final List<ProviderWrapper> mProviders;
 	
-	public final String AVAILABLE;
-	public final String OUT_OF_SERVICE;
-	public final String TEMPORARILY_UNAVAILABLE;
+	private GpsCallback mGpsCallback;	
+	private boolean mIsListening;
 	
-	public final String COARSE;
-	public final String FINE;
+	private GpsStatus mGpsStatus;		
+	private int mLastGpsStatusEvent;
+	private long mLastNmeaTimestamp;
+	private String mLastNmea;
 	
-	public final String HIGH;
-	public final String MEDIUM;
-	public final String LOW;
-	public final String NONE;
+	private long mLastGpsStatusTimestamp;
+	private int mGpsStatusUpdateFrequency;
 	
-	public final String FIRST_FIX;
-	public final String SATELLITE_STATUS;
-	public final String STARTED;
-	public final String STOPPED;
+	public final String STATUS_AVAILABLE;
+	public final String STATUS_OUT_OF_SERVICE;
+	public final String STATUS_TEMPORARILY_UNAVAILABLE;	
+	public final String ACCURACY_COARSE;
+	public final String ACCURACY_FINE;	
+	public final String POWER_REQUIREMENT_HIGH;
+	public final String POWER_REQUIREMENT_MEDIUM;
+	public final String POWER_REQUIREMENT_LOW;
+	public final String POWER_REQUIREMENT_NONE;	
+	public final String GPS_EVENT_FIRST_FIX;
+	public final String GPS_EVENT_SATELLITE_STATUS;
+	public final String GPS_EVENT_STARTED;
+	public final String GPS_EVENT_STOPPED;
 	
 	public Location(Context context) {
 		mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		mGeocoder = new Geocoder(context, Locale.getDefault());
 		mProviders = new ArrayList<ProviderWrapper>();
 		
-		AVAILABLE = context.getString(R.string.location_available);
-		OUT_OF_SERVICE = context.getString(R.string.location_out_of_service);
-		TEMPORARILY_UNAVAILABLE = context.getString(R.string.location_temporarily_unavailable);
-		
-		COARSE = context.getString(R.string.location_accuracy_coarse);
-		FINE = context.getString(R.string.location_accuracy_fine);
-		
-		HIGH = context.getString(R.string.location_power_requirement_high);
-		MEDIUM = context.getString(R.string.location_power_requirement_medium);
-		LOW = context.getString(R.string.location_power_requirement_low);
-		NONE = context.getString(R.string.location_power_requirement_none);
-		
-		FIRST_FIX = context.getString(R.string.gps_first_fix);
-		SATELLITE_STATUS = context.getString(R.string.gps_satellite_status);
-		STARTED = context.getString(R.string.gps_started);
-		STOPPED = context.getString(R.string.gps_stopped);
+		STATUS_AVAILABLE = context.getString(R.string.location_available);
+		STATUS_OUT_OF_SERVICE = context.getString(R.string.location_out_of_service);
+		STATUS_TEMPORARILY_UNAVAILABLE = context.getString(R.string.location_temporarily_unavailable);		
+		ACCURACY_COARSE = context.getString(R.string.location_accuracy_coarse);
+		ACCURACY_FINE = context.getString(R.string.location_accuracy_fine);		
+		POWER_REQUIREMENT_HIGH = context.getString(R.string.location_power_requirement_high);
+		POWER_REQUIREMENT_MEDIUM = context.getString(R.string.location_power_requirement_medium);
+		POWER_REQUIREMENT_LOW = context.getString(R.string.location_power_requirement_low);
+		POWER_REQUIREMENT_NONE = context.getString(R.string.location_power_requirement_none);		
+		GPS_EVENT_FIRST_FIX = context.getString(R.string.gps_first_fix);
+		GPS_EVENT_SATELLITE_STATUS = context.getString(R.string.gps_satellite_status);
+		GPS_EVENT_STARTED = context.getString(R.string.gps_started);
+		GPS_EVENT_STOPPED = context.getString(R.string.gps_stopped);
 		
 		for (String s : mLocationManager.getAllProviders()) {
-			mProviders.add(new ProviderWrapper(context, s));
+			mProviders.add(new ProviderWrapper(s));
 		}
+		
+		// These two are actually unrelated
+		mGpsStatusUpdateFrequency = GPSSTATUS_FREQUENCY_MEDIUM;
+		updateGpsStatus();
 	}
 	
 	public LocationManager getLocationManager() {
 		return mLocationManager;
 	}
 	
-	public List<String> getAllProviders() {
-		return mLocationManager.getAllProviders();
+	public List<ProviderWrapper> getProviders() {
+		return mProviders;
 	}
 	
 	public ProviderWrapper getBestProvider() {
@@ -121,56 +146,139 @@ public class Location implements ContentsMapper {
 	}
 	
 	public void startListening(boolean onlyIfCallbackSet) {
-		for (ProviderWrapper pw : mProviders) pw.startListening(onlyIfCallbackSet);
+		if (mIsListening || (onlyIfCallbackSet && mGpsCallback == null)) return;
+		mLocationManager.addGpsStatusListener(this);
+		mLocationManager.addNmeaListener(this);
+		mIsListening = true;
 	}
 	
 	public void stopListening() {
-		for (ProviderWrapper pw : mProviders) pw.stopListening();
+		if (!mIsListening) return;		
+		mLocationManager.removeGpsStatusListener(this);
+		mLocationManager.removeNmeaListener(this);
+		mIsListening = false;
 	}
 	
-	public class ProviderWrapper implements ContentsMapper, LocationListener,
-			GpsStatus.Listener, GpsStatus.NmeaListener {
+	public void startListeningAll() {
+		startListeningAll(true);
+	}
+	
+	public void startListeningAll(boolean onlyIfCallbackSet) {
+		startListening(onlyIfCallbackSet);
+		for (ProviderWrapper pw : mProviders) {
+			pw.startListening(onlyIfCallbackSet);
+		}
+	}
+	
+	public void stopListeningAll() {
+		stopListening();
+		for (ProviderWrapper pw : mProviders) {
+			pw.stopListening();
+		}
+	}
+	
+	public boolean isListening() {
+		return mIsListening;
+	}
+	
+	public GpsStatus getGpsStatus() {
+		return mGpsStatus;
+	}
+	
+	public int getLastGpsStatusEvent() {
+		return mLastGpsStatusEvent;
+	}
+	
+	public String getLastGpsStatusEventString() {
+		switch(mLastGpsStatusEvent) {
+		case GpsStatus.GPS_EVENT_FIRST_FIX: return GPS_EVENT_FIRST_FIX;
+		case GpsStatus.GPS_EVENT_SATELLITE_STATUS: return GPS_EVENT_SATELLITE_STATUS;
+		case GpsStatus.GPS_EVENT_STARTED: return GPS_EVENT_STARTED;
+		case GpsStatus.GPS_EVENT_STOPPED: return GPS_EVENT_STOPPED;
+		}
+		return null;
+	}
+	
+	public long getLastNmeaTimestamp() {
+		return mLastNmeaTimestamp;
+	}
+	
+	public String getLastNmea() {
+		return mLastNmea;
+	}
+	
+	private void updateGpsStatus() {
+		mGpsStatus = mLocationManager.getGpsStatus(null);
+	}
+	
+	/** 
+	 * Gets the minimum time between GPS status updates in milliseconds.
+	 */
+	public int getGpsStatusUpdateFrequency() {
+		return mGpsStatusUpdateFrequency;
+	}
+	
+	/** 
+	 * Sets the minimum time between GPS status updates in milliseconds.
+	 */
+	public void setAddressUpdateFrequency(int frequency) {
+		mGpsStatusUpdateFrequency = frequency;
+	}
+	
+	public long getLastGpsStatusTimestamp() {
+		return mLastGpsStatusTimestamp;
+	}
+	
+	public GpsCallback getCallback() {
+		return mGpsCallback;
+	}
+	
+	public void setCallback(GpsCallback callback) {
+		mGpsCallback = callback;
+	}
+	
+	@Override
+	public void onGpsStatusChanged(int event) {
+		long time = System.currentTimeMillis();
+		if (time - mLastGpsStatusTimestamp < mGpsStatusUpdateFrequency) return;
+		mLastGpsStatusTimestamp = time;
+		mLastGpsStatusEvent = event;
+		updateGpsStatus();
+		if (mGpsCallback != null) mGpsCallback.onGpsStatusChanged(this);			
+	}
+
+	@Override
+	public void onNmeaReceived(long timestamp, String nmea) {
+		mLastNmeaTimestamp = timestamp;
+		mLastNmea = nmea;
+		updateGpsStatus();
+		if (mGpsCallback != null) mGpsCallback.onNmeaReceived(this);
+	}
+	
+	
+	public class ProviderWrapper implements ContentsMapper, LocationListener {
 		private final String mProviderString;
 		private LocationProvider mProvider;
-		private Callback mCallback;
-//		/*
-//		 * Odd way of doing things. Keeping a FineCallback reference here
-//		 * allows pass on the LocationListener implementation to the 
-//		 * better callback. The other option is to use a single wrapper class
-//		 * and single callback interface that implements the coarse and fine
-//		 * grained methods and have the fine grained methods be unusable
-//		 * to coarse grained providers. I chose this way because it keeps
-//		 * things behind the scenes and allows implementations to be cleaner
-//		 * and less wasteful. 
-//		 * 
-//		 * A side effect is that a FineProviderWrapper can set a callback
-//		 * using a CoarseCallback and/or a FineCallback, but can only
-//		 * retrieve the FineCallback. There's a fairly ugly hack below to
-//		 * try and thwart this.
-//		 */
-//		protected FineCallback mFineCallback;
+		private ProviderCallback mCallback;
 		
 		private long mMinTime;
 		private float mMinDistance;
-		
-		protected boolean mIsListening;
-		
+		protected boolean mIsListening;		
 		private android.location.Location mLocation;
+		private android.location.Location mLastGeocodedLocation;
 		private int mStatus;
-		private Bundle mExtras;
+		private Bundle mExtras;		
+		private Address mAddress;
 		
-		private Address mAddress;		
+		private long mLastLocationTimestamp;
+		private long mLastAddressTimestamp;
+		private int mAddressUpdateFrequency;
 		
-		private GpsStatus mGpsStatus;
-		
-		private int mEvent;
-		private long mTimestamp;
-		private String mNmea;
-		
-		private ProviderWrapper(Context context, String provider) {
+		private ProviderWrapper(String provider) {
 			mProviderString = provider;
-			updateProvider();
-			updateGpsStatus();
+			mMinTime = LOCATION_FREQUENCY_MEDIUM;
+			mAddressUpdateFrequency = ADDRESS_FREQUENCY_MEDIUM;
+			updateProvider();			
 		}
 		
 		public android.location.Location getLastKnownLocation() {
@@ -189,17 +297,16 @@ public class Location implements ContentsMapper {
 			return mProvider;
 		}
 		
-		public Callback getCallback() {
+		public ProviderCallback getCallback() {
 			return mCallback;
 		}
 		
-		public void setCallback(Callback callback) {
+		public void setCallback(ProviderCallback callback) {
 			mCallback = callback;
 		}
 
 		/** 
 		 * Gets the minimum time between location updates in milliseconds.
-		 * Only used as a hint to the system, actual times may vary.
 		 */
 		public long getMinTime() {
 			return mMinTime;
@@ -207,7 +314,6 @@ public class Location implements ContentsMapper {
 		
 		/** 
 		 * Sets the minimum time between location updates in milliseconds.
-		 * Only used as a hint to the system, actual times may vary.
 		 */
 		public void setMinTime(long minTime) {
 			mMinTime = minTime;
@@ -229,6 +335,38 @@ public class Location implements ContentsMapper {
 			mMinDistance = minDistance;
 		}
 		
+		/** 
+		 * Gets the minimum time between address updates from the Geocoder in 
+		 * milliseconds.
+		 */
+		public int getAddressUpdateFrequency() {
+			return mAddressUpdateFrequency;
+		}
+		
+		/** 
+		 * Sets the minimum time between address updates from the Geocoder in 
+		 * milliseconds. See
+		 * {@link https://developers.google.com/maps/articles/geocodestrat#quota-limits}
+		 * for limits.
+		 */
+		public void setAddressUpdateFrequency(int frequency) {
+			mAddressUpdateFrequency = frequency;
+		}
+		
+		/** 
+		 * Gets the last location update timestamp in milliseconds.
+		 */
+		public long getLastLocationTimestamp() {
+			return mLastLocationTimestamp;
+		}
+		
+		/** 
+		 * Gets the last address update timestamp in milliseconds.
+		 */
+		public long getLastAddressTimestamp() {
+			return mLastAddressTimestamp;
+		}
+		
 		public boolean isListening() {
 			return mIsListening;
 		}
@@ -239,17 +377,13 @@ public class Location implements ContentsMapper {
 		
 		public void startListening(boolean onlyIfCallbackSet) {
 			if (mIsListening || (onlyIfCallbackSet && mCallback == null)) return;
-			mLocationManager.requestLocationUpdates(mProviderString, mMinTime, mMinDistance, this);
-			mLocationManager.addGpsStatusListener(this);
-			mLocationManager.addNmeaListener(this);
+			mLocationManager.requestLocationUpdates(mProviderString, mMinTime, mMinDistance, this);			
 			mIsListening = true;
 		}
 		
 		public void stopListening() {
 			if (!mIsListening) return;
-			mLocationManager.removeUpdates(this);
-			mLocationManager.removeGpsStatusListener(this);
-			mLocationManager.removeNmeaListener(this);
+			mLocationManager.removeUpdates(this);			
 			mIsListening = false;
 		}
 		
@@ -271,39 +405,29 @@ public class Location implements ContentsMapper {
 		
 		public String getLastStatusString() {
 			switch (mStatus) {
-			case LocationProvider.AVAILABLE: return AVAILABLE;
-			case LocationProvider.OUT_OF_SERVICE: return OUT_OF_SERVICE;
-			case LocationProvider.TEMPORARILY_UNAVAILABLE: return TEMPORARILY_UNAVAILABLE;
+			case LocationProvider.AVAILABLE: return STATUS_AVAILABLE;
+			case LocationProvider.OUT_OF_SERVICE: return STATUS_OUT_OF_SERVICE;
+			case LocationProvider.TEMPORARILY_UNAVAILABLE: return STATUS_TEMPORARILY_UNAVAILABLE;
 			}
 			return null;
 		}
 		
 		public String getAccuracyString() {
 			switch (mProvider.getAccuracy()) {
-			case Criteria.ACCURACY_COARSE: return COARSE;
-			case Criteria.ACCURACY_FINE: return FINE;
+			case Criteria.ACCURACY_COARSE: return ACCURACY_COARSE;
+			case Criteria.ACCURACY_FINE: return ACCURACY_FINE;
 			}
 			return null;
 		}
 		
 		public String getPowerRequirementString() {
 			switch (mProvider.getPowerRequirement()) {
-			case Criteria.POWER_HIGH: return HIGH;
-			case Criteria.POWER_LOW: return MEDIUM;
-			case Criteria.POWER_MEDIUM: return LOW;
-			case Criteria.NO_REQUIREMENT: return NONE;
+			case Criteria.POWER_HIGH: return POWER_REQUIREMENT_HIGH;
+			case Criteria.POWER_LOW: return POWER_REQUIREMENT_MEDIUM;
+			case Criteria.POWER_MEDIUM: return POWER_REQUIREMENT_LOW;
+			case Criteria.NO_REQUIREMENT: return POWER_REQUIREMENT_NONE;
 			}
 			return null;
-		}
-		
-		/** Calls onGeocoderFinished() when completed */
-		public void geocodeLocation() {
-			geocodeLocation(mLocation);
-		}
-		
-		/** Calls onGeocoderFinished() when completed */
-		public void geocodeLocation(android.location.Location location) {
-			new GeocoderTask(this).execute(location);
 		}
 		
 		public Address getLastAddress() {
@@ -312,41 +436,26 @@ public class Location implements ContentsMapper {
 		
 		private void setLastAddresses(Address address) {
 			mAddress = address;			
-			if (mCallback != null) mCallback.onGeocoderFinished(this);
+			if (mCallback != null) mCallback.onAddressChanged(this);
 		}
 		
-		public GpsStatus getGpsStatus() {
-			return mGpsStatus;
-		}
-		
-		public int getLastEvent() {
-			return mEvent;
-		}
-		
-		public String getLastEventString() {
-			switch(mEvent) {
-			case GpsStatus.GPS_EVENT_FIRST_FIX: return FIRST_FIX;
-			case GpsStatus.GPS_EVENT_SATELLITE_STATUS: return SATELLITE_STATUS;
-			case GpsStatus.GPS_EVENT_STARTED: return STARTED;
-			case GpsStatus.GPS_EVENT_STOPPED: return STOPPED;
-			}
-			return null;
-		}
-		
-		public long getLastTimestamp() {
-			return mTimestamp;
-		}
-		
-		public String getLastNmea() {
-			return mNmea;
-		}
-		
-		private void updateGpsStatus() {
-			mGpsStatus = mLocationManager.getGpsStatus(null);
+		private boolean shouldGeocode(android.location.Location location) {			
+			if (mLastGeocodedLocation == null) return true;
+			return mLastGeocodedLocation.getLatitude() != location.getLatitude() 
+				|| mLastGeocodedLocation.getLongitude() != location.getLongitude();
 		}
 
 		@Override
 		public void onLocationChanged(android.location.Location location) {
+			long time = System.currentTimeMillis();
+			if (time - mLastLocationTimestamp < mMinTime) return;
+			mLastLocationTimestamp = time;
+			if (time - mLastAddressTimestamp >= mAddressUpdateFrequency
+					&& shouldGeocode(location)) {
+				mLastAddressTimestamp = time;
+				mLastGeocodedLocation = location;
+				new GeocoderTask(this).execute(location);
+			}
 			mLocation = location;
 			updateProvider();
 			if (mCallback != null) mCallback.onLocationChanged(this);
@@ -372,20 +481,7 @@ public class Location implements ContentsMapper {
 			if (mCallback != null) mCallback.onStatusChanged(this);
 		}
 
-		@Override
-		public void onGpsStatusChanged(int event) {
-			mEvent = event;
-			updateGpsStatus();
-			if (mCallback != null) mCallback.onGpsStatusChanged(this);			
-		}
-
-		@Override
-		public void onNmeaReceived(long timestamp, String nmea) {
-			mTimestamp = timestamp;
-			mNmea = nmea;
-			updateGpsStatus();
-			if (mCallback != null) mCallback.onNmeaReceived(this);
-		}
+		
 		
 		@Override
 		public LinkedHashMap<String, String> getContents() {
@@ -395,8 +491,11 @@ public class Location implements ContentsMapper {
 			contents.put("Type", getProviderString());
 			contents.put("Accuracy", getAccuracyString());
 			contents.put("Power", getPowerRequirementString());
-			contents.put("Min Time", String.valueOf(getMinTime()));
-			contents.put("Min Distance", String.valueOf(getMinDistance()));
+			contents.put("Min Time (ms)", String.valueOf(getMinTime()));
+			contents.put("Min Distance (m)", String.valueOf(getMinDistance()));
+			contents.put("Last Location Timestamp (ms)", String.valueOf(getLastLocationTimestamp()));
+			contents.put("Last Address Timestamp (ms)", String.valueOf(getLastAddressTimestamp()));
+			contents.put("Address Update Frequency (ms)", String.valueOf(getAddressUpdateFrequency()));
 			contents.put("Is Enabled", String.valueOf(isEnabled()));
 			contents.put("Is Listening", String.valueOf(isListening()));
 			contents.put("Last Status", getLastStatusString());
@@ -406,12 +505,8 @@ public class Location implements ContentsMapper {
 				} 
 			}
 			else contents.put("Last Extras", null);
-			contents.put("Last Event", getLastEventString());
-			contents.put("Last Timestamp", String.valueOf(getLastTimestamp()));
-			contents.put("Last NMEA", getLastNmea());
 			
 			// LocationProvider values			
-			contents.put("Name", mProvider.getName());			
 			contents.put("HasMonetaryCost", String.valueOf(mProvider.hasMonetaryCost()));
 			contents.put("Requires Cellular", String.valueOf(mProvider.requiresCell()));
 			contents.put("Requires Network", String.valueOf(mProvider.requiresNetwork()));
@@ -443,30 +538,6 @@ public class Location implements ContentsMapper {
 				contents.put("Last Location hasSpeed", String.valueOf(mLocation.hasSpeed()));
 			}
 			else contents.put("Last Location", null);
-			
-			if (mGpsStatus != null) {
-				// GpsStatus values
-				contents.put("Max Satellites", String.valueOf(mGpsStatus.getMaxSatellites()));			
-				contents.put("Time to First Fix", String.valueOf(mGpsStatus.getTimeToFirstFix()));
-				
-				// GpsSatellite values
-				int i = 0;
-				Iterable<GpsSatellite> sats = mGpsStatus.getSatellites();
-				if (sats != null) {
-					for (GpsSatellite s : sats) {
-						contents.put("Satellite " + i + " Azimuth (°)", String.valueOf(s.getAzimuth()));
-						contents.put("Satellite " + i + " Elevation (°)", String.valueOf(s.getElevation()));
-						contents.put("Satellite " + i + " PRN", String.valueOf(s.getPrn()));
-						contents.put("Satellite " + i + " SNR", String.valueOf(s.getSnr()));
-						contents.put("Satellite " + i + " hasAlmanac", String.valueOf(s.hasAlmanac()));
-						contents.put("Satellite " + i + " hasEphemeris", String.valueOf(s.hasEphemeris()));
-						contents.put("Satellite " + i + " usedInFix", String.valueOf(s.usedInFix()));
-						++i;
-					}
-				}
-				else contents.put("Satellites", null);
-			}
-			else contents.put("GpsStatus", null);
 			
 			if (mAddress != null) {
 				// Address values
@@ -536,7 +607,38 @@ public class Location implements ContentsMapper {
 		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		LinkedHashMap<String, String> subcontents;
 		
+		contents.put("Is Listening (GpsStatus)", String.valueOf(isListening()));
 		contents.put("Best Provider index", String.valueOf(mProviders.indexOf(getBestProvider())));
+		contents.put("Last GPS Status Timestamp", String.valueOf(getLastGpsStatusTimestamp()));
+		contents.put("Last GPS Status Event", getLastGpsStatusEventString());
+		contents.put("Last NMEA Timestamp", String.valueOf(getLastNmeaTimestamp()));
+		contents.put("Last NMEA", getLastNmea());
+		contents.put("GPS Status update frequency (ms)", String.valueOf(getGpsStatusUpdateFrequency()));
+		
+		if (mGpsStatus != null) {
+			// GpsStatus values
+			contents.put("Max Satellites", String.valueOf(mGpsStatus.getMaxSatellites()));			
+			contents.put("Time to First Fix", String.valueOf(mGpsStatus.getTimeToFirstFix()));
+			
+			// GpsSatellite values
+			int i = 0;
+			Iterable<GpsSatellite> sats = mGpsStatus.getSatellites();
+			if (sats != null) {
+				for (GpsSatellite s : sats) {
+					contents.put("Satellite " + i + " Azimuth (°)", String.valueOf(s.getAzimuth()));
+					contents.put("Satellite " + i + " Elevation (°)", String.valueOf(s.getElevation()));
+					contents.put("Satellite " + i + " PRN", String.valueOf(s.getPrn()));
+					contents.put("Satellite " + i + " SNR", String.valueOf(s.getSnr()));
+					contents.put("Satellite " + i + " hasAlmanac", String.valueOf(s.hasAlmanac()));
+					contents.put("Satellite " + i + " hasEphemeris", String.valueOf(s.hasEphemeris()));
+					contents.put("Satellite " + i + " usedInFix", String.valueOf(s.usedInFix()));
+					++i;
+				}
+			}
+			else contents.put("Satellites", null);
+		}
+		else contents.put("GpsStatus", null);
+		
 		for (int i = 0; i < mProviders.size(); ++i) {
 			subcontents = mProviders.get(i).getContents();
 			for (Entry<String, String> e : subcontents.entrySet()) {

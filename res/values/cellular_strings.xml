@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- TelephonyManager strings -->
+    <string name="call_state_idle">Idle</string>
+    <string name="call_state_offhook">Off Hook</string>
+    <string name="call_state_ringing">Ringing</string>
+    
+    <string name="data_activity_dormant">Dormant</string>
+    <string name="data_activity_in">In</string>
+    <string name="data_activity_inout">In-Out</string>
+    <string name="data_activity_none">None</string>
+    <string name="data_activity_out">Out</string>
+    
+    <string name="data_connected">Connected</string>
+    <string name="data_connecting">Connecting</string>
+    <string name="data_disconnected">Disconnected</string>
+    <string name="data_suspended">Suspended</string>
+    
+    <string name="network_type_1xrtt">1xRTT</string>
+    <string name="network_type_cmda">CDMA</string>
+    <string name="network_type_edge">EDGE</string>
+    <string name="network_type_ehrpd">eHRPD</string>
+    <string name="network_type_evdo_0">EVDO rev. 0</string>
+    <string name="network_type_evdo_a">EVDO rev. A</string>
+    <string name="network_type_evdo_b">EVDO rev. B</string>
+    <string name="network_type_gprs">GPRS</string>
+    <string name="network_type_hsdpa">HSDPA</string>
+    <string name="network_type_hspa">HSPA</string>
+    <string name="network_type_hspap">HSPA+</string>
+    <string name="network_type_hsupa">HSUPA</string>
+    <string name="network_type_iden">iDen</string>
+    <string name="network_type_lte">LTE</string>
+    <string name="network_type_umts">UMTS</string>
+    <string name="network_type_unknown">Unknown</string>
+    
+    <string name="phone_type_cdma">CDMA</string>
+    <string name="phone_type_gsm">GSM</string>
+    <string name="phone_type_none">None</string>
+    <string name="phone_type_sip">SIP</string>
+    
+    <string name="sim_state_absent">Absent</string>
+    <string name="sim_state_network_locked">Network Locked</string>
+    <string name="sim_state_pin_required">PIN Required</string>
+    <string name="sim_state_puk_required">PUK Required</string>
+    <string name="sim_state_ready">Ready</string>
+    <string name="sim_state_unknown">Unknown</string>
+    
+    <!-- NeighboringCellInfo strings -->
+    <string name="cell_info_unknown_cid">Unknown CID</string>
+    <string name="cell_info_unknown_rssi">Unknown RSSI</string>
+    
+    <!-- ServiceState strings -->
+    <string name="service_state_emergency_only">Emergency Only</string>
+    <string name="service_state_in_service">In Service</string>
+    <string name="service_state_in_service">In Service</string>
+    <string name="service_state_out_of_service">Out of Service</string>
+    <string name="service_state_power_off">Powered Off</string>
+    
+    <!-- Other strings -->
+    <string name="service_selection_manual">Manual</string>
+    <string name="service_selection_automatic">Automatic</string>
+</resources>

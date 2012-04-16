@@ -359,7 +359,9 @@ public class Sensors implements ContentsMapper {
 		
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			if (System.currentTimeMillis() - mLastAccuracyTimestamp < mFrequency) return;
+			long time = System.currentTimeMillis();
+			if (time - mLastAccuracyTimestamp < mFrequency) return;
+			mLastAccuracyTimestamp = time;
 			mLastAccuracyStatus = accuracy;
 			if (mCallback != null) mCallback.onAccuracyChanged(this);
 		}
