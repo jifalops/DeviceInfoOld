@@ -38,6 +38,7 @@ import com.jphilli85.deviceinfo.element.Display;
 import com.jphilli85.deviceinfo.element.Graphics;
 import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
+import com.jphilli85.deviceinfo.element.Network;
 import com.jphilli85.deviceinfo.element.Ram;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 import com.jphilli85.deviceinfo.element.Storage;
@@ -62,6 +63,7 @@ public class DetailsFragment extends SherlockFragment implements
 //	private Sensors mSensors;
 	private Storage mStorage;
 	private Cellular mCellular;
+	private Network mNetwork;
 	
 	private boolean mIsPaused;
 	
@@ -260,9 +262,13 @@ public class DetailsFragment extends SherlockFragment implements
     		mLocation = new Location(getActivity());	 
     		if (!mIsPaused) mLocation.startListeningAll(false);
     	}    	
-    	else if (name.equals(Subgroup.SUBGROUP_MOBILE)) {
-    		mCellular = new Cellular(getActivity());	 
-    		if (!mIsPaused) mCellular.startListening(false);
+//    	else if (name.equals(Subgroup.SUBGROUP_MOBILE)) {
+//    		mCellular = new Cellular(getActivity());	 
+//    		if (!mIsPaused) mCellular.startListening(false);
+//    	}
+    	else if (name.equals(Subgroup.SUBGROUP_WIFI)) {
+    		mNetwork = new Network(getActivity());	 
+//    		if (!mIsPaused) mCellular.startListening(false);
     	}
     	
 //    	if (unit != null && !(unit instanceof Graphics) 
@@ -288,6 +294,7 @@ public class DetailsFragment extends SherlockFragment implements
 //				if (mSensors != null) contents.putAll(mSensors.getContents());
 				if (mStorage != null) contents.putAll(mStorage.getContents());
 				if (mCellular != null) contents.putAll(mCellular.getContents());
+				if (mNetwork != null) contents.putAll(mNetwork.getContents());
 				
 				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
 				for (String s : contents.keySet()) {

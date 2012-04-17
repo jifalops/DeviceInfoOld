@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- ConnectivityManager strings -->
+	<string name="connection_type_bluetooth">Bluetooth</string>
+	<string name="connection_type_dummy">Dummy</string>
+	<string name="connection_type_ethernet">Ethernet</string>
+	<string name="connection_type_mobile">Mobile</string>
+	<string name="connection_type_mobile_dun">Mobile DUN</string>
+	<string name="connection_type_mobile_hipri">Mobile HIPRI</string>
+	<string name="connection_type_mobile_mms">Mobile MMS</string>
+	<string name="connection_type_mobile_supl">Mobile SUPL</string>
+	<string name="connection_type_wifi">WiFi</string>
+	<string name="connection_type_wimax">WiMAX</string>
+	
+	<!-- NetworkInfo.DetailedState strings -->
+	<string name="network_state_authenticating">Authenticating</string>
+	<string name="network_state_blocked">Blocked</string>
+	<string name="network_state_connected">Connected</string>
+	<string name="network_state_connecting">Connecting</string>
+	<string name="network_state_disconnected">Disconnected</string>
+	<string name="network_state_disconnecting">Disconnecting</string>
+	<string name="network_state_failed">Failed</string>
+	<string name="network_state_idle">Idle</string>
+	<string name="network_state_obtaining_ip">Obtaining IP</string>
+	<string name="network_state_scanning">Scanning</string>
+	<string name="network_state_suspended">Suspended</string>
+	
+	<!-- NetworkInfo.State strings -->
+	<string name="network_state_unknown">Unknown</string>
+</resources>

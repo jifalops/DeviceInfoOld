@@ -525,43 +525,83 @@ public class Cellular implements ContentsMapper {
 						for (byte b : addr) {
 							address.append(b & 0xFF).append('.');
 						}
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address", 
+						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address Address", 
 								address.toString());
 					}
-					else contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address", null);
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " CanonicalHostName", 
+					else contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address Address", null);
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address CanonicalHostName", 
 							inetAddress.getCanonicalHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " HostName", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address HostName", 
 							inetAddress.getHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsAnyLocalAddress", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsAnyLocalAddress", 
 							String.valueOf(inetAddress.isAnyLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsLinkLocalAddress", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsLinkLocalAddress", 
 							String.valueOf(inetAddress.isLinkLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsLoopbackAddress", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsLoopbackAddress", 
 							String.valueOf(inetAddress.isLoopbackAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMCGlobal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCGlobal", 
 							String.valueOf(inetAddress.isMCGlobal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMCLinkLocal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCLinkLocal", 
 							String.valueOf(inetAddress.isMCLinkLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMCNodeLocal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCNodeLocal", 
 							String.valueOf(inetAddress.isMCNodeLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMCOrgLocal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCOrgLocal", 
 							String.valueOf(inetAddress.isMCOrgLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMCSiteLocal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCSiteLocal", 
 							String.valueOf(inetAddress.isMCSiteLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsMulticast", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMulticast", 
 							String.valueOf(inetAddress.isMulticastAddress()));
 					try {
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsReachable", 
+						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsReachable", 
 								String.valueOf(inetAddress.isReachable(5000)));
 					} catch (IOException ignored) {}
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " IsSiteLocal", 
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsSiteLocal", 
 							String.valueOf(inetAddress.isSiteLocalAddress()));
+					
+					inetAddress = ia.getBroadcast();
+					addr = inetAddress.getAddress();
+					if (addr != null) {
+						address = new StringBuilder();
+						for (byte b : addr) {
+							address.append(b & 0xFF).append('.');
+						}
+						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast Address", 
+								address.toString());
+					}
+					else contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast Address", null);
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast CanonicalHostName", 
+							inetAddress.getCanonicalHostName());
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast HostName", 
+							inetAddress.getHostName());
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsAnyLocalAddress", 
+							String.valueOf(inetAddress.isAnyLocalAddress()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsLinkLocalAddress", 
+							String.valueOf(inetAddress.isLinkLocalAddress()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsLoopbackAddress", 
+							String.valueOf(inetAddress.isLoopbackAddress()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCGlobal", 
+							String.valueOf(inetAddress.isMCGlobal()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCLinkLocal", 
+							String.valueOf(inetAddress.isMCLinkLocal()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCNodeLocal", 
+							String.valueOf(inetAddress.isMCNodeLocal()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCOrgLocal", 
+							String.valueOf(inetAddress.isMCOrgLocal()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCSiteLocal", 
+							String.valueOf(inetAddress.isMCSiteLocal()));
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMulticast", 
+							String.valueOf(inetAddress.isMulticastAddress()));
+					try {
+						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsReachable", 
+								String.valueOf(inetAddress.isReachable(5000)));
+					} catch (IOException ignored) {}
+					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsSiteLocal", 
+							String.valueOf(inetAddress.isSiteLocalAddress()));
+					
 					++j;
 				}
 			}
 			else contents.put("NetworkInterface " + i + " InterfaceAddress List", null);
-			//TODO inet broadcast address
 			++i;
 		}
 		
