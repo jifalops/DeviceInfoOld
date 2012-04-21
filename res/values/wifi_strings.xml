@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- WifiManager constants -->
+    <string name="wifi_error_authenticating">Error Authenticating</string>
+    <string name="wifi_mode_full">Full</string>
+    <string name="wifi_mode_full_high_perf">High Performance</string>
+    <string name="wifi_mode_scan_only">Scan Only</string>
+    <string name="wifi_state_disabled">Disabled</string>
+    <string name="wifi_state_disabling">Disabling</string>
+    <string name="wifi_state_enabled">Enabled</string>
+    <string name="wifi_state_enabling">Enabling</string>
+    <string name="wifi_state_unknown">Unknown</string>
+    
+    <!-- SupplicantState constants -->
+    <string name="supplicant_state_associated">Associated</string>
+    <string name="supplicant_state_associating">Associating</string>
+    <string name="supplicant_state_authenticating">Authenticating</string>
+    <string name="supplicant_state_completed">Completed</string>
+    <string name="supplicant_state_disconnected">Disconnected</string>
+    <string name="supplicant_state_dormant">Dormant</string>
+    <string name="supplicant_state_four_way_handshake">Four-Way Handshake</string>
+    <string name="supplicant_state_group_handshake">Group Handshake</string>
+    <string name="supplicant_state_inactive">Inactive</string>
+    <string name="supplicant_state_interface_disabled">Disabled</string>
+    <string name="supplicant_state_invalid">Invalid</string>
+    <string name="supplicant_state_scanning">Scanning</string>
+    <string name="supplicant_state_uninitialized">Uninitialized</string>
+    
+    <!-- WifiConfiguration.AuthAlgorithm constants -->
+    <string name="wifi_auth_algorithm_leap">LEAP</string>
+    <string name="wifi_auth_algorithm_open">Open</string>
+    <string name="wifi_auth_algorithm_shared">Shared</string>
+    
+    <!-- WifiConfiguration.GroupCipher constants -->
+    <string name="wifi_group_cipher_ccmp">CCMP</string>
+    <string name="wifi_group_cipher_tkip">TKIP</string>
+    <string name="wifi_group_cipher_wep104">WEP-104</string>
+    <string name="wifi_group_cipher_wep40">WEP-40</string>
+    
+    <!-- WifiConfiguration.KeyMgmt constants -->
+    <string name="wifi_key_management_8021x">802.1X</string>
+    <string name="wifi_key_management_none">None</string>
+    <string name="wifi_key_management_wpa_eap">WPA EAP</string>
+    <string name="wifi_key_management_wpa_psk">WPA PSK</string>
+    
+    <!-- WifiConfiguration.PairwiseCipher constants -->
+    <string name="wifi_pairwise_cipher_ccmp">CCMP</string>
+    <string name="wifi_pairwise_cipher_none">None</string>
+    <string name="wifi_pairwise_cipher_tkip">TKIP</string>
+    
+    <!-- WifiConfiguration.Protocol constants -->
+    <string name="wifi_protocol_rsn">RSN (WPA2)</string>
+    <string name="wifi_protocol_wpa">WPA</string>
+    
+    <!-- WifiConfiguration.Status constants -->
+    <string name="wifi_status_current">Active</string>
+    <string name="wifi_status_disabled">Disabled</string>
+    <string name="wifi_status_enabled">Enabled</string>
+</resources>

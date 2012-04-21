@@ -20,4 +20,5 @@
     <string name="unit_decibel">dB</string>
     <string name="unit_decibel_milli_watt">dBm</string>
     <string name="unit_watt">W</string>
+    <string name="unit_mega_bits_per_second">Mbps</string>
 </resources>

@@ -180,43 +180,6 @@ public class Network implements ContentsMapper, SmartListener {
 		
 		return false;
 	}
-	
-	
-	@Override
-	public void startListening() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void startListening(boolean onlyIfCallbackSet) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void stopListening() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isListening() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void onPause() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onResume() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public LinkedHashMap<String, String> getContents() {
@@ -263,16 +226,52 @@ public class Network implements ContentsMapper, SmartListener {
 		else contents.put("NetworkInfo[]", null);
 		
 		
-		// DhcpInfo
-		DhcpInfo dhcp = mWifiManager.getDhcpInfo();
-		contents.put("DHCP DNS1", String.valueOf(dhcp.dns1));
-		contents.put("DHCP DNS2", String.valueOf(dhcp.dns2));
-		contents.put("DHCP Gateway", String.valueOf(dhcp.gateway));
-		contents.put("DHCP IP", String.valueOf(dhcp.ipAddress));
-		contents.put("DHCP Lease Duration", String.valueOf(dhcp.leaseDuration));
-		contents.put("DHCP Netmask", String.valueOf(dhcp.netmask));
-		contents.put("DHCP Server", String.valueOf(dhcp.serverAddress));
+//		// DhcpInfo
+//		DhcpInfo dhcp = mWifiManager.getDhcpInfo();
+		
 		
 		return contents;
+	}
+
+	@Override
+	public boolean startListening() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean stopListening() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isListening() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean pause() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean resume() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isPaused() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

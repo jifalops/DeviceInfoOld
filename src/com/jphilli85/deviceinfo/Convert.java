@@ -1,6 +1,10 @@
 package com.jphilli85.deviceinfo;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -347,7 +351,7 @@ public class Convert {
 		
 		/** Converts an array of hex values to an array of bytes. (@see Strings.toByteArray(String)) */
 		public static byte[] toByteArray(String[] values) {
-			return Strings.toByteArray(TextUtils.join(null, values));
+			return Strings.toByteArray(TextUtils.join("", values));
 		}
 		
 		/** 
@@ -356,7 +360,7 @@ public class Convert {
 		 */
 		public static byte[] toByteArray(String[] values, boolean isHex) {
 			if (values == null || values.length == 0) return null;
-			if (isHex) return Strings.toByteArray(TextUtils.join(null, values));
+			if (isHex) return Strings.toByteArray(TextUtils.join("", values));
 			
 			byte[] result = new byte[values.length];
 			for (int i = 0; i < values.length; ++i) {	
@@ -370,7 +374,7 @@ public class Convert {
 		
 		/** Converts an array of hex values to an array of ints. (@see Strings.toIntArray(String)) */
 		public static int[] toIntArray(String[] values) {
-			return Strings.toIntArray(TextUtils.join(null, values));
+			return Strings.toIntArray(TextUtils.join("", values));
 		}
 		
 		/** 
@@ -379,7 +383,7 @@ public class Convert {
 		 */
 		public static int[] toIntArray(String[] values, boolean isHex) {
 			if (values == null || values.length == 0) return null;
-			if (isHex) return Strings.toIntArray(TextUtils.join(null, values));			
+			if (isHex) return Strings.toIntArray(TextUtils.join("", values));			
 			
 			int[] result = new int[values.length];
 			for (int i = 0; i < values.length; ++i) {	
@@ -430,32 +434,49 @@ public class Convert {
 		}
 	}
 	
-	
+	public static void reverse(byte[] array) {
+	      if (array == null) return;
+	      int i = 0;
+	      int j = array.length - 1;
+	      byte tmp;
+	      while (j > i) {
+	          tmp = array[j];
+	          array[j] = array[i];
+	          array[i] = tmp;
+	          j--;
+	          i++;
+	      }
+	  }
 	
 	/** This class assumes decimal numbers with a dot (".") delimiter. */
 	public static class Ip4 {
 		private Ip4() { throw new AssertionError(); }
 		
+		public static String fromInt(int ip) {
+			byte[] bytes = Int.toByteArray(ip);
+			reverse(bytes);
+			return ByteArray.toDecString(bytes, ".");
+		}
 		
 		
 //		public static String getString(int ip) {
 //			return getString(toIntArray(ip));
 //		}
 
-		public static int toInt(int[] ip) {
-			return ByteArray.toInt(IntArray.toByteArray(ip, false));
-		}
-
-		public static int toInt(String ip) {					
-			return ByteArray.toInt(toByteArray(ip));
-		}
-		
-		public static byte[] toByteArray(String ip) {
-			if (ip == null || ip.length() == 0) return null;
-			String[] parts = ip.split(".");
-			if (parts.length != 4) return null;
-			return StringArray.toByteArray(parts, false);
-		}
+//		public static int toInt(int[] ip) {
+//			return ByteArray.toInt(IntArray.toByteArray(ip, false));
+//		}
+//
+//		public static int toInt(String ip) {					
+//			return ByteArray.toInt(toByteArray(ip));
+//		}
+//		
+//		public static byte[] toByteArray(String ip) {
+//			if (ip == null || ip.length() == 0) return null;
+//			String[] parts = ip.split(".");
+//			if (parts.length != 4) return null;
+//			return StringArray.toByteArray(parts, false);
+//		}
 	}
 	
 	public static String round(double number, int decimalPlaces) {

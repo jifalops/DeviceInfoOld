@@ -42,6 +42,7 @@ import com.jphilli85.deviceinfo.element.Network;
 import com.jphilli85.deviceinfo.element.Ram;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 import com.jphilli85.deviceinfo.element.Storage;
+import com.jphilli85.deviceinfo.element.Wifi;
 
 public class DetailsFragment extends SherlockFragment implements
 		LoaderManager.LoaderCallbacks<Cursor>,
@@ -64,6 +65,7 @@ public class DetailsFragment extends SherlockFragment implements
 	private Storage mStorage;
 	private Cellular mCellular;
 	private Network mNetwork;
+	private Wifi mWifi;
 	
 	private boolean mIsPaused;
 	
@@ -136,6 +138,8 @@ public class DetailsFragment extends SherlockFragment implements
 //		if (mBattery != null) mBattery.startListening();		
 //		if (mLocation != null) mLocation.startListening();
 		if (mSensorsView != null) mSensorsView.onResume();
+		if (mWifi != null) mWifi.resume();
+		mIsPaused = false;
 	}
 	
 	@Override
@@ -146,6 +150,7 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mLocation != null) mLocation.stopListeningAll();
 		if (mSensorsView != null) mSensorsView.onPause();
 		if (mCellular != null) mCellular.stopListening();
+		if (mWifi != null) mWifi.pause();
 		mIsPaused = true;
 	}
 	
@@ -267,7 +272,11 @@ public class DetailsFragment extends SherlockFragment implements
 //    		if (!mIsPaused) mCellular.startListening(false);
 //    	}
     	else if (name.equals(Subgroup.SUBGROUP_WIFI)) {
-    		mNetwork = new Network(getActivity());	 
+//    		mNetwork = new Network(getActivity());	 
+    		
+    		mWifi = new Wifi(getActivity());
+    		mWifi.getWifiManager().startScan();
+    		
 //    		if (!mIsPaused) mCellular.startListening(false);
     	}
     	
@@ -295,6 +304,7 @@ public class DetailsFragment extends SherlockFragment implements
 				if (mStorage != null) contents.putAll(mStorage.getContents());
 				if (mCellular != null) contents.putAll(mCellular.getContents());
 				if (mNetwork != null) contents.putAll(mNetwork.getContents());
+				if (mWifi != null) contents.putAll(mWifi.getContents());
 				
 				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
 				for (String s : contents.keySet()) {
