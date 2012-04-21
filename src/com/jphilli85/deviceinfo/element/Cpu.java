@@ -55,7 +55,7 @@ public class Cpu implements ContentsMapper {
 		if (stats == null || stats.isEmpty()) {
 			return 0;
 		}
-		long timestamp = DeviceInfo.getTimestamp();
+		long timestamp = System.currentTimeMillis();
 		String[] parts = null;
 		String line = null;
 		int updated = 0;

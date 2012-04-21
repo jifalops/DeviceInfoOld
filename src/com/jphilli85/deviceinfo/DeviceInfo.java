@@ -6,23 +6,18 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class DeviceInfo {
-	private DeviceInfo() {}
+	private DeviceInfo() { throw new AssertionError(); }
 	
 	public static final boolean DEBUG = true;
 	public static Context sAppContext;
 	
-	public static long getTimestamp() {
-		return System.currentTimeMillis();
-//		long ts = 0;
-//		try { ts = Calendar.getInstance().getTimeInMillis(); }
-//		catch (Exception ignored) {}
-//		return ts;
-	}
+//	public static boolean isOnMainThread() {
+//		return Looper.getMainLooper().getThread() == Thread.currentThread();
+//	}
 	
-	public static boolean isOnMainThread() {
-		return Looper.getMainLooper().getThread() == Thread.currentThread();
-	}
 	
+	
+	// TODO get rid of this
 	public static class DetailsTextView extends TextView {
 		public DetailsTextView(Context context) {
 			this (context, null);

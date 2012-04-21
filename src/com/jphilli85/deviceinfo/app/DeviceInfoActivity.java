@@ -2,8 +2,10 @@ package com.jphilli85.deviceinfo.app;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.app.GroupListFragment.OnGroupSelectedListener;
@@ -22,7 +24,8 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 		
 		mDatabase = (new DeviceInfoDatabaseHelper(this)).getReadableDatabase();
 		
-		setContentView(R.layout.main);			
+		setContentView(R.layout.main);
+
 	}
 
 	@Override

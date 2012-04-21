@@ -8,6 +8,7 @@ import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.NetworkInfo.State;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 
 import com.jphilli85.deviceinfo.R;
@@ -41,6 +42,7 @@ public class Network implements ContentsMapper, SmartListener {
 	public final String STATE_UNKNOWN;
 	
 	private final ConnectivityManager mConnectivityManager;
+	private final WifiManager mWifiManager;
 	
 	
 	public Network(Context context) {		
@@ -68,6 +70,7 @@ public class Network implements ContentsMapper, SmartListener {
 		STATE_UNKNOWN = context.getString(R.string.network_state_unknown);
 		
 		mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		
 	}
 	
@@ -259,15 +262,16 @@ public class Network implements ContentsMapper, SmartListener {
 		}
 		else contents.put("NetworkInfo[]", null);
 		
+		
 		// DhcpInfo
-//		DhcpInfo dhcp = new DhcpInfo();
-//		contents.put("DHCP DNS1", String.valueOf(dhcp.dns1));
-//		contents.put("DHCP DNS2", String.valueOf(dhcp.dns2));
-//		contents.put("DHCP Gateway", String.valueOf(dhcp.gateway));
-//		contents.put("DHCP IP", String.valueOf(dhcp.ipAddress));
-//		contents.put("DHCP Lease Duration", String.valueOf(dhcp.leaseDuration));
-//		contents.put("DHCP Netmask", String.valueOf(dhcp.netmask));
-//		contents.put("DHCP Server", String.valueOf(dhcp.serverAddress));
+		DhcpInfo dhcp = mWifiManager.getDhcpInfo();
+		contents.put("DHCP DNS1", String.valueOf(dhcp.dns1));
+		contents.put("DHCP DNS2", String.valueOf(dhcp.dns2));
+		contents.put("DHCP Gateway", String.valueOf(dhcp.gateway));
+		contents.put("DHCP IP", String.valueOf(dhcp.ipAddress));
+		contents.put("DHCP Lease Duration", String.valueOf(dhcp.leaseDuration));
+		contents.put("DHCP Netmask", String.valueOf(dhcp.netmask));
+		contents.put("DHCP Server", String.valueOf(dhcp.serverAddress));
 		
 		return contents;
 	}

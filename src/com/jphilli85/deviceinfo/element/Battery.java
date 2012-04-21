@@ -86,7 +86,7 @@ public class Battery implements ContentsMapper {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (!intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) return;	
-			mTimestamp = DeviceInfo.getTimestamp();
+			mTimestamp = System.currentTimeMillis();
 			mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
 			mMaxLevel = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
 			mVoltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
