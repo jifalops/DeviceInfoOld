@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BluetoothProfile constants -->
+    <string name="bluetooth_profile_a2dp">A2DP</string>
+    <string name="bluetooth_profile_headset">Headset</string>
+    <string name="bluetooth_profile_health">Health</string>
+    <string name="bluetooth_state_connected">Connected</string>
+    <string name="bluetooth_state_connecting">Connecting</string>
+    <string name="bluetooth_state_disconnected">Discnnected</string>
+    <string name="bluetooth_state_disconnecting">Disconnecting</string>
+    
+	<!-- BluetoothA2dp constants -->
+    <string name="bluetooth_state_not_playing">Not Playing</string>
+    <string name="bluetooth_state_playing">Playing</string>
+	
+	<!-- BluetoothAdapter constants -->
+    <string name="bluetooth_error">Error</string>
+    <string name="bluetooth_mode_connectable">Connectable</string>
+    <string name="bluetooth_mode_connectable_discoverable">Discoverable</string>
+    <string name="bluetooth_mode_none">None</string>    
+    <string name="bluetooth_state_off">Off</string>
+    <string name="bluetooth_state_on">On</string>
+    <string name="bluetooth_state_turning_off">Turning Off</string>
+    <string name="bluetooth_state_turning_on">Turning On</string>
+    
+    <!-- BluetoothDevice constants -->
+    <string name="bluetooth_bond_bonded">Paired</string>
+    <string name="bluetooth_bond_bonding">Pairing</string>
+    <string name="bluetooth_bond_none">Not Paired</string>
+    
+    <!-- BluetoothHeadset constants -->
+    <string name="bluetooth_at_cmd_type_action">Action</string>
+    <string name="bluetooth_at_cmd_type_basic">Basic</string>
+    <string name="bluetooth_at_cmd_type_read">Read</string>
+    <string name="bluetooth_at_cmd_type_set">Set</string>
+    <string name="bluetooth_at_cmd_type_test">Test</string>
+    
+    <!-- BluetoothHealth constants -->
+    <string name="bluetooth_success">Success</string>
+    <string name="bluetooth_failure">Failure</string>
+    <string name="bluetooth_channel_reliable">Reliable</string>
+    <string name="bluetooth_channel_streaming">Streaming</string>
+    <string name="bluetooth_role_sink">SINK</string>
+    <string name="bluetooth_role_source">Source</string>
+    
+    <!-- BluetoothClass.Device constants -->
+    <string name="bluetooth_device_camcorder">Camcorder</string>
+    <string name="bluetooth_device_car_audio">Car Audio</string>
+    <string name="bluetooth_device_hands_free">Hands Free</string>
+    <string name="bluetooth_device_headphones">Headphones</string>
+    <string name="bluetooth_device_hifi_audio">HiFi Audio</string>
+    <string name="bluetooth_device_loudspeaker">Loud Speaker</string>
+    <string name="bluetooth_device_microphone">Microphone</string>
+    <string name="bluetooth_device_portable_audio">Portable Audio</string>
+    <string name="bluetooth_device_set_top_box">Set Top Box</string>
+    <string name="bluetooth_device_uncategorized">Uncategorized</string>
+    <string name="bluetooth_device_vcr">VCR</string>
+    <string name="bluetooth_device_video_camera">Video Camera</string>
+    <string name="bluetooth_device_video_conferencing">Video Conferencing</string>
+    <string name="bluetooth_device_video_display_and_loudspeaker">Video Display and Loud Speaker</string>
+    <string name="bluetooth_device_video_gaming_toy">Video Gaming Toy</string>
+    <string name="bluetooth_device_video_monitor">Video Monitor</string>
+    <string name="bluetooth_device_wearable_headset">Wearable Headset</string>
+    <string name="bluetooth_device_desktop">Desktop</string>
+    <string name="bluetooth_device_handheld_pc_pda">Handheld PC/PDA</string>
+    <string name="bluetooth_device_laptop">Laptop</string>
+    <string name="bluetooth_device_palm_size_pc_pda">Palm Size PC/PDA</string>
+    <string name="bluetooth_device_server">Server</string>
+    <string name="bluetooth_device_wearable">Wearable</string>
+    <string name="bluetooth_device_blood_pressure">Blood Pressure</string>
+    <string name="bluetooth_device_data_display">Data Display</string>
+    <string name="bluetooth_device_glucose">Glucose</string>
+    <string name="bluetooth_device_pulse_oximeter">Pulse Oximeter</string>
+    <string name="bluetooth_device_pulse_rate">Pulse Rate</string>
+    <string name="bluetooth_device_thermometer">Thermometer</string>
+    <string name="bluetooth_device_weighing">Weighing</string>
+    <string name="bluetooth_device_cellular">Cellular Phone</string>
+    <string name="bluetooth_device_cordless">Cordless Phone</string>
+    <string name="bluetooth_device_isdn">ISDN</string>
+    <string name="bluetooth_device_modem_or_gateway">Modem or Gateway</string>
+    <string name="bluetooth_device_smart">Smart Phone</string>
+    <string name="bluetooth_device_controller">Controller</string>
+    <string name="bluetooth_device_action_figure">Action Figure</string>
+    <string name="bluetooth_device_game">Game</string>
+    <string name="bluetooth_device_robot">Robot</string>
+    <string name="bluetooth_device_vehicle">Vehicle</string>
+    <string name="bluetooth_device_glasses">Glasses</string>
+    <string name="bluetooth_device_helmet">Helmet</string>
+    <string name="bluetooth_device_jacket">Jacket</string>
+    <string name="bluetooth_device_pager">Pager</string>
+    <string name="bluetooth_device_watch">Watch</string>
+    
+    <!-- BluetoothClass.Device.Major constants -->
+    <string name="bluetooth_major_device_audio_video">Audio Video</string>
+    <string name="bluetooth_major_device_computer">Computer</string>
+    <string name="bluetooth_major_device_health">Health</string>
+    <string name="bluetooth_major_device_imaging">Imaging</string>
+    <string name="bluetooth_major_device_misc">Miscellaneous</string>
+    <string name="bluetooth_major_device_networking">Networking</string>
+    <string name="bluetooth_major_device_peripheral">Peripheral</string>
+    <string name="bluetooth_major_device_phone">Phone</string>
+    <string name="bluetooth_major_device_toy">Toy</string>
+    <string name="bluetooth_major_device_wearable">Wearable</string>
+    
+    <!-- BluetoothClass.Service constants -->
+    <string name="bluetooth_service_audio">Audio</string>
+    <string name="bluetooth_service_capture">Capture</string>
+    <string name="bluetooth_service_information">Information</string>
+    <string name="bluetooth_service_limited_discoverability">Limited Discoverability</string>
+    <string name="bluetooth_service_networking">Networking</string>
+    <string name="bluetooth_service_object_transfer">Object Transfer</string>
+    <string name="bluetooth_service_positioning">Positioning</string>
+    <string name="bluetooth_service_render">Render</string>
+    <string name="bluetooth_service_telephony">Telephony</string>
+</resources>

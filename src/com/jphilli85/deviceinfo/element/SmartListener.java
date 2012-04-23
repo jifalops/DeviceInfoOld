@@ -8,4 +8,6 @@ public interface SmartListener {
 	boolean pause();
 	boolean resume();
 	boolean isPaused();
+	Object getCallback();
+	boolean setCallback(Object callback);
 }
