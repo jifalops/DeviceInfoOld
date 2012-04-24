@@ -521,4 +521,10 @@ public class Wifi implements ContentsMapper, SmartListener {
 	public boolean isPaused() {
 		return mIsPaused;
 	}
+
+	@Override
+	public boolean setCallback(Object callback) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

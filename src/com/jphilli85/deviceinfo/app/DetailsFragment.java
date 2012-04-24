@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.DeviceInfo;
@@ -31,17 +32,25 @@ import com.jphilli85.deviceinfo.data.DeviceInfoContract.Group;
 import com.jphilli85.deviceinfo.data.DeviceInfoContract.Subgroup;
 import com.jphilli85.deviceinfo.element.Audio;
 import com.jphilli85.deviceinfo.element.Battery;
+import com.jphilli85.deviceinfo.element.Bluetooth;
 import com.jphilli85.deviceinfo.element.Camera;
 import com.jphilli85.deviceinfo.element.Cellular;
 import com.jphilli85.deviceinfo.element.Cpu;
 import com.jphilli85.deviceinfo.element.Display;
+import com.jphilli85.deviceinfo.element.Features;
 import com.jphilli85.deviceinfo.element.Graphics;
+import com.jphilli85.deviceinfo.element.Identifiers;
+import com.jphilli85.deviceinfo.element.Keys;
 import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
 import com.jphilli85.deviceinfo.element.Network;
+import com.jphilli85.deviceinfo.element.Platform;
+import com.jphilli85.deviceinfo.element.Properties;
 import com.jphilli85.deviceinfo.element.Ram;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 import com.jphilli85.deviceinfo.element.Storage;
+import com.jphilli85.deviceinfo.element.UnavailableFeatureException;
+import com.jphilli85.deviceinfo.element.Uptime;
 import com.jphilli85.deviceinfo.element.Wifi;
 
 public class DetailsFragment extends SherlockFragment implements
@@ -66,6 +75,13 @@ public class DetailsFragment extends SherlockFragment implements
 	private Cellular mCellular;
 	private Network mNetwork;
 	private Wifi mWifi;
+	private Bluetooth mBluetooth;
+	private Platform mPlatform;
+	private Uptime mUptime;
+	private Properties mProperties;
+	private Identifiers mIdentifiers;
+	private Features mFeatures;
+	private Keys mKeys;
 	
 	private boolean mIsPaused;
 	
@@ -114,18 +130,18 @@ public class DetailsFragment extends SherlockFragment implements
 		View v = inflater.inflate(R.layout.details, container, false);
 		mLayout = (LinearLayout) v.findViewById(R.id.detailsLayout);
 		if (mLayout != null) {
-			mLiveBatteryInfo = new DetailsTextView(getActivity());
-			mLiveCpuInfo = new DetailsTextView(getActivity());
-			mLiveLocationInfo = new DetailsTextView(getActivity());
-			mLiveRamInfo = new DetailsTextView(getActivity());
-//			mLiveSensorsInfo = new DetailsTextView(getActivity());
-			mLiveStorageInfo = new DetailsTextView(getActivity());
-			mLayout.addView(mLiveBatteryInfo);
-			mLayout.addView(mLiveCpuInfo);
-			mLayout.addView(mLiveLocationInfo);
-			mLayout.addView(mLiveRamInfo);
-//			mLayout.addView(mLiveSensorsInfo);
-			mLayout.addView(mLiveStorageInfo);
+//			mLiveBatteryInfo = new DetailsTextView(getActivity());
+//			mLiveCpuInfo = new DetailsTextView(getActivity());
+//			mLiveLocationInfo = new DetailsTextView(getActivity());
+//			mLiveRamInfo = new DetailsTextView(getActivity());
+////			mLiveSensorsInfo = new DetailsTextView(getActivity());
+//			mLiveStorageInfo = new DetailsTextView(getActivity());
+////			mLayout.addView(mLiveBatteryInfo);
+//			mLayout.addView(mLiveCpuInfo);
+//			mLayout.addView(mLiveLocationInfo);
+//			mLayout.addView(mLiveRamInfo);
+////			mLayout.addView(mLiveSensorsInfo);
+//			mLayout.addView(mLiveStorageInfo);
 		}
 		return v; 		
 	}
@@ -151,6 +167,8 @@ public class DetailsFragment extends SherlockFragment implements
 		if (mSensorsView != null) mSensorsView.onPause();
 		if (mCellular != null) mCellular.stopListening();
 		if (mWifi != null) mWifi.pause();
+		if (mBluetooth != null) mBluetooth.pause();
+		if (mUptime != null) mUptime.pause();
 		mIsPaused = true;
 	}
 	
@@ -274,11 +292,31 @@ public class DetailsFragment extends SherlockFragment implements
     	else if (name.equals(Subgroup.SUBGROUP_WIFI)) {
 //    		mNetwork = new Network(getActivity());	 
     		
-    		mWifi = new Wifi(getActivity());
-    		mWifi.getWifiManager().startScan();
+//    		mWifi = new Wifi(getActivity());
     		
-//    		if (!mIsPaused) mCellular.startListening(false);
+    		try { mBluetooth = new Bluetooth(getActivity()); } 
+    		catch (UnavailableFeatureException ignored) {}
+    		if (mBluetooth != null) {
+    			mBluetooth.startListening(false);
+    		}
     	}
+    	else if (name.equals(Subgroup.SUBGROUP_PLATFORM)) {
+    		mUptime = new Uptime();
+//    		mUptime.startListening(false);
+    		mPlatform = new Platform(getActivity());
+		}
+    	else if (name.equals(Subgroup.SUBGROUP_PROPERTIES)) {
+    		mProperties = new Properties();
+    		mFeatures = new Features(getActivity());
+		}
+    	else if (name.equals(Subgroup.SUBGROUP_IDENTIFIERS)) {
+    		mIdentifiers = new Identifiers(getActivity());
+    		try {
+				mKeys = new Keys(getActivity());
+			} catch (UnavailableFeatureException e) {
+				Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
     	
 //    	if (unit != null && !(unit instanceof Graphics) 
 //    			 && !(unit instanceof Battery)) {
@@ -305,6 +343,13 @@ public class DetailsFragment extends SherlockFragment implements
 				if (mCellular != null) contents.putAll(mCellular.getContents());
 				if (mNetwork != null) contents.putAll(mNetwork.getContents());
 				if (mWifi != null) contents.putAll(mWifi.getContents());
+				if (mBluetooth != null) contents.putAll(mBluetooth.getContents());
+				if (mUptime != null) contents.putAll(mUptime.getContents());
+				if (mPlatform != null) contents.putAll(mPlatform.getContents());
+				if (mProperties != null) contents.putAll(mProperties.getContents());
+				if (mIdentifiers != null) contents.putAll(mIdentifiers.getContents());
+				if (mFeatures != null) contents.putAll(mFeatures.getContents());
+				if (mKeys != null) contents.putAll(mKeys.getContents());
 				
 				TextView tv = new DetailsTextView(getActivity().getApplicationContext(), null);
 				for (String s : contents.keySet()) {

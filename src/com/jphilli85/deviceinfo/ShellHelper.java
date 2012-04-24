@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,19 +84,19 @@ public class ShellHelper {
     }  
     
     
-    public static Map<String, String> getProp() {  
+    public static LinkedHashMap<String, String> getProp() {  
     	List<String> list = null; 
         try { list = exec("getprop"); }
         catch (IOException ignored) {}
         catch (SecurityException ignored) {}
         if (list == null || list.isEmpty()) return null;
-        Map<String, String> props = new HashMap<String, String>();
+        LinkedHashMap<String, String> props = new LinkedHashMap<String, String>();
         String[] parts = null;
         for (String s : list) {
         	// Each property has the format [name]: [value]
         	// Remove first and last bracket.        	
         	s = s.trim().substring(1, s.length() - 1);
-        	parts = s.split("]: [");
+        	parts = s.split("]:\\s+\\[");
         	if (parts == null || parts.length != 2) {
         		Log.d(LOG_TAG, "getprop property does not have exactly 2 parts.");
         		continue;

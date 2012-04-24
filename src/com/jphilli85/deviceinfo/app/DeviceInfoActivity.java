@@ -20,7 +20,7 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		
-		if (DeviceInfo.sAppContext == null) DeviceInfo.sAppContext = getApplicationContext();
+		if (DeviceInfo.getAppContext() == null) DeviceInfo.setAppContext(getApplication());
 		
 		mDatabase = (new DeviceInfoDatabaseHelper(this)).getReadableDatabase();
 		

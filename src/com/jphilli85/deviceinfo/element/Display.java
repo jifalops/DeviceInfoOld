@@ -224,7 +224,7 @@ public class Display implements ContentsMapper {
     @Override
 	public LinkedHashMap<String, String> getContents() {
     	LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-		Context context = DeviceInfo.sAppContext;
+		Context context = DeviceInfo.getAppContext();
 		
 		contents.put("Density DPI String", getDensityDpiString());
 		contents.put("Density DPI", String.valueOf(getDensityDpi()));

@@ -403,6 +403,6 @@ public class DeviceInfoDatabaseHelper extends SQLiteOpenHelper {
 
 
     private String getString(int resId) { 
-    	return DeviceInfo.sAppContext.getString(resId);
+    	return DeviceInfo.getAppContext().getString(resId);
     }
 }

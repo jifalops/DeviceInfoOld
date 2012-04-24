@@ -5,7 +5,10 @@ import java.util.LinkedHashMap;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.jphilli85.deviceinfo.DeviceInfo;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.opengl.GLES10;
 import android.opengl.GLES11;
 import android.opengl.GLES20;
@@ -38,7 +41,8 @@ public class Graphics implements ContentsMapper, GLSurfaceView.Renderer {
 	
 	public Graphics(GLSurfaceView glSurfaceView, Callback callback) {
 		mGlSurfaceView = glSurfaceView;
-		mOpenGlesVersion = findOpenGlesVersion();	
+		String ver = openGlesVersion(DeviceInfo.getAppContext());
+		mOpenGlesVersion = ver == null ? 0.0f : Float.valueOf(ver);
 		mCallback = callback;
 
 		if (Build.VERSION.SDK_INT >= 8) {
@@ -49,32 +53,14 @@ public class Graphics implements ContentsMapper, GLSurfaceView.Renderer {
 		glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
 	
-	private float findOpenGlesVersion() {
-		boolean gles10 = true;
-		boolean gles11 = true;
-		boolean gles20 = true;
-		float ver = 0;
-		
-		try { Class.forName("android.opengl.GLES10"); }
-		catch (ClassNotFoundException ignored) {
-			gles10 = false;
-		}
-		
-		try { Class.forName("android.opengl.GLES11"); }
-		catch (ClassNotFoundException ignored) {
-			gles11 = false;
-		}
-		
-		try { Class.forName("android.opengl.GLES20"); }
-		catch (ClassNotFoundException ignored) {
-			gles20 = false;
-		}
-		
-		if (gles10) ver = OPENGLES_VERSION_10;
-		if (gles11) ver = OPENGLES_VERSION_11;
-		if (gles20) ver = OPENGLES_VERSION_20;
-		
-		return ver;
+	/** 
+	 * Gets the highest supported OpenGL version as a string 
+	 * representation of a floating point number.
+	 */
+	public static String openGlesVersion(Context context) {
+		return ((ActivityManager) context
+			.getSystemService(Context.ACTIVITY_SERVICE))
+			.getDeviceConfigurationInfo().getGlEsVersion();
 	}
 	
 	public OpenGles getOpenGles() {
@@ -89,7 +75,8 @@ public class Graphics implements ContentsMapper, GLSurfaceView.Renderer {
 		return mGlSurfaceView;
 	}
 	
-	/** Get the highest supported OpenGL ES version.
+	/** 
+	 * Get the highest supported OpenGL ES version.
 	 * This will be available immediately after instantiation
 	 * whereas getOpenGles() will only be ready after the GLSurfaceView
 	 * has been created.	 

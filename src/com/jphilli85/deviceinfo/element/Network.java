@@ -274,4 +274,16 @@ public class Network implements ContentsMapper, SmartListener {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public Object getCallback() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean setCallback(Object callback) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

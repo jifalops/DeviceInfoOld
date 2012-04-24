@@ -361,13 +361,13 @@ public class Cellular implements ContentsMapper {
 		return mLastUpdateTimestamp;
 	}
 	
-	public String getRadioVersion() {
+	public static String getRadioVersion() {
 		if (API >= 14) return Build.getRadioVersion();
 		else if (API >= 8) return Build.RADIO;
 		return null;
 	}
 	
-	public String getBaseband() {
+	public static String getBaseband() {
 		String bb = ShellHelper.getProp("gsm.version.baseband");
 		if (bb == null || bb.equalsIgnoreCase("unknown")) {
 			bb = ShellHelper.getProp("ro.baseband");
@@ -375,11 +375,11 @@ public class Cellular implements ContentsMapper {
 		return bb;
 	}
 	
-	public String getRilVersion() {
+	public static String getRilVersion() {
 		return ShellHelper.getProp("gsm.version.ril-impl");
 	}
 	
-	public String getRilBarcode() {
+	public static String getRilBarcode() {
 		return ShellHelper.getProp("ro.ril.barcode");
 	}
 	

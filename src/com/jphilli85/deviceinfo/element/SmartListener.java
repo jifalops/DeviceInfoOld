@@ -1,6 +1,6 @@
 package com.jphilli85.deviceinfo.element;
 
-public interface SmartListener {
+public interface SmartListener {	
 	boolean startListening();
 	boolean startListening(boolean onlyIfCallbackSet);
 	boolean stopListening();
