@@ -29,6 +29,7 @@
     <string name="group_label_memory">Memory</string>
     <string name="group_label_visual_audio">Visual &amp; Audio</string>
     <string name="group_label_battery_sensors">Battery &amp; Sensors</string>
+    <string name="group_label_location">Location</string>
     <string name="group_label_connections">Connections</string>
     <string name="group_label_system">System</string>
     

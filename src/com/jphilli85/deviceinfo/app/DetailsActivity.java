@@ -25,12 +25,13 @@ public class DetailsActivity extends SherlockFragmentActivity {
 		
 		if (savedInstanceState == null) {
             // During initial setup, plug in the details fragment.
+			int group = getIntent().getExtras().getInt(GroupListFragment.KEY_GROUP, 0);
 			
-			DetailsFragment detailsFragment = new DetailsFragment();
+			DetailsFragment detailsFragment = DetailsFragment.newInstance(group);
 //					(DetailsFragment) 
 //					getSupportFragmentManager().
 //					findFragmentById(R.id.detailsFragment);
-            detailsFragment.setArguments(getIntent().getExtras());  
+//            detailsFragment.setArguments(getIntent().getExtras());  
             getSupportFragmentManager().beginTransaction()
             .add(android.R.id.content, detailsFragment)
             .commit();

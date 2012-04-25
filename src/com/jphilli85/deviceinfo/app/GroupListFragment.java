@@ -2,42 +2,63 @@ package com.jphilli85.deviceinfo.app;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.data.DeviceInfoContract;
 
-public class GroupListFragment extends SherlockListFragment implements
-		LoaderManager.LoaderCallbacks<Cursor> {
+public class GroupListFragment extends SherlockListFragment {
 
 	/** Interface for communication with container Activity. */
 	public interface OnGroupSelectedListener {
 		public void onGroupSelected(int id);
 	}
 	
-	private static final int GROUP_LIST_LOADER = 1;
+	public static final String KEY_GROUP = GroupListFragment.class.getName() + ".GROUP";
 	
-	public static final String EXTRA_DETAILS_ARRAY = 
-			"com.jphilli85.deviceinfo.extra.DETAILS_ARRAY";
+	public static final int[] GROUP_OVERVIEW;
+	public static final int[] GROUP_CPU;
+	public static final int[] GROUP_MEMORY;
+	public static final int[] GROUP_AUDIO_VIDEO;
+	public static final int[] GROUP_BATTERY_SENSORS;
+	public static final int[] GROUP_LOCATION;
+	public static final int[] GROUP_CONNECTIONS;
+	public static final int[] GROUP_SYSTEM;
+	
+	public static final int[][] GROUPS;
+	
+	static {
+		GROUP_OVERVIEW = new int[] { DetailsFragment.ELEMENT_OVERVIEW };
+		GROUP_CPU = new int[] { DetailsFragment.ELEMENT_CPU };
+		GROUP_MEMORY = new int[] { DetailsFragment.ELEMENT_RAM, DetailsFragment.ELEMENT_STORAGE };
+		GROUP_AUDIO_VIDEO = new int[] { DetailsFragment.ELEMENT_DISPLAY, DetailsFragment.ELEMENT_GRAPHICS, 
+				DetailsFragment.ELEMENT_CAMERA, DetailsFragment.ELEMENT_AUDIO };
+		GROUP_BATTERY_SENSORS = new int[] { DetailsFragment.ELEMENT_BATTERY, DetailsFragment.ELEMENT_SENSORS };
+		GROUP_LOCATION = new int[] { DetailsFragment.ELEMENT_LOCATION };
+		GROUP_CONNECTIONS = new int[] { DetailsFragment.ELEMENT_NETWORK, DetailsFragment.ELEMENT_CELLULAR,
+				DetailsFragment.ELEMENT_WIFI, DetailsFragment.ELEMENT_BLUETOOTH };
+		GROUP_SYSTEM = new int[] { DetailsFragment.ELEMENT_UPTIME, DetailsFragment.ELEMENT_PLATFORM,
+				DetailsFragment.ELEMENT_IDENTIFIERS, DetailsFragment.ELEMENT_FEATURES, 
+				DetailsFragment.ELEMENT_PROPERTIES,	DetailsFragment.ELEMENT_KEYS };
+		
+		GROUPS = new int[][] { GROUP_OVERVIEW, GROUP_CPU, GROUP_MEMORY, GROUP_AUDIO_VIDEO,
+				GROUP_BATTERY_SENSORS, GROUP_LOCATION, GROUP_CONNECTIONS, GROUP_SYSTEM };		
+	}	
 	
 	private OnGroupSelectedListener mOnGroupSelectedListener;	
-    private SimpleCursorAdapter mAdapter;
-    
+
     private boolean mDualPane;
-    int mCurCheckPosition = 1;
+    int mCurrentGroup;
     
-	
+	private ListAdapter mAdapter;
     
     @Override
     public void onAttach(Activity activity) {
@@ -54,16 +75,16 @@ public class GroupListFragment extends SherlockListFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        String[] uiBindFrom = { DeviceInfoContract.Group.COL_LABEL };
-        int[] uiBindTo = { R.id.itemLabel };
-
-        getLoaderManager().initLoader(GROUP_LIST_LOADER, null, this);
-
-        mAdapter = new SimpleCursorAdapter(
-                getActivity().getApplicationContext(), R.layout.group_listitem,
-                null, uiBindFrom, uiBindTo, 0); //CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-
+        Context c = getActivity();
+        String[] groups = new String[] {
+        	c.getString(R.string.group_label_overview), c.getString(R.string.group_label_cpu),
+        	c.getString(R.string.group_label_memory), c.getString(R.string.group_label_visual_audio),
+        	c.getString(R.string.group_label_battery_sensors), c.getString(R.string.group_label_location),
+        	c.getString(R.string.group_label_connections), c.getString(R.string.group_label_system)
+        };
+        
+        mAdapter = new ArrayAdapter<String>(getActivity(), 
+        		R.layout.group_listitem, R.id.itemLabel, groups);
         setListAdapter(mAdapter);
         setHasOptionsMenu(true);
     }
@@ -73,10 +94,8 @@ public class GroupListFragment extends SherlockListFragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         
-        if (savedInstanceState != null) {
-            // Restore last state for checked position.
-            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
-        }
+        if (savedInstanceState == null) mCurrentGroup = 0;
+        else mCurrentGroup = savedInstanceState.getInt(KEY_GROUP);        
         
         // Check to see if we have a frame in which to embed the details
         // fragment directly in the containing UI.
@@ -88,14 +107,14 @@ public class GroupListFragment extends SherlockListFragment implements
             // In dual-pane mode, the list view highlights the selected item.
             getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             // Make sure our UI is in the correct state.
-            showDetails(mCurCheckPosition);
+            showDetails(mCurrentGroup);
         }   
     }
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("curChoice", mCurCheckPosition);
+        outState.putInt(KEY_GROUP, mCurrentGroup);
     }
 
     
@@ -118,7 +137,7 @@ public class GroupListFragment extends SherlockListFragment implements
 //        cursor.close();
 //        l.setItemChecked(position, true); 
     	mOnGroupSelectedListener.onGroupSelected(position);
-    	showDetails((int) id);    	
+    	showDetails(position);    	
     }
     
     
@@ -128,7 +147,7 @@ public class GroupListFragment extends SherlockListFragment implements
      * whole new activity in which it is displayed.
      */
     void showDetails(int index) {
-        mCurCheckPosition = index;
+        mCurrentGroup = index;
 
         if (mDualPane) {
             // We can display everything in-place with fragments, so update
@@ -138,7 +157,7 @@ public class GroupListFragment extends SherlockListFragment implements
             // Check what fragment is currently shown, replace if needed.
             DetailsFragment detailsFragment = (DetailsFragment)
                     getFragmentManager().findFragmentById(R.id.detailsFragment);
-            if (detailsFragment == null || detailsFragment.getShownIndex() != index) {
+            if (detailsFragment == null || detailsFragment.getGroup() != index) {
                 // Make new fragment to show this selection.
                 detailsFragment = DetailsFragment.newInstance(index);
 
@@ -155,31 +174,31 @@ public class GroupListFragment extends SherlockListFragment implements
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), DetailsActivity.class);
-            intent.putExtra("index", index);
+            intent.putExtra(KEY_GROUP, index);
             startActivity(intent);
         }
     }
 	
 	
 	
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = { DeviceInfoContract.Group.COL_ID, DeviceInfoContract.Group.COL_LABEL };
-
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
-                DeviceInfoContract.Group.CONTENT_URI, projection, null, null, null);
-        return cursorLoader;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
-//        cursor.close();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
-    }
+//
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        String[] projection = { DeviceInfoContract.Group.COL_ID, DeviceInfoContract.Group.COL_LABEL };
+//
+//        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+//                DeviceInfoContract.Group.CONTENT_URI, projection, null, null, null);
+//        return cursorLoader;
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+//        mAdapter.swapCursor(cursor);
+////        cursor.close();
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        mAdapter.swapCursor(null);
+//    }
 }

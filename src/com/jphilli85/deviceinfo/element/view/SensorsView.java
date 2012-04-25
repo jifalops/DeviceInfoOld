@@ -1,4 +1,4 @@
-package com.jphilli85.deviceinfo.app.component;
+package com.jphilli85.deviceinfo.element.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +18,22 @@ import android.widget.TextView;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
+import com.jphilli85.deviceinfo.element.SmartListenersContainer;
 
-public class SensorsView {
+public class SensorsView implements SmartListenersContainer, InstanceState {
 	private static final String LOG_TAG = SensorView.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	public static final int FLAG_PROPERTIES = 0x1;
 	public static final int FLAG_EVENTS = 0x2;
+	
+	/** boolean array */
+	public static final String KEY_EXPAND_COLLAPSE = 
+			SensorView.class.getSimpleName() + ".expand_collapse";
+	/** ArrayList<Integer> of sensors that were listening or paused */
+	public static final String KEY_LISTENING = 
+			SensorView.class.getSimpleName() + ".listening";
+	
 	
 	private final Sensors mSensors;
 	
@@ -110,6 +120,10 @@ public class SensorsView {
 		}
 		mSensorViews = list.toArray(new SensorView[list.size()]);
 	}
+	
+	
+	
+	
 	
 	public void startListening() {
 		startListening(true);
@@ -616,6 +630,81 @@ public class SensorsView {
 			mAccuracyTextView.setText(sw.getAccuracyString(sw.getLastAccuracy()));
 			mTimestampTextView.setText(String.valueOf(sw.getLastEventTimestamp()));
 		}
+	}
+
+	@Override
+	public boolean startListeningAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean startListeningAll(boolean onlyIfCallbackSet) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean stopListeningAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isListeningAny() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isListeningAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isPausedAny() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isPausedAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean pauseAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean resumeAll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	public void saveState(Bundle outState) {
+		if (outState == null) return;
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for (int i = 0; i < mSensorViews.length; ++i) {
+			if (mSensorViews[i].isListening() || mSensorViews[i].isPaused()) list.add(i);
+		}
+		outState.putIntegerArrayList(KEY_LISTENING, list);
+		//TODO expand/collapse
+	}
+
+	@Override
+	public void restoreState(Bundle savedState) {
+		if (savedState == null) return;
+		ArrayList<Integer> list = savedState.getIntegerArrayList(KEY_LISTENING);
+		if (list == null) return;		
+		for (int i : list) {
+			try { mSensorViews[i].onResume(); }
+			catch (IndexOutOfBoundsException ignored) {}
+		}		
 	}
 
 }
