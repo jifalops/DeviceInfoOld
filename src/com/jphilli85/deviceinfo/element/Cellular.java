@@ -1,12 +1,5 @@
 package com.jphilli85.deviceinfo.element;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -25,12 +18,12 @@ import android.telephony.gsm.GsmCellLocation;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Cellular implements ContentsMapper {
+public class Cellular extends ListeningElement {
 	private static final int API = Build.VERSION.SDK_INT;
 	
-	private static final int FREQUENCY_HIGH = 1000;
-	private static final int FREQUENCY_MEDIUM = 2000;
-	private static final int FREQUENCY_LOW = 5000;
+	public static final int FREQUENCY_HIGH = 1000;
+	public static final int FREQUENCY_MEDIUM = 2000;
+	public static final int FREQUENCY_LOW = 5000;
 	
 	/** Methods correspond to PhoneStateListener methods */
 	public interface Callback {
@@ -98,9 +91,7 @@ public class Cellular implements ContentsMapper {
     
     private final int mMcc;
     private final int mMnc;
-    
-    private boolean mIsListening;
-    private Callback mCallback;
+
     private int mUpdateFrequency;
     private long mLastUpdateTimestamp;
     
@@ -197,7 +188,7 @@ public class Cellular implements ContentsMapper {
 		return mMnc;
 	}
 	
-	public String getCallStateString(int state) { 
+	public String getCallState(int state) { 
 		switch (state) {
 		case TelephonyManager.CALL_STATE_IDLE: return CALL_STATE_IDLE;
 		case TelephonyManager.CALL_STATE_OFFHOOK: return CALL_STATE_OFFHOOK;
@@ -206,7 +197,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 
-	public String getDataActivityString(int activity) {
+	public String getDataActivity(int activity) {
 		switch (activity) {
 		case TelephonyManager.DATA_ACTIVITY_DORMANT: return DATA_ACTIVITY_DORMANT;
 		case TelephonyManager.DATA_ACTIVITY_IN: return DATA_ACTIVITY_IN;
@@ -217,7 +208,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 
-	public String getDataStateString(int state) {
+	public String getDataState(int state) {
 		switch (state) {
 		case TelephonyManager.DATA_CONNECTED: return DATA_CONNECTED;
 		case TelephonyManager.DATA_CONNECTING: return DATA_CONNECTING;
@@ -227,7 +218,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 	
-	public String getNetworkTypeString(int type) {
+	public String getNetworkType(int type) {
 		switch (type) { 
 		case TelephonyManager.NETWORK_TYPE_1xRTT: return NETWORK_TYPE_1xRTT;
 		case TelephonyManager.NETWORK_TYPE_CDMA: return NETWORK_TYPE_CDMA;
@@ -249,7 +240,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 	
-	public String getPhoneTypeString(int type) {
+	public String getPhoneType(int type) {
 		switch (type) { 
 		case TelephonyManager.PHONE_TYPE_CDMA: return PHONE_TYPE_CDMA;
 		case TelephonyManager.PHONE_TYPE_GSM: return PHONE_TYPE_GSM;
@@ -259,7 +250,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 	
-	public String getSimStateString(int state) {
+	public String getSimState(int state) {
 		switch (state) { 
 		case TelephonyManager.SIM_STATE_ABSENT: return SIM_STATE_ABSENT;
 		case TelephonyManager.SIM_STATE_NETWORK_LOCKED: return SIM_STATE_NETWORK_LOCKED;
@@ -271,7 +262,7 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 	
-	public String getServiceStateString(int state) {
+	public String getServiceState(int state) {
 		switch (state) { 
 		case ServiceState.STATE_EMERGENCY_ONLY: return STATE_EMERGENCY_ONLY;
 		case ServiceState.STATE_IN_SERVICE: return STATE_IN_SERVICE;
@@ -281,40 +272,37 @@ public class Cellular implements ContentsMapper {
 		return null;
 	}
 	
-	public String getCallStateString() { 
-		return getCallStateString(mTelephonyManager.getCallState());
+	public String getCallState() { 
+		return getCallState(mTelephonyManager.getCallState());
 	}
 	
-	public String getDataActivityString() {
-		return getDataActivityString(mTelephonyManager.getDataActivity());
+	public String getDataActivity() {
+		return getDataActivity(mTelephonyManager.getDataActivity());
 	}
 	
-	public String getDataStateString() {
-		return getDataStateString(mTelephonyManager.getDataState());
+	public String getDataState() {
+		return getDataState(mTelephonyManager.getDataState());
 	}
 	
-	public String getNetworkTypeString() {
-		return getNetworkTypeString(mTelephonyManager.getNetworkType());
+	public String getNetworkType() {
+		return getNetworkType(mTelephonyManager.getNetworkType());
 	}
 	
-	public String getPhoneTypeString() {
-		return getPhoneTypeString(mTelephonyManager.getPhoneType());
+	public String getPhoneType() {
+		return getPhoneType(mTelephonyManager.getPhoneType());
 	}
 	
-	public String getSimStateString() {
-		return getSimStateString(mTelephonyManager.getSimState());
+	public String getSimState() {
+		return getSimState(mTelephonyManager.getSimState());
 	}
 	
 	public String getServiceStateString() {
-		return getServiceStateString(mServiceState.getState());
+		return getServiceState(mServiceState.getState());
 	}
-	
-	public void startListening() {
-		startListening(true);
-	}
-	
-	public void startListening(boolean onlyIfCallbackSet) {
-		if (mIsListening || (onlyIfCallbackSet && mCallback == null)) return;
+
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
 		mTelephonyManager.listen(mListener,
 			PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR
 			| PhoneStateListener.LISTEN_CALL_STATE
@@ -325,25 +313,14 @@ public class Cellular implements ContentsMapper {
 			| PhoneStateListener.LISTEN_SERVICE_STATE
 			| PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
 		);
-		mIsListening = true;
+		return setListening(true);
 	}
 	
-	public void stopListening() {
-		if (!mIsListening) return;
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
 		mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_NONE);
-		mIsListening = false;
-	}
-	
-	public boolean isListening() {
-		return mIsListening;
-	}
-	
-	public Callback getCallback() {
-		return mCallback;
-	}
-	
-	public void setCallback(Callback callback) {
-		mCallback = callback;
+		return !setListening(false);
 	}
 	
 	/** Minimum time between cell location updates in milliseconds */
@@ -385,7 +362,7 @@ public class Cellular implements ContentsMapper {
 	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> contents = super.getContents();
 		
 		// Cellular info
 		contents.put("MCC", String.valueOf(getMcc()));
@@ -399,22 +376,22 @@ public class Cellular implements ContentsMapper {
 		contents.put("RIL Barcode", getRilBarcode());
 		
 		// TelephonyManager info
-		contents.put("Call State", getCallStateString());
-		contents.put("Data Activity", getDataActivityString());
-		contents.put("Data State", getDataStateString());
+		contents.put("Call State", getCallState());
+		contents.put("Data Activity", getDataActivity());
+		contents.put("Data State", getDataState());
 		contents.put("Device ID", mTelephonyManager.getDeviceId());
 		contents.put("Device Software Version", mTelephonyManager.getDeviceSoftwareVersion());
 		contents.put("Line 1 Number", mTelephonyManager.getLine1Number());
 		contents.put("Network Country ISO", mTelephonyManager.getNetworkCountryIso());
 		contents.put("Network Operator", mTelephonyManager.getNetworkOperator());
 		contents.put("Network Operator Name", mTelephonyManager.getNetworkOperatorName());
-		contents.put("Network Type", getNetworkTypeString());
-		contents.put("Phone Type", getPhoneTypeString());
+		contents.put("Network Type", getNetworkType());
+		contents.put("Phone Type", getPhoneType());
 		contents.put("SIM Country ISO", mTelephonyManager.getSimCountryIso());
 		contents.put("SIM Operator", mTelephonyManager.getSimOperator());
 		contents.put("SIM Operator Name", mTelephonyManager.getSimOperatorName());
 		contents.put("SIM Serial Number", mTelephonyManager.getSimSerialNumber());
-		contents.put("SIM State", getSimStateString());
+		contents.put("SIM State", getSimState());
 		contents.put("Subscriber ID", mTelephonyManager.getSubscriberId());
 		contents.put("Voice Mail Alpha Tag", mTelephonyManager.getVoiceMailAlphaTag());
 		contents.put("Voice Mail Number", mTelephonyManager.getVoiceMailNumber());
@@ -476,135 +453,6 @@ public class Cellular implements ContentsMapper {
 		}
 		else contents.put("SignalStrength", null);
 		
-		
-		//TODO belongs elsewhere
-		List<NetworkInterface> networks = new ArrayList<NetworkInterface>();
-		try { networks = Collections.list(NetworkInterface.getNetworkInterfaces());	} 
-		catch (SocketException ignored) {}
-		int i = 0;		
-		byte[] addr = null;
-		StringBuilder address;
-		int j;
-		InetAddress inetAddress = null;
-		for (NetworkInterface ni : networks) { 
-			contents.put("NetworkInterface " + i + " Display Name", ni.getDisplayName());
-			try { addr = ni.getHardwareAddress(); } 
-			catch (SocketException ignored) {}
-			if (addr != null) {
-				address = new StringBuilder();
-				for (byte b : addr) {
-					address.append(b & 0xFF).append(':');
-				}
-				contents.put("NetworkInterface " + i + " Hardware Address", address.toString());
-			}
-			else contents.put("NetworkInterface " + i + " Hardware Address", null);
-			try { contents.put("NetworkInterface " + i + " MTU", String.valueOf(ni.getMTU())); } 
-			catch (SocketException ignored) {}
-			contents.put("NetworkInterface " + i + " Name", String.valueOf(ni.getName()));
-			contents.put("NetworkInterface " + i + " Parent index", String.valueOf(networks.indexOf(ni.getParent())));
-			try { contents.put("NetworkInterface " + i + " Is Loopback", String.valueOf(ni.isLoopback())); } 
-			catch (SocketException ignored) {}
-			try { contents.put("NetworkInterface " + i + " Is PointToPoint", String.valueOf(ni.isPointToPoint())); } 
-			catch (SocketException ignored) {}
-			try { contents.put("NetworkInterface " + i + " Is Up", String.valueOf(ni.isUp())); } 
-			catch (SocketException ignored) {}
-			contents.put("NetworkInterface " + i + " Is Virtual", String.valueOf(ni.isVirtual()));
-			try { contents.put("NetworkInterface " + i + " Supports Multicast", String.valueOf(ni.supportsMulticast())); } 
-			catch (SocketException ignored) {}
-			
-			List<InterfaceAddress> interfaces = ni.getInterfaceAddresses();
-			if (interfaces != null) {
-				j = 0;			
-				for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Network Prefix bits", 
-							String.valueOf(ia.getNetworkPrefixLength()));
-					inetAddress = ia.getAddress();
-					addr = inetAddress.getAddress();
-					if (addr != null) {
-						address = new StringBuilder();
-						for (byte b : addr) {
-							address.append(b & 0xFF).append('.');
-						}
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address Address", 
-								address.toString());
-					}
-					else contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address Address", null);
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address CanonicalHostName", 
-							inetAddress.getCanonicalHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address HostName", 
-							inetAddress.getHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsAnyLocalAddress", 
-							String.valueOf(inetAddress.isAnyLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsLinkLocalAddress", 
-							String.valueOf(inetAddress.isLinkLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsLoopbackAddress", 
-							String.valueOf(inetAddress.isLoopbackAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCGlobal", 
-							String.valueOf(inetAddress.isMCGlobal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCLinkLocal", 
-							String.valueOf(inetAddress.isMCLinkLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCNodeLocal", 
-							String.valueOf(inetAddress.isMCNodeLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCOrgLocal", 
-							String.valueOf(inetAddress.isMCOrgLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMCSiteLocal", 
-							String.valueOf(inetAddress.isMCSiteLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMulticast", 
-							String.valueOf(inetAddress.isMulticastAddress()));
-					try {
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsReachable", 
-								String.valueOf(inetAddress.isReachable(5000)));
-					} catch (IOException ignored) {}
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsSiteLocal", 
-							String.valueOf(inetAddress.isSiteLocalAddress()));
-					
-					inetAddress = ia.getBroadcast();
-					addr = inetAddress.getAddress();
-					if (addr != null) {
-						address = new StringBuilder();
-						for (byte b : addr) {
-							address.append(b & 0xFF).append('.');
-						}
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast Address", 
-								address.toString());
-					}
-					else contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast Address", null);
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast CanonicalHostName", 
-							inetAddress.getCanonicalHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast HostName", 
-							inetAddress.getHostName());
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsAnyLocalAddress", 
-							String.valueOf(inetAddress.isAnyLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsLinkLocalAddress", 
-							String.valueOf(inetAddress.isLinkLocalAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsLoopbackAddress", 
-							String.valueOf(inetAddress.isLoopbackAddress()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCGlobal", 
-							String.valueOf(inetAddress.isMCGlobal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCLinkLocal", 
-							String.valueOf(inetAddress.isMCLinkLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCNodeLocal", 
-							String.valueOf(inetAddress.isMCNodeLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCOrgLocal", 
-							String.valueOf(inetAddress.isMCOrgLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMCSiteLocal", 
-							String.valueOf(inetAddress.isMCSiteLocal()));
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsMulticast", 
-							String.valueOf(inetAddress.isMulticastAddress()));
-					try {
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsReachable", 
-								String.valueOf(inetAddress.isReachable(5000)));
-					} catch (IOException ignored) {}
-					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Broadcast IsSiteLocal", 
-							String.valueOf(inetAddress.isSiteLocalAddress()));
-					
-					++j;
-				}
-			}
-			else contents.put("NetworkInterface " + i + " InterfaceAddress List", null);
-			++i;
-		}
-		
 		return contents;
 	}
 
@@ -612,13 +460,13 @@ public class Cellular implements ContentsMapper {
 		@Override
 		public void onCallForwardingIndicatorChanged(boolean cfi) {
 			
-			if (mCallback != null) mCallback.onCallForwardingIndicatorChanged(cfi);
+			if (mCallback != null) ((Callback) mCallback).onCallForwardingIndicatorChanged(cfi);
 		}
 		
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber) {
 			
-			if (mCallback != null) mCallback.onCallStateChanged(state, incomingNumber);
+			if (mCallback != null) ((Callback) mCallback).onCallStateChanged(state, incomingNumber);
 		}
 		
 		@Override
@@ -627,43 +475,43 @@ public class Cellular implements ContentsMapper {
 			if (time - mLastUpdateTimestamp < mUpdateFrequency) return;
 			mLastUpdateTimestamp = time;
 			mCellLocation = location;
-			if (mCallback != null) mCallback.onCellLocationChanged(location);
+			if (mCallback != null) ((Callback) mCallback).onCellLocationChanged(location);
 		}
 		
 		@Override
 		public void onDataActivity(int direction) {
 			
-			if (mCallback != null) mCallback.onDataActivity(direction);
+			if (mCallback != null) ((Callback) mCallback).onDataActivity(direction);
 		}
 		
 		@Override
 		public void onDataConnectionStateChanged(int state) {
 			
-			if (mCallback != null) mCallback.onDataConnectionStateChanged(state);
+			if (mCallback != null) ((Callback) mCallback).onDataConnectionStateChanged(state);
 		}
 		
 		@Override
 		public void onDataConnectionStateChanged(int state, int networkType) {
 			
-			if (mCallback != null) mCallback.onDataConnectionStateChanged(state, networkType);
+			if (mCallback != null) ((Callback) mCallback).onDataConnectionStateChanged(state, networkType);
 		}
 		
 		@Override
 		public void onMessageWaitingIndicatorChanged(boolean mwi) {
 			
-			if (mCallback != null) mCallback.onMessageWaitingIndicatorChanged(mwi);
+			if (mCallback != null) ((Callback) mCallback).onMessageWaitingIndicatorChanged(mwi);
 		}
 		
 		@Override
 		public void onServiceStateChanged(ServiceState serviceState) {
 			mServiceState = serviceState;
-			if (mCallback != null) mCallback.onServiceStateChanged(serviceState);
+			if (mCallback != null) ((Callback) mCallback).onServiceStateChanged(serviceState);
 		}
 		
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			mSignalStrength = signalStrength;
-			if (mCallback != null) mCallback.onSignalStrengthsChanged(signalStrength);
+			if (mCallback != null) ((Callback) mCallback).onSignalStrengthsChanged(signalStrength);
 		}
 	}
 }

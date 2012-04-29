@@ -15,8 +15,6 @@ import com.jphilli85.deviceinfo.ShellHelper;
 //TODO exact current frequency???
 public class Cpu implements ContentsMapper {
 	
-	
-	
 	private List<String> mCpuinfo;
 	private List<LogicalCpu> mLogicalCpus;
 	private CpuStat mCpuStat;

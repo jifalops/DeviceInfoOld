@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.jphilli85.deviceinfo.R;
+
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,15 +15,20 @@ import android.hardware.Camera.Parameters;
 import android.os.Build;
 import android.util.Log;
 
-public class Camera implements ContentsMapper {
+public class Camera extends Element {
 	private static final String LOG_TAG = Camera.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
+	
+	public final String FACING_FRONT;
+	public final String FACING_BACK;
 	
 	private final List<CameraWrapper> mCameras;
 	private final int mNumCameras;
 	
-	@SuppressLint({ "NewApi", "NewApi" })
 	public Camera(Context context) {
+		FACING_FRONT = context.getString(R.string.camera_facing_front);
+		FACING_BACK = context.getString(R.string.camera_facing_back);
+		
 		mCameras = new ArrayList<CameraWrapper>();
 		
 		if (API >= 9) {
@@ -36,9 +43,12 @@ public class Camera implements ContentsMapper {
 			}
 		}
 		else if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-			// PackageManager.FEATURE_CAMERA_FRONT wasn't introduced until API 9, 
-			// like Camera.getNumberOfCameras(). I'm going to assume that there 
-			// are no devices with multiple cameras on the back before API 9.
+			/* 
+			 * PackageManager.FEATURE_CAMERA_FRONT wasn't introduced until API 9, 
+			 * as well as Camera.getNumberOfCameras(). I'm going to assume that there 
+			 * are no devices with multiple cameras on the back before API 9.
+			 * If there are, this class will only see the first.
+			 */ 
 			mNumCameras = 1;
 			mCameras.add(new CameraWrapper(getCamera()));
 		}
@@ -50,7 +60,16 @@ public class Camera implements ContentsMapper {
 		releaseCameras();
 	}
 	
-	@SuppressLint("NewApi")
+	/** Camera facing front or back. */
+	public String getCameraDirection(int facing) {
+		switch (facing) {
+		case CameraInfo.CAMERA_FACING_BACK: return FACING_BACK;
+		case CameraInfo.CAMERA_FACING_FRONT: return FACING_FRONT;
+		default: return null;
+		}
+	}
+	
+
 	private android.hardware.Camera getCamera(int id) {
 		android.hardware.Camera c = null;
 	    try {
@@ -125,14 +144,9 @@ public class Camera implements ContentsMapper {
 			return mParametersMap;
 		}
 		
-		// TODO ui facing strings
 		public String getCameraDirection() {
 			if (API < 9 || mCameraInfo == null) return null;
-			switch (mCameraInfo.facing) {
-			case CameraInfo.CAMERA_FACING_BACK: return "CAMERA_FACING_BACK";
-			case CameraInfo.CAMERA_FACING_FRONT: return "CAMERA_FACING_FRONT";
-			default: return null;
-			}
+			return Camera.this.getCameraDirection(mCameraInfo.facing);
 		}
 		
 		/**  		 

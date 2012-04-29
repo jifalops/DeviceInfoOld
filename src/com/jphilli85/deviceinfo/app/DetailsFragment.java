@@ -39,7 +39,7 @@ public class DetailsFragment extends SherlockFragment {
 	public static final int ELEMENT_WIFI = 20;
 	
 	public static final String KEY_ELEMENTS = DetailsFragment.class.getName() + ".ELEMENTS";
-	public static final String KEY_SCROLL_POSITION = DetailsFragment.class.getName() + ".SCROLL_POS";
+//	public static final String KEY_SCROLL_POSITION = DetailsFragment.class.getName() + ".SCROLL_POS";
 	
 	private int mGroup;
 	private Set<Integer> mElements;
@@ -69,6 +69,8 @@ public class DetailsFragment extends SherlockFragment {
 //	private Keys mKeys;
 	
 	private SensorsView mSensorsView;
+	
+	private static int mScrollPos;
 
 	public static DetailsFragment newInstance(int group) {
 		 DetailsFragment f = newInstance(GroupListFragment.GROUPS[group]);
@@ -162,29 +164,34 @@ public class DetailsFragment extends SherlockFragment {
 	}	
 	
 	@Override
-	public void onActivityCreated(Bundle state) {
+	public void onActivityCreated(final Bundle state) {
 		super.onActivityCreated(state);
 		restoreElements(state);
-		mScroller.scrollTo(0, state != null ? state.getInt(KEY_SCROLL_POSITION) : 0);
 	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		saveElements(outState);
-		outState.putInt(KEY_SCROLL_POSITION, mScroller.getScrollY());
 	}
 	
 	@Override
 	public void onResume() {	
 		super.onResume();
 		resumeElements();
+		mScroller.post(new Runnable() {
+			@Override
+			public void run() {
+				mScroller.scrollTo(0, mScrollPos);
+			}
+		});
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
 		pauseElements();
+		mScrollPos = mScroller.getScrollY();
 	}
 	
 //	@Override

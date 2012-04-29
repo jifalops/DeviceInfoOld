@@ -17,10 +17,10 @@ import android.os.Build;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 
-public class Bluetooth implements ContentsMapper, SmartListener {
+public class Bluetooth extends ListeningElement {
 	private static final int API = Build.VERSION.SDK_INT;
 	
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		void onServiceConnected(int profile, BluetoothProfile proxy);
 		void onServiceDisconnected(int profile);
 	}
@@ -136,10 +136,6 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 	private BluetoothHeadset mHeadsetProfile;
 	private BluetoothHealth mHealthProfile;
 	
-	private Callback mCallback;
-	private boolean mIsListening;
-	private boolean mIsPaused;
-	
 	public Bluetooth(Context context) throws UnavailableFeatureException {
 		
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -252,7 +248,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 				
 	}
 		
-	public String getProfileTypeString(int type) {
+	public String getProfileType(int type) {
 		if (API < 11) return null;
 		switch (type) {
 		case BluetoothProfile.A2DP: return PROFILE_A2DP;
@@ -262,7 +258,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		return null;
 	}
 	
-	public String getProfileStateString(int state) {
+	public String getProfileState(int state) {
 		if (API < 11) return null;
 		switch (state) {
 		case BluetoothProfile.STATE_CONNECTED: return STATE_CONNECTED;
@@ -273,7 +269,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getA2dpStateString(int state) {
+	public String getA2dpState(int state) {
 		if (API < 11) return null;
 		switch (state) {
 		case BluetoothA2dp.STATE_PLAYING: return STATE_PLAYING;
@@ -282,7 +278,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getScanModeString(int mode) {
+	public String getScanMode(int mode) {
 		switch (mode) {
 		case BluetoothAdapter.SCAN_MODE_CONNECTABLE: return MODE_CONNECTABLE;
 		case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE: return MODE_CONNECTABLE_DISCOVERABLE;
@@ -292,7 +288,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getAdapterStateString(int state) {
+	public String getAdapterState(int state) {
 		switch (state) {
 		case BluetoothAdapter.STATE_ON: return STATE_ON;
 		case BluetoothAdapter.STATE_OFF: return STATE_OFF;
@@ -311,7 +307,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 	}
 	
 	/** Gets the bond state (paired/pairing...) */
-	public String getBondStateString(int state) {
+	public String getBondState(int state) {
 		switch (state) {
 		case BluetoothDevice.BOND_BONDED: return BOND_BONDED;
 		case BluetoothDevice.BOND_BONDING: return BOND_BONDING;
@@ -321,7 +317,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getAtCommandTypeString(int type) {
+	public String getAtCommandType(int type) {
 		if (API < 11) return null;
 		switch (type) {
 		case BluetoothHeadset.AT_CMD_TYPE_ACTION: return AT_CMD_TYPE_ACTION;
@@ -333,7 +329,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getScoStateString(int state) {
+	public String getScoState(int state) {
 		if (API < 11) return null;
 		switch (state) {
 		case BluetoothHeadset.STATE_AUDIO_CONNECTED: return STATE_CONNECTED;
@@ -343,7 +339,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getHealthConfigStateString(int state) {
+	public String getHealthConfigState(int state) {
 		if (API < 14) return null;
 		switch (state) {
 		case BluetoothHealth.APP_CONFIG_REGISTRATION_FAILURE: return FAILURE;
@@ -354,7 +350,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getHealthChannelTypeString(int type) {
+	public String getHealthChannelType(int type) {
 		if (API < 14) return null;
 		switch (type) {
 		case BluetoothHealth.CHANNEL_TYPE_RELIABLE: return CHANNEL_RELIABLE;
@@ -363,7 +359,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getHealthChannelStateString(int state) {
+	public String getHealthChannelState(int state) {
 		if (API < 14) return null;
 		switch (state) {
 		case BluetoothHealth.STATE_CHANNEL_CONNECTED: return STATE_CONNECTED;
@@ -374,7 +370,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getHealthRoleString(int role) {
+	public String getHealthRole(int role) {
 		if (API < 14) return null;
 		switch (role) {
 		case BluetoothHealth.SINK_ROLE: return ROLE_SINK;
@@ -383,7 +379,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getDeviceTypeString(int type) {		
+	public String getDeviceType(int type) {		
 		switch (type) {
 		case BluetoothClass.Device.AUDIO_VIDEO_CAMCORDER: return DEVICE_CAMCORDER;
 		case BluetoothClass.Device.AUDIO_VIDEO_CAR_AUDIO : return DEVICE_CAR_AUDIO;
@@ -440,7 +436,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getDeviceMajorTypeString(int type) {
+	public String getDeviceMajorType(int type) {
 		switch (type) {
 		case BluetoothClass.Device.Major.AUDIO_VIDEO: return MAJOR_DEVICE_AUDIO_VIDEO;
 		case BluetoothClass.Device.Major.COMPUTER: return MAJOR_DEVICE_COMPUTER;
@@ -457,7 +453,7 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		}
 	}
 	
-	public String getServiceTypeString(int type) {
+	public String getServiceType(int type) {
 		switch (type) {
 		case BluetoothClass.Service.AUDIO: return SERVICE_AUDIO;
 		case BluetoothClass.Service.CAPTURE: return SERVICE_CAPTURE;
@@ -501,18 +497,17 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 		contents.put("MAC Address", address);
 		contents.put("MAC Is Valid", String.valueOf(isValid));
 		contents.put("Name", mBluetoothAdapter.getName());
-		contents.put("Scan Mode", getScanModeString(mBluetoothAdapter.getScanMode()));
-		contents.put("Adapter State", getAdapterStateString(mBluetoothAdapter.getState()));
+		contents.put("Scan Mode", getScanMode(mBluetoothAdapter.getScanMode()));
+		contents.put("Adapter State", getAdapterState(mBluetoothAdapter.getState()));
 		contents.put("Is Discovering", String.valueOf(mBluetoothAdapter.isDiscovering()));
 		contents.put("Is Enabled", String.valueOf(mBluetoothAdapter.isEnabled()));
 		
 		if (API >= 14) {
-			// TODO these states can be found with api 11 using the listener.
-			contents.put("A2DP Profile Connection State", getProfileStateString(
+			contents.put("A2DP Profile Connection State", getProfileState(
 					mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.A2DP)));
-			contents.put("Headset Profile Connection State", getProfileStateString(
+			contents.put("Headset Profile Connection State", getProfileState(
 					mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET)));
-			contents.put("Health Profile Connection State", getProfileStateString(
+			contents.put("Health Profile Connection State", getProfileState(
 					mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEALTH)));
 		}
 		if (API >= 11 && mA2dpProfile == null) contents.put("Local A2DP Profile", null);
@@ -550,19 +545,19 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 	
 	private LinkedHashMap<String, String> getBluetoothDeviceContents(BluetoothDevice device) {
 		if (device == null) return null;
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> contents = super.getContents();
 		
 		String address = device.getAddress();
 		contents.put("Address", address);
 		contents.put("Address Valid", String.valueOf(BluetoothAdapter.checkBluetoothAddress(address)));
-		contents.put("Bond State", getBondStateString(device.getBondState()));
+		contents.put("Bond State", getBondState(device.getBondState()));
 		contents.put("Name", device.getName());							
 		// BluetoothClass
 		BluetoothClass btclass = device.getBluetoothClass();
 		if (btclass == null) contents.put("BluetoothClass", null);
 		else {
-			contents.put("Major Class", getDeviceMajorTypeString(btclass.getMajorDeviceClass()));
-			contents.put("Minor Class", getDeviceTypeString(btclass.getDeviceClass()));
+			contents.put("Major Class", getDeviceMajorType(btclass.getMajorDeviceClass()));
+			contents.put("Minor Class", getDeviceType(btclass.getDeviceClass()));
 			contents.put("Has Service Audio", String.valueOf(
 					btclass.hasService(BluetoothClass.Service.AUDIO)));
 			contents.put("Has Service Capture", String.valueOf(
@@ -583,34 +578,28 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 					btclass.hasService(BluetoothClass.Service.TELEPHONY)));
 		}
 		if (API >= 11 && mA2dpProfile != null) {
-			contents.put("A2DP Profile Connection State", getProfileStateString(mA2dpProfile.getConnectionState(device)));
+			contents.put("A2DP Profile Connection State", getProfileState(mA2dpProfile.getConnectionState(device)));
 			// I reported bug, issue 29394
 //			contents.put("A2DP Profile Is Playing", String.valueOf(mA2dpProfile.isA2dpPlaying(device)));
 		}
 		if (API >= 11 && mHeadsetProfile != null) {
-			contents.put("Headset Profile Connection State", getProfileStateString(mHeadsetProfile.getConnectionState(device)));
+			contents.put("Headset Profile Connection State", getProfileState(mHeadsetProfile.getConnectionState(device)));
 			contents.put("Headset Profile Is Audio Connected", String.valueOf(mHeadsetProfile.isAudioConnected(device)));
 		}
 		if (API >= 14 && mHealthProfile != null) {
-			contents.put("Health Profile Connection State", getProfileStateString(mHealthProfile.getConnectionState(device)));
+			contents.put("Health Profile Connection State", getProfileState(mHealthProfile.getConnectionState(device)));
 		}
 		
 		return contents;
 	}
 
 	@Override
-	public boolean startListening() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
-		if (API < 11 || mIsListening || (onlyIfCallbackSet && mCallback == null)) return false;
+		if (API < 11 || !super.startListening(onlyIfCallbackSet)) return false;
 		BluetoothProfile.ServiceListener listener = new BluetoothProfile.ServiceListener() {			
 			@Override
 			public void onServiceDisconnected(int profile) {
-				if (mCallback != null) mCallback.onServiceDisconnected(profile);			
+				if (mCallback != null) ((Callback) mCallback).onServiceDisconnected(profile);			
 			}
 			@Override
 			public void onServiceConnected(int profile, BluetoothProfile proxy) {
@@ -619,63 +608,23 @@ public class Bluetooth implements ContentsMapper, SmartListener {
 				else if (profile == BluetoothProfile.HEADSET) mHeadsetProfile = (BluetoothHeadset) proxy;
 				else if (API >= 14 && profile == BluetoothProfile.HEALTH) mHealthProfile = (BluetoothHealth) proxy;
 				
-				if (mCallback != null) mCallback.onServiceConnected(profile, proxy);
+				if (mCallback != null) ((Callback) mCallback).onServiceConnected(profile, proxy);
 			}
 		};
+		
 		boolean a,b,c = false;
 		a = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.A2DP);
 		b = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.HEADSET);
 		if (API >= 14) c = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.HEALTH);
-		mIsListening = a || b || c;
-		return mIsListening;
+		return setListening(a || b || c);		
 	}
 
 	@Override
 	public boolean stopListening() {
-		if (API < 11 || !mIsListening) return false;
+		if (API < 11 || !super.stopListening()) return false;
 		mBluetoothAdapter.closeProfileProxy(BluetoothProfile.A2DP, mA2dpProfile);
 		mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mHeadsetProfile);
 		if (API >= 14) mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEALTH, mHealthProfile);
-		mIsListening = false;
-		return !mIsListening;
+		return !setListening(false);
 	}
-
-	@Override
-	public boolean isListening() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean pause() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean resume() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isPaused() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Object getCallback() {
-		return mCallback;
-	}
-
-	@Override
-	public boolean setCallback(Object callback) {		
-		if (callback instanceof Callback) {
-			mCallback = (Callback) callback;
-			return true;
-		}
-		return false;
-	}
-
 }

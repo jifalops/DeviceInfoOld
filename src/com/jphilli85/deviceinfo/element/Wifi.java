@@ -26,7 +26,7 @@ import android.text.TextUtils;
 import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.R;
 
-public class Wifi implements ContentsMapper, SmartListener {
+public class Wifi implements ContentsMapper, ElementListener {
 	
 	public interface Callback {
 		void onScanCompleted(List<ScanResult> results);

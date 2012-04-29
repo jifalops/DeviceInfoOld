@@ -8,7 +8,7 @@ import android.os.Handler;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Uptime implements ContentsMapper, SmartListener {
+public class Uptime implements ContentsMapper, ElementListener {
 	
 	public interface Callback {
 		void onUptimeUpdated(float uptimeTotal, float uptimeAsleep);

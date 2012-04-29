@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- AudioManager constants -->
+    <string name="audio_mode_current">Current</string>
+    <string name="audio_mode_in_call">In Call</string>
+    <string name="audio_mode_in_communication">In Communication</string>
+    <string name="audio_mode_invalid">Invalid</string>
+    <string name="audio_mode_normal">Normal</string>
+    <string name="audio_mode_ringtone">Ringtone</string>    
+    <string name="ringer_mode_normal">Normal</string>
+    <string name="ringer_mode_silent">Silent</string>
+    <string name="ringer_mode_vibrate">Vibrate</string>
+    <string name="vibrate_setting_off">Off</string>
+    <string name="vibrate_setting_on">On</string>
+    <string name="vibrate_setting_only_silent">Only When Silent</string>
+    
+    <!-- MediaRecorder.AudioEncoder constants -->
+    <string name="audio_format_default">Default</string>
+    <string name="audio_format_aac">AAC</string>
+    <string name="audio_format_amr_nb">AMR_NB</string>
+    <string name="audio_format_amr_wb">AMR_WB</string>
+    
+    <!-- MediaRecorder.OutputFormat constants -->
+    <string name="audio_format_raw_amr">Raw AMR</string>
+    <string name="audio_format_three_gpp">3GPP</string>
+    <string name="audio_format_mpeg_4">MPEG4</string>
+    
+    <!-- MediaRecorder.AudioSource constants -->
+    <string name="audio_source_camcorder">Camcorder</string>
+    <string name="audio_source_default">Default</string>
+    <string name="audio_source_mic">Microphone</string>
+    <string name="audio_source_voice_call">Voice Call</string>
+    <string name="audio_source_voice_communication">Voice Communication</string>
+    <string name="audio_source_voice_downlink">Voice Downlink</string>
+    <string name="audio_source_voice_recognition">Voice Recognition</string>
+    <string name="audio_source_voice_uplink">Voice Uplink</string>
+</resources>
