@@ -2,15 +2,38 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
-public abstract class ListeningElement extends Element implements ElementListener {
+public abstract class ListeningElement extends Element implements ElementListener, TimestampedEvents {
 
 	protected interface Callback {}
 	
-	protected Callback mCallback;
-	
+	private Callback mCallback;	
 	private boolean mIsListening;
+	private final long[] mTimestamps;	
 	
-
+	public ListeningElement(int numEventTypes) {
+		mTimestamps = new long[numEventTypes];
+	}
+	
+	@Override
+	public long getTimestamp(int index) {
+		if (!isValidIndex(index)) return 0L;
+		return mTimestamps[index];
+	}
+	
+	// Rather this not be public :[
+	@Override
+	public void setTimestamp(int index, long timestamp) {
+		if (!isValidIndex(index)) return;
+		mTimestamps[index] = timestamp;
+	}
+	
+	@Override
+	public boolean isValidIndex(int index) {
+		return index >= 0 && index < mTimestamps.length;
+	}
+	
+	
+	
 	@Override
 	public final boolean startListening() {
 		return startListening(true);

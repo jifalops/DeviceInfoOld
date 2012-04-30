@@ -7,17 +7,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
 //TODO exact current frequency???
-public class Cpu implements ContentsMapper {
+public class Cpu extends ListeningElement {
 	
-	private List<String> mCpuinfo;
-	private List<LogicalCpu> mLogicalCpus;
-	private CpuStat mCpuStat;
+	public interface Callback extends ListeningElement.Callback {
+		void onUpdated();
+	}
+	
+	private final List<String> mCpuinfo;
+	private final List<LogicalCpu> mLogicalCpus;
+	private final CpuStat mCpuStat;
+	
+	private int mNumStatsUpdated;
 	
 	public Cpu() {		
 		mCpuinfo = ShellHelper.getProc("cpuinfo");
@@ -32,7 +38,6 @@ public class Cpu implements ContentsMapper {
 			else break;
 			++i;
 		}
-		updateCpuStats();
 	}	
 	
 	public List<String> getCpuinfo() {
@@ -48,15 +53,14 @@ public class Cpu implements ContentsMapper {
 	}
 	
 	/** Updates the CpuStat for this and all logical CPUs. */
-	public int updateCpuStats() {
+	private void updateCpuStats() {
+		mNumStatsUpdated = 0;
 		List<String> stats = ShellHelper.getProc("stat");
-		if (stats == null || stats.isEmpty()) {
-			return 0;
-		}
+		if (stats == null || stats.isEmpty()) return;
+		
 		long timestamp = System.currentTimeMillis();
 		String[] parts = null;
 		String line = null;
-		int updated = 0;
 		for (int i = 0; i < stats.size(); ++i) {
 			line = stats.get(i);
 			if (line.startsWith("cpu")) {
@@ -64,15 +68,14 @@ public class Cpu implements ContentsMapper {
 				if (parts[0].endsWith(String.valueOf(i - 1))) {
 					if (mLogicalCpus.size() >= i &&
 							mLogicalCpus.get(i - 1).getCpuStat().update(parts, timestamp)) {					
-						++updated;
+						++mNumStatsUpdated;
 					}
 				}
 				else if (mCpuStat.update(parts, timestamp)) {
-					++updated;
+					++mNumStatsUpdated;
 				}
 			}
 		}
-		return updated;
 	}
 	
 	
@@ -367,15 +370,6 @@ public class Cpu implements ContentsMapper {
 		private long mIntrPrevious = 0;
 		private long mSoftIrqPrevious = 0;
 		
-		private long mTimestampDifference = 0;
-		private long mUserDifference = 0;
-		private long mNiceDifference = 0;
-		private long mSystemDifference = 0;
-		private long mIdleDifference = 0;
-		private long mIoWaitDifference = 0;
-		private long mIntrDifference = 0;
-		private long mSoftIrqDifference = 0;
-		
 		public CpuStat() {
 			// The overall cpu stat.
 			mId = OVERALL_ID;
@@ -438,15 +432,6 @@ public class Cpu implements ContentsMapper {
 			mIntr = values[5];
 			mSoftIrq = values[6];
 			
-			mTimestampDifference = mTimestamp - mTimestampPrevious;
-			mUserDifference = mUser - mUserPrevious;
-			mNiceDifference = mNice - mNicePrevious;
-			mSystemDifference = mSystem - mSystemPrevious;
-			mIdleDifference = mIdle - mIdlePrevious;
-			mIoWaitDifference = mIoWait - mIoWaitPrevious;
-			mIntrDifference = mIntr - mIntrPrevious;
-			mSoftIrqDifference = mSoftIrq - mSoftIrqPrevious;
-			
 			return true;
 		}
 		
@@ -457,50 +442,50 @@ public class Cpu implements ContentsMapper {
 		public float getUserPercent() {
 			float divisor = mUserPrevious;
 			if (divisor == 0) return 0;
-			return mUserDifference / divisor  * 100;
+			return (mUser - mUserPrevious) / divisor  * 100;
 		}
 		
 		public float getNicePercent() {
 			float divisor = mNicePrevious;
 			if (divisor == 0) return 0;
-			return mNiceDifference / divisor * 100;
+			return (mNice - mNicePrevious) / divisor * 100;
 		}
 		
 		public float getSystemPercent() {
 			float divisor = mSystemPrevious;
 			if (divisor == 0) return 0;
-			return mSystemDifference / divisor * 100;
+			return (mSystem - mSystemPrevious) / divisor * 100;
 		}
 		
 		public float getIdlePercent() {
 			float divisor = mIdlePrevious;
 			if (divisor == 0) return 0;
-			return mIdleDifference / divisor * 100;
+			return (mIdle - mIdlePrevious) / divisor * 100;
 		}
 		
 		public float getIoWaitPercent() {
 			float divisor = mIoWaitPrevious;
 			if (divisor == 0) return 0;
-			return mIoWaitDifference / divisor * 100;
+			return (mIoWait - mIoWaitPrevious) / divisor * 100;
 		}
 		
 		public float getIntrPercent() {
 			float divisor = mIntrPrevious;
 			if (divisor == 0) return 0;
-			return mIntrDifference / divisor * 100;
+			return (mIntr - mIntrPrevious) / divisor * 100;
 		}
 		
 		public float getSoftIrqPercent() {
 			float divisor = mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return mSoftIrqDifference / divisor * 100;
+			return (mSoftIrq - mSoftIrqPrevious) / divisor * 100;
 		}
 		
 		/** User + Nice */
 		public float getUserTotalPercent() {
 			float divisor = mUserPrevious + mNicePrevious;
 			if (divisor == 0) return 0;
-			return (mUserDifference + mNiceDifference)
+			return ((mUser - mUserPrevious) + (mNice - mNicePrevious))
 				/ divisor * 100;
 		}
 		
@@ -508,9 +493,9 @@ public class Cpu implements ContentsMapper {
 		public float getSystemTotalPercent() {
 			float divisor = mSystemPrevious + mIntrPrevious + mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return (mSystemDifference 
-				+ mIntrDifference 
-				+ mSoftIrqDifference)
+			return ((mSystem - mSystemPrevious) 
+				+ (mIntr - mIntrPrevious) 
+				+ (mSoftIrq - mSoftIrqPrevious))
 				/ divisor * 100;
 		}
 		
@@ -518,7 +503,7 @@ public class Cpu implements ContentsMapper {
 		public float getIdleTotalPercent() {
 			float divisor = mIdlePrevious + mIoWaitPrevious;
 			if (divisor == 0) return 0;
-			return (mIdleDifference + mIoWaitDifference)
+			return ((mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious))
 					/ divisor * 100;
 		}
 		
@@ -531,13 +516,13 @@ public class Cpu implements ContentsMapper {
 					+ mIntrPrevious 
 					+ mSoftIrqPrevious;
 			if (divisor == 0) return 0;
-			return (mUserDifference
-				+ mNiceDifference
-				+ mSystemDifference 
-				+ mIdleDifference
-				+ mIoWaitDifference
-				+ mIntrDifference				
-				+ mSoftIrqDifference)
+			return ((mUser - mUserPrevious)
+				+ (mNice - mNicePrevious)
+				+ (mSystem - mSystemPrevious) 
+				+ (mIdle - mIdlePrevious)
+				+ (mIoWait - mIoWaitPrevious)
+				+ (mIntr - mIntrPrevious)				
+				+ (mSoftIrq - mSoftIrqPrevious))
 				/ divisor * 100;
 		}
 		
@@ -656,55 +641,57 @@ public class Cpu implements ContentsMapper {
 		
 		
 		public long getTimestampDifference() {
-			return mTimestampDifference;
+			return (mTimestamp - mTimestampPrevious);
 		}
 		
 		public long getUserDifference() {
-			return mUserDifference;
+			return (mUser - mUserPrevious);
 		}
 		
 		public long getNiceDifference() {
-			return mNiceDifference;
+			return (mNice - mNicePrevious);
 		}
 		
 		public long getSystemDifference() {
-			return mSystemDifference;
+			return (mSystem - mSystemPrevious);
 		}
 		
 		public long getIdleDifference() {
-			return mIdleDifference;
+			return (mIdle - mIdlePrevious);
 		}
 		
 		public long getIoWaitDifference() {
-			return mIoWaitDifference;
+			return (mIoWait - mIoWaitPrevious);
 		}
 		
 		public long getIntrDifference() {
-			return mIntrDifference;
+			return (mIntr - mIntrPrevious);
 		}
 		
 		public long getSoftIrqDifference() {
-			return mSoftIrqDifference;
+			return (mSoftIrq - mSoftIrqPrevious);
 		}
 		
 		/** User + Nice */
 		public long getUserTotalDifference() {
-			return mUserDifference + mNiceDifference;
+			return (mUser - mUserPrevious) + (mNice - mNicePrevious);
 		}
 		
 		/** System + Intr + SoftIrq */
 		public long getSystemTotalDifference() {
-			return mSystemDifference + mIntrDifference + mSoftIrqDifference;
+			return (mSystem - mSystemPrevious) + (mIntr - mIntrPrevious) + (mSoftIrq - mSoftIrqPrevious);
 		}
 		
 		/** Idle + IoWait */
 		public long getIdleTotalDifference() {
-			return mIdleDifference + mIoWaitDifference;
+			return (mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious);
 		}
 		
 		public long getTotalDifference() {
-			return mUserDifference + mNiceDifference + mSystemDifference
-				+ mIdleDifference + mIoWaitDifference + mIntrDifference + mSoftIrqDifference;
+			return (mUser - mUserPrevious) 
+				+ (mNice - mNicePrevious) + (mSystem - mSystemPrevious)
+				+ (mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious)
+				+ (mIntr - mIntrPrevious) + (mSoftIrq - mSoftIrqPrevious);
 		}
 
 		@Override
@@ -767,7 +754,7 @@ public class Cpu implements ContentsMapper {
 
 	@Override
 	public LinkedHashMap<String, String> getContents() {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> contents = super.getContents();
 		LinkedHashMap<String, String> subcontents;
 		
 		for (int i = 0; i < mCpuinfo.size(); ++i) {
@@ -789,5 +776,34 @@ public class Cpu implements ContentsMapper {
 		}
 		
 		return contents; 
+	}
+	
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
+		//TODO
+		return setListening(true);
+	}
+	
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
+		//TODO
+		return !setListening(false);
+	}
+	
+	private class UpdateTask extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(Void... params) {
+			synchronized (Cpu.this) {
+				Cpu.this.updateCpuStats();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			if (mCallback != null) ((Callback) mCallback).onUpdated();
+		}
 	}
 }
