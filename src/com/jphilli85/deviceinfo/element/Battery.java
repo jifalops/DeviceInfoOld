@@ -220,7 +220,7 @@ public class Battery extends ListeningElement {
 			mIconImageView = new ImageView(context);
 			mIconImageView.setImageResource(mIconResourceId);
 			
-			if (mCallback != null) ((Callback) mCallback).onReceive(context, intent);
+			if (getCallback() != null) ((Callback) getCallback()).onReceive(context, intent);
 		}
 	}
 }

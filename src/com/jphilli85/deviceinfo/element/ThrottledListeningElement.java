@@ -1,12 +1,14 @@
 package com.jphilli85.deviceinfo.element;
 
-public abstract class ThrottledListeningElement extends ListeningElement implements ThrottledEvents {
+import java.util.LinkedHashMap;
+
+public abstract class ThrottledListeningElement extends TimestampedListeningElement implements ThrottledEvents {
 	
 	private final int[] mThrottles;
 	
-	public ThrottledListeningElement(int numEventTypes) {
-		super(numEventTypes);
-		mThrottles = new int[numEventTypes];
+	public ThrottledListeningElement(int numThrottles) {
+		super(numThrottles);
+		mThrottles = new int[numThrottles];
 	}
 	
 	@Override
@@ -25,5 +27,14 @@ public abstract class ThrottledListeningElement extends ListeningElement impleme
 	public boolean isUpdateAllowed(int index) {
 		if (!isValidIndex(index)) return false;
 		return System.currentTimeMillis() - getTimestamp(index) >= mThrottles[index];
+	}
+	
+	@Override
+	public LinkedHashMap<String, String> getContents() {
+		LinkedHashMap<String, String> contents = super.getContents();
+		for (int i = 0; i < mThrottles.length; ++i) {
+			contents.put("Throttle " + i, String.valueOf(mThrottles[i]));
+		}
+		return contents;
 	}
 }

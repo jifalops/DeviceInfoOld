@@ -18,12 +18,15 @@ import android.telephony.gsm.GsmCellLocation;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Cellular extends ListeningElement {
+public class Cellular extends ThrottledListeningElement {
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	public static final int FREQUENCY_HIGH = 1000;
 	public static final int FREQUENCY_MEDIUM = 2000;
 	public static final int FREQUENCY_LOW = 5000;
+	
+	public static final int THROTTLE_COUNT = 1;
+	public static final int THROTTLE_INDEX_CELL_LOCATION = 0;
 	
 	/** Methods correspond to PhoneStateListener methods */
 	public interface Callback {
@@ -37,10 +40,7 @@ public class Cellular extends ListeningElement {
 		void onServiceStateChanged(ServiceState serviceState);
 		void onSignalStrengthsChanged(SignalStrength signalStrength);
 	}
-	
-	private final TelephonyManager mTelephonyManager;    
-    private final PhoneStateListener mListener;
-    
+
     // TelephonyManager Strings
     public final String CALL_STATE_IDLE;
     public final String CALL_STATE_OFFHOOK;
@@ -89,17 +89,19 @@ public class Cellular extends ListeningElement {
     public final String STATE_OUT_OF_SERVICE;
     public final String STATE_POWER_OFF;
     
+    private final TelephonyManager mTelephonyManager;    
+    private final PhoneStateListener mListener;
+    
     private final int mMcc;
     private final int mMnc;
-
-    private int mUpdateFrequency;
-    private long mLastUpdateTimestamp;
     
     private ServiceState mServiceState;
     private CellLocation mCellLocation;
     private SignalStrength mSignalStrength;
     
 	public Cellular(Context context) {
+		super(THROTTLE_COUNT);
+		
 		mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);		
 		mListener = new MyPhoneStateListener();
 		
@@ -110,7 +112,7 @@ public class Cellular extends ListeningElement {
 		mServiceState = new ServiceState();
 		mCellLocation = mTelephonyManager.getCellLocation();
 		
-		mUpdateFrequency = FREQUENCY_MEDIUM;
+		setUpdateThrottle(THROTTLE_INDEX_CELL_LOCATION, FREQUENCY_MEDIUM);
 		
 		CALL_STATE_IDLE = context.getString(R.string.call_state_idle);
 		CALL_STATE_OFFHOOK = context.getString(R.string.call_state_offhook);
@@ -322,22 +324,7 @@ public class Cellular extends ListeningElement {
 		mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_NONE);
 		return !setListening(false);
 	}
-	
-	/** Minimum time between cell location updates in milliseconds */
-	public int getUpdateFrequency() {
-		return mUpdateFrequency;
-	}
-	
-	/** Minimum time between cell location updates in milliseconds */
-	public void setUpdateFrequency(int frequency) {
-		mUpdateFrequency = frequency;
-	}
-	
-	/** Last cell location update timestamp in milliseconds */
-	public long getLastUpdateTimestamp() {
-		return mLastUpdateTimestamp;
-	}
-	
+
 	public static String getRadioVersion() {
 		if (API >= 14) return Build.getRadioVersion();
 		else if (API >= 8) return Build.RADIO;
@@ -368,8 +355,8 @@ public class Cellular extends ListeningElement {
 		contents.put("MCC", String.valueOf(getMcc()));
 		contents.put("MNC", String.valueOf(getMnc()));
 		contents.put("Is Listening", String.valueOf(isListening()));
-		contents.put("Update Frequency", String.valueOf(getUpdateFrequency()));
-		contents.put("Last Update Timestamp", String.valueOf(getLastUpdateTimestamp()));
+		contents.put("Update Frequency", String.valueOf(getUpdateThrottle(THROTTLE_INDEX_CELL_LOCATION)));
+		contents.put("Last Update Timestamp", String.valueOf(getTimestamp(THROTTLE_INDEX_CELL_LOCATION)));
 		contents.put("Radio Version", getRadioVersion());
 		contents.put("Baseband", getBaseband());
 		contents.put("RIL Version", getRilVersion());
@@ -460,58 +447,57 @@ public class Cellular extends ListeningElement {
 		@Override
 		public void onCallForwardingIndicatorChanged(boolean cfi) {
 			
-			if (mCallback != null) ((Callback) mCallback).onCallForwardingIndicatorChanged(cfi);
+			if (getCallback() != null) ((Callback) getCallback()).onCallForwardingIndicatorChanged(cfi);
 		}
 		
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber) {
 			
-			if (mCallback != null) ((Callback) mCallback).onCallStateChanged(state, incomingNumber);
+			if (getCallback() != null) ((Callback) getCallback()).onCallStateChanged(state, incomingNumber);
 		}
 		
 		@Override
 		public void onCellLocationChanged(CellLocation location) {
-			long time = System.currentTimeMillis();
-			if (time - mLastUpdateTimestamp < mUpdateFrequency) return;
-			mLastUpdateTimestamp = time;
+			if (!isUpdateAllowed(THROTTLE_INDEX_CELL_LOCATION)) return;
+			setTimestamp(THROTTLE_INDEX_CELL_LOCATION);
 			mCellLocation = location;
-			if (mCallback != null) ((Callback) mCallback).onCellLocationChanged(location);
+			if (getCallback() != null) ((Callback) getCallback()).onCellLocationChanged(location);
 		}
 		
 		@Override
 		public void onDataActivity(int direction) {
 			
-			if (mCallback != null) ((Callback) mCallback).onDataActivity(direction);
+			if (getCallback() != null) ((Callback) getCallback()).onDataActivity(direction);
 		}
 		
 		@Override
 		public void onDataConnectionStateChanged(int state) {
 			
-			if (mCallback != null) ((Callback) mCallback).onDataConnectionStateChanged(state);
+			if (getCallback() != null) ((Callback) getCallback()).onDataConnectionStateChanged(state);
 		}
 		
 		@Override
 		public void onDataConnectionStateChanged(int state, int networkType) {
 			
-			if (mCallback != null) ((Callback) mCallback).onDataConnectionStateChanged(state, networkType);
+			if (getCallback() != null) ((Callback) getCallback()).onDataConnectionStateChanged(state, networkType);
 		}
 		
 		@Override
 		public void onMessageWaitingIndicatorChanged(boolean mwi) {
 			
-			if (mCallback != null) ((Callback) mCallback).onMessageWaitingIndicatorChanged(mwi);
+			if (getCallback() != null) ((Callback) getCallback()).onMessageWaitingIndicatorChanged(mwi);
 		}
 		
 		@Override
 		public void onServiceStateChanged(ServiceState serviceState) {
 			mServiceState = serviceState;
-			if (mCallback != null) ((Callback) mCallback).onServiceStateChanged(serviceState);
+			if (getCallback() != null) ((Callback) getCallback()).onServiceStateChanged(serviceState);
 		}
 		
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			mSignalStrength = signalStrength;
-			if (mCallback != null) ((Callback) mCallback).onSignalStrengthsChanged(signalStrength);
+			if (getCallback() != null) ((Callback) getCallback()).onSignalStrengthsChanged(signalStrength);
 		}
 	}
 }

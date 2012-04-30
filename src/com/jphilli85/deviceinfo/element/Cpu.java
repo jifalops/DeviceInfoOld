@@ -18,7 +18,8 @@ public class Cpu extends ListeningElement {
 	public interface Callback extends ListeningElement.Callback {
 		void onUpdated();
 	}
-	
+	//TODO a timestamp should probably be top-level because everything 
+	// is going to be updated at the same time.
 	private final List<String> mCpuinfo;
 	private final List<LogicalCpu> mLogicalCpus;
 	private final CpuStat mCpuStat;
@@ -50,6 +51,10 @@ public class Cpu extends ListeningElement {
 	
 	public List<LogicalCpu> getLogicalCpus() {
 		return mLogicalCpus;
+	}
+	
+	public int getNumStatsUpdated() {
+		return mNumStatsUpdated;
 	}
 	
 	/** Updates the CpuStat for this and all logical CPUs. */
@@ -803,7 +808,7 @@ public class Cpu extends ListeningElement {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			if (mCallback != null) ((Callback) mCallback).onUpdated();
+			if (getCallback() != null) ((Callback) getCallback()).onUpdated();
 		}
 	}
 }

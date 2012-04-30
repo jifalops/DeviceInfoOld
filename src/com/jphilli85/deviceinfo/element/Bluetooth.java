@@ -599,7 +599,7 @@ public class Bluetooth extends ListeningElement {
 		BluetoothProfile.ServiceListener listener = new BluetoothProfile.ServiceListener() {			
 			@Override
 			public void onServiceDisconnected(int profile) {
-				if (mCallback != null) ((Callback) mCallback).onServiceDisconnected(profile);			
+				if (getCallback() != null) ((Callback) getCallback()).onServiceDisconnected(profile);			
 			}
 			@Override
 			public void onServiceConnected(int profile, BluetoothProfile proxy) {
@@ -608,7 +608,7 @@ public class Bluetooth extends ListeningElement {
 				else if (profile == BluetoothProfile.HEADSET) mHeadsetProfile = (BluetoothHeadset) proxy;
 				else if (API >= 14 && profile == BluetoothProfile.HEALTH) mHealthProfile = (BluetoothHealth) proxy;
 				
-				if (mCallback != null) ((Callback) mCallback).onServiceConnected(profile, proxy);
+				if (getCallback() != null) ((Callback) getCallback()).onServiceConnected(profile, proxy);
 			}
 		};
 		
