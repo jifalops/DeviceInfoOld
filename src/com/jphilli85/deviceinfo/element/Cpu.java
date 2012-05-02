@@ -18,18 +18,46 @@ public class Cpu extends ListeningElement {
 	public interface Callback extends ListeningElement.Callback {
 		void onUpdated();
 	}
-	//TODO a timestamp should probably be top-level because everything 
-	// is going to be updated at the same time.
+	
+	public static final int FREQUENCY_HIGH = 1000;
+	public static final int FREQUENCY_MEDIUM = 2000;
+	public static final int FREQUENCY_LOW = 5000;
+	
 	private final List<String> mCpuinfo;
 	private final List<LogicalCpu> mLogicalCpus;
 	private final CpuStat mCpuStat;
 	
 	private int mNumStatsUpdated;
 	
-	public Cpu() {		
+	private long mTimestamp;
+	private long mTimestampPrevious;
+
+	private final RepeatingTask mUpdateTask;
+	
+	public Cpu() {	
 		mCpuinfo = ShellHelper.getProc("cpuinfo");
 		mLogicalCpus = new ArrayList<LogicalCpu>();
 		mCpuStat = new CpuStat();
+		mUpdateTask = new RepeatingTask(new Runnable() {			
+			@Override
+			public void run() {
+				setTimestamp();
+				updateCpuStats();
+				for (LogicalCpu c : mLogicalCpus) {
+					c.updateFrequency();
+					c.updateGovernor();
+					c.updateTimeInFrequency();
+					c.updateTotalTransitions();
+				}
+			}
+		});
+		mUpdateTask.setInterval(FREQUENCY_MEDIUM);
+		mUpdateTask.setCallback(new Runnable() {			
+			@Override
+			public void run() {
+				if (getCallback() != null) ((Callback) getCallback()).onUpdated(); 
+			}
+		});
 		
 		File f = null;
 		int i = 0;
@@ -40,6 +68,14 @@ public class Cpu extends ListeningElement {
 			++i;
 		}
 	}	
+	
+	public void setUpdateInterval(int milliseconds) {
+		mUpdateTask.setInterval(milliseconds);
+	}
+	
+	public int getUpdateInterval() {
+		return mUpdateTask.getInterval();
+	}
 	
 	public List<String> getCpuinfo() {
 		return mCpuinfo;
@@ -63,7 +99,6 @@ public class Cpu extends ListeningElement {
 		List<String> stats = ShellHelper.getProc("stat");
 		if (stats == null || stats.isEmpty()) return;
 		
-		long timestamp = System.currentTimeMillis();
 		String[] parts = null;
 		String line = null;
 		for (int i = 0; i < stats.size(); ++i) {
@@ -72,26 +107,55 @@ public class Cpu extends ListeningElement {
 				parts = line.split("\\s+");				
 				if (parts[0].endsWith(String.valueOf(i - 1))) {
 					if (mLogicalCpus.size() >= i &&
-							mLogicalCpus.get(i - 1).getCpuStat().update(parts, timestamp)) {					
+							mLogicalCpus.get(i - 1).getCpuStat().update(parts)) {					
 						++mNumStatsUpdated;
 					}
 				}
-				else if (mCpuStat.update(parts, timestamp)) {
+				else if (mCpuStat.update(parts)) {
 					++mNumStatsUpdated;
 				}
 			}
 		}
 	}
 	
+	/** Timestamp in milliseconds */
+	public synchronized long getTimestamp() {
+		return mTimestamp;
+	}
+	
+	public synchronized long getTimestampPrevious() {
+		return mTimestampPrevious;
+	}
+	
+	public synchronized long getTimestampDifference() {
+		return (mTimestamp - mTimestampPrevious);
+	}
+	
+	private synchronized void setTimestamp() {
+		mTimestampPrevious = mTimestamp;
+		mTimestamp = System.currentTimeMillis();
+	}
 	
 	
 	public class LogicalCpu implements ContentsMapper {
 		private final String LOG_TAG = LogicalCpu.class.getSimpleName();
 		
 //		public final float bogoMips;
-		private int mId;
-		private File mRoot;
-		private CpuStat mCpuStat;
+		private final int mId;
+		private final File mRoot;
+		private final CpuStat mCpuStat;
+		
+		private int mMaxFrequency;
+		private int mMinFrequency;
+		private int mCurFrequency;
+		private int[] mAvailableFrequencies;
+		private String[] mAvailableGovernors;
+		private String mCurGoverner;
+		private String mDriver;
+		private int mTransitionLatency;
+		private int mTotalTransitions;
+		private int[][] mTimeInFrequencies;
+		
 		
 		/** A file pointing to a logical cpu structure
 		 * in the file system, such as /sys/devices/system/cpu/cpu0. */
@@ -120,101 +184,130 @@ public class Cpu extends ListeningElement {
 		
 		/** Get the maximum frequency in MHz */
 		public int getMaxFrequency() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_max_freq");
-			if (list == null || list.isEmpty()) return 0;
-			int value = 0;
-			try { value = Integer.valueOf(list.get(0)); }
-			catch (NumberFormatException ignored) {}
-			return  value / 1000;
+			if (mMaxFrequency == 0) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_max_freq");
+				if (list == null || list.isEmpty()) return 0;
+				int value = 0;
+				try { value = Integer.valueOf(list.get(0)); }
+				catch (NumberFormatException ignored) {}
+				mMaxFrequency = value / 1000;
+			}
+			return mMaxFrequency;
 		}
 		
 		/** Get the minimum frequency in MHz */
 		public int getMinFrequency() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_min_freq");
-			if (list == null || list.isEmpty()) return 0;
-			int value = 0;
-			try { value = Integer.valueOf(list.get(0)); }
-			catch (NumberFormatException ignored) {}
-			return  value / 1000;
+			if (mMinFrequency == 0) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_min_freq");
+				if (list == null || list.isEmpty()) return 0;
+				int value = 0;
+				try { value = Integer.valueOf(list.get(0)); }
+				catch (NumberFormatException ignored) {}
+				mMinFrequency = value / 1000;
+			}
+			return mMinFrequency;
 		}
 		
 		/** Get the current frequency in MHz */
 		public int getFrequency() {
+			return mCurFrequency;
+		}	
+		
+		public void updateFrequency() {
 			List<String> list = ShellHelper.cat(
 				mRoot.getAbsolutePath() + "/cpufreq/scaling_cur_freq");
-			if (list == null || list.isEmpty()) return 0;
+			if (list == null || list.isEmpty()) return;
 			int value = 0;
 			try { value = Integer.valueOf(list.get(0)); }
 			catch (NumberFormatException ignored) {}
-			return  value / 1000;
+			mCurFrequency =  value / 1000;
 		}
 		
 		/** Get the available frequencies in MHz */
 		public int[] getAvailableFrequencies() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_frequencies");
-			if (list == null || list.isEmpty()) return null;
-			String[] results = list.get(0).split("\\s+");
-			if (results == null || results.length == 0) {
-				return null;
+			if (mAvailableFrequencies == null) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/scaling_available_frequencies");
+				if (list == null || list.isEmpty()) return null;
+				String[] results = list.get(0).split("\\s+");
+				if (results == null || results.length == 0) {
+					return null;
+				}
+				int len = results.length;
+				mAvailableFrequencies = new int[len];
+				for (int i = 0; i < len; ++i) {
+					int value = 0;
+					try { value = Integer.valueOf(results[i]); }
+					catch (NumberFormatException ignored) {}
+					mAvailableFrequencies[i] = value / 1000;
+				}
 			}
-			int len = results.length;
-			int[] freqs = new int[len];
-			for (int i = 0; i < len; ++i) {
-				int value = 0;
-				try { value = Integer.valueOf(results[i]); }
-				catch (NumberFormatException ignored) {}
-				freqs[i] = value / 1000;
-			}
-			return freqs;
+			return mAvailableFrequencies;
 		}
 		
 		/** Get the available governors */
 		public String[] getAvailableGovernors() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/scaling_available_governors");
-			if (list == null || list.isEmpty()) return null;
-			return list.get(0).split("\\s+");
+			if (mAvailableGovernors == null) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/scaling_available_governors");
+				if (list == null || list.isEmpty()) return null;
+				mAvailableGovernors = list.get(0).split("\\s+");
+			}
+			return mAvailableGovernors;
 		}
 		
 		/** Get the current governor */
 		public String getGovernor() {
+			return mCurGoverner;
+		}
+		
+		public void updateGovernor() {
 			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/scaling_governor");
-			if (list == null || list.isEmpty()) return null;
-			return list.get(0);
+					mRoot.getAbsolutePath() + "/cpufreq/scaling_governor");
+			if (list == null || list.isEmpty()) return;
+			mCurGoverner = list.get(0);
 		}
 		
 		/** Get the current driver */
 		public String getDriver() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/scaling_driver");
-			if (list == null || list.isEmpty()) return null;
-			return list.get(0);
+			if (mDriver == null) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/scaling_driver");
+				if (list == null || list.isEmpty()) return null;
+				mDriver = list.get(0);
+			}
+			return mDriver;
 		}
 		
 		/** Get the frequency transition latency in nano-seconds */
 		public int getTransitionLatency() {
-			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_transition_latency");
-			if (list == null || list.isEmpty()) return 0;
-			int value = 0;
-			try { value = Integer.valueOf(list.get(0)); }
-			catch (NumberFormatException ignored) {}
-			return  value;			
+			if (mTransitionLatency == 0) {
+				List<String> list = ShellHelper.cat(
+					mRoot.getAbsolutePath() + "/cpufreq/cpuinfo_transition_latency");
+				if (list == null || list.isEmpty()) return 0;
+				int value = 0;
+				try { value = Integer.valueOf(list.get(0)); }
+				catch (NumberFormatException ignored) {}
+				mTransitionLatency = value;			
+			}
+			return mTransitionLatency;
 		}
 		
 		/** Get the total number of frequency transitions */
 		public int getTotalTransitions() {
+			return mTotalTransitions;
+		}
+		
+		public void updateTotalTransitions() {
 			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/stats/total_trans");
-			if (list == null || list.isEmpty()) return 0;
+					mRoot.getAbsolutePath() + "/cpufreq/stats/total_trans");
+			if (list == null || list.isEmpty()) return;
 			int value = 0;
 			try { value = Integer.valueOf(list.get(0)); }
 			catch (NumberFormatException ignored) {}
-			return  value;			
+			mTotalTransitions = value;
 		}
 		
 		/** Get the total amount of time spent in frequency transitions in seconds */
@@ -224,9 +317,13 @@ public class Cpu extends ListeningElement {
 
 		/** Get a list of the total time (in Jiffies) spent at each frequency (in MHz) */
 		public int[][] getTimeInFrequency() {
+			return mTimeInFrequencies;
+		}
+		
+		public void updateTimeInFrequency() {
 			List<String> list = ShellHelper.cat(
-				mRoot.getAbsolutePath() + "/cpufreq/stats/time_in_state");
-			if (list == null || list.isEmpty()) return null;
+					mRoot.getAbsolutePath() + "/cpufreq/stats/time_in_state");
+			if (list == null || list.isEmpty()) return;
 			int len = list.size();
 			int[][] times = new int[len][2];
 			String[] parts = null;
@@ -245,7 +342,7 @@ public class Cpu extends ListeningElement {
 				times[i][0] = freq;
 				times[i][1] = time;
 			}
-			return times;
+			mTimeInFrequencies = times;
 		}
 		
 		/** Get the total time (in Jiffies) spent a frequency given in MHz. */
@@ -356,7 +453,7 @@ public class Cpu extends ListeningElement {
 		
 		private int mId;
 		
-		private long mTimestamp = 0;
+		
 		private long mUser = 0;
 		private long mNice = 0;
 		private long mSystem = 0;
@@ -366,7 +463,7 @@ public class Cpu extends ListeningElement {
 		private long mSoftIrq = 0;		
 		// The other two fields, Steal and Guest, seem to always be zero.
 		
-		private long mTimestampPrevious = 0;
+		
 		private long mUserPrevious = 0;
 		private long mNicePrevious = 0;
 		private long mSystemPrevious = 0;
@@ -393,7 +490,7 @@ public class Cpu extends ListeningElement {
 		 * The id for cpu is optional.
 		 * @return whether the update completed successfully.
 		 */
-		private boolean update(String[] parts, long timestamp) {		
+		private boolean update(String[] parts) {		
 			if (parts == null || parts.length < 8) {
 				Log.d(LOG_TAG, "invalid array length to perform update.");
 				return false;
@@ -419,7 +516,6 @@ public class Cpu extends ListeningElement {
 				return false;
 			}
 			
-			mTimestampPrevious = mTimestamp;
 			mUserPrevious = mUser;
 			mNicePrevious = mNice;
 			mSystemPrevious = mSystem;
@@ -428,7 +524,6 @@ public class Cpu extends ListeningElement {
 			mIntrPrevious = mIntr;
 			mSoftIrqPrevious = mSoftIrq;
 			
-			mTimestamp = timestamp;
 			mUser = values[0];
 			mNice = values[1];
 			mSystem = values[2];
@@ -530,14 +625,7 @@ public class Cpu extends ListeningElement {
 				+ (mSoftIrq - mSoftIrqPrevious))
 				/ divisor * 100;
 		}
-		
-		
-		
-		/** Timestamp in milliseconds */
-		public long getTimestamp() {
-			return mTimestamp;
-		}
-		
+
 		public long getUser() {
 			return mUser;
 		}
@@ -589,9 +677,7 @@ public class Cpu extends ListeningElement {
 		
 		
 		
-		public long getTimestampPrevious() {
-			return mTimestampPrevious;
-		}
+		
 		
 		public long getUserPrevious() {
 			return mUserPrevious;
@@ -642,12 +728,6 @@ public class Cpu extends ListeningElement {
 		}
 		
 		
-		
-		
-		
-		public long getTimestampDifference() {
-			return (mTimestamp - mTimestampPrevious);
-		}
 		
 		public long getUserDifference() {
 			return (mUser - mUserPrevious);
@@ -786,29 +866,16 @@ public class Cpu extends ListeningElement {
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		if (!super.startListening(onlyIfCallbackSet)) return false;
-		//TODO
+		mUpdateTask.start(true);
 		return setListening(true);
 	}
 	
 	@Override
 	public boolean stopListening() {
 		if (!super.stopListening()) return false;
-		//TODO
+		mUpdateTask.stop();
 		return !setListening(false);
 	}
 	
-	private class UpdateTask extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... params) {
-			synchronized (Cpu.this) {
-				Cpu.this.updateCpuStats();
-			}
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			if (getCallback() != null) ((Callback) getCallback()).onUpdated();
-		}
-	}
+	
 }

@@ -14,7 +14,7 @@ import android.util.DisplayMetrics;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Display implements ContentsMapper {
+public class Display extends Element {
 	// FIXME use configuration to determine opengl support
 	// Use a shorter name
 	private static final int API = Build.VERSION.SDK_INT;
