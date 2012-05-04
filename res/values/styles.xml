@@ -44,14 +44,13 @@
         <item name="android:textSize">@dimen/textSizeMicro</item>
     </style>
     
-    <style name="SensorPlayPauseImageView">
+    <style name="PlayPauseImageView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:contentDescription">Play/Pause</item>
     </style>
-    <style name="SensorExpandCollapseImageView">
+    <style name="ExpandCollapseImageView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:contentDescription">Expand/Collapse</item>
     </style>
 </resources>

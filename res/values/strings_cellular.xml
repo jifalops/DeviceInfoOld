@@ -52,7 +52,6 @@
     <!-- ServiceState strings -->
     <string name="service_state_emergency_only">Emergency Only</string>
     <string name="service_state_in_service">In Service</string>
-    <string name="service_state_in_service">In Service</string>
     <string name="service_state_out_of_service">Out of Service</string>
     <string name="service_state_power_off">Powered Off</string>
     

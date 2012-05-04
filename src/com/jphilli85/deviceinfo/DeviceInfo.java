@@ -1,7 +1,6 @@
 package com.jphilli85.deviceinfo;
 
 import android.content.Context;
-import android.os.Looper;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 

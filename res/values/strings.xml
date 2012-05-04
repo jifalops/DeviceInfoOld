@@ -33,4 +33,7 @@
     <string name="group_label_connections">Connections</string>
     <string name="group_label_system">System</string>
     
+    
+	<!-- Image Descriptions -->
+    <string name="content_desc_expand_collapse">Expand/Collapse</string>
 </resources>
