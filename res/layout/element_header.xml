@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/header"
+    style="@style/ElementHeader">
+    <ImageView 
+	    android:id="@+id/expandCollapse"
+	    style="@style/ExpandCollapse"
+	    android:contentDescription="@string/content_desc_expand_collapse"
+    <TextView 
+     	android:id="@+id/label"
+     	style="@style/ElementHeaderLabel" />
+</LinearLayout>

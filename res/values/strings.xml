@@ -34,6 +34,8 @@
     <string name="group_label_system">System</string>
     
     
-	<!-- Image Descriptions -->
+	<!-- Content Descriptions -->
     <string name="content_desc_expand_collapse">Expand/Collapse</string>
+    <string name="content_desc_play_pause">Play/Pause</string>
+    <string name="content_desc_icon">Icon</string>
 </resources>

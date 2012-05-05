@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android">
-	<TextView
-	    android:id="@+id/tableRowLabel"
-	    />    
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ElementTableRow">
+   	<TextView
+	    android:id="@+id/label"
+	    style="@style/ElementTableItem.Label" />
 	<TextView 
-	    android:id="@+id/tableRowValue"
-	    />    
+	    android:id="@+id/value"
+	    style="@style/ElementTableItem.Value" />
 </TableRow>    

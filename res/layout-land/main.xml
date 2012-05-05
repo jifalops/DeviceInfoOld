@@ -6,12 +6,8 @@
     <fragment
         android:name="com.jphilli85.deviceinfo.app.GroupListFragment"
         android:id="@+id/groupListFragment"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="40" />	
+        style="@style/LeftPane" />	
     <FrameLayout 
         android:id="@+id/detailsFragmentWrapper"
-        android:layout_width="0dp"
-    	android:layout_height="match_parent"
-    	android:layout_weight="60" />	    
+        style="@style/RightPane" />	    
 </LinearLayout>
