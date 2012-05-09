@@ -1,8 +1,5 @@
 package com.jphilli85.deviceinfo.app;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,103 +9,49 @@ import android.widget.ScrollView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.element.view.SensorsView;
+import com.jphilli85.deviceinfo.element.view.ElementView;
 
 public class DetailsFragment extends SherlockFragment {
 	
-	public static final int ELEMENT_OVERVIEW = 0;
-	public static final int ELEMENT_AUDIO = 1;
-	public static final int ELEMENT_BATTERY = 2;
-	public static final int ELEMENT_BLUETOOTH = 3;
-	public static final int ELEMENT_CAMERA = 4;
-	public static final int ELEMENT_CELLULAR = 5;
-	public static final int ELEMENT_CPU = 6;
-	public static final int ELEMENT_DISPLAY = 7;
-	public static final int ELEMENT_FEATURES = 8;
-	public static final int ELEMENT_GRAPHICS = 9;
-	public static final int ELEMENT_IDENTIFIERS = 10;
-	public static final int ELEMENT_KEYS = 11;
-	public static final int ELEMENT_LOCATION = 12;
-	public static final int ELEMENT_NETWORK = 13;
-	public static final int ELEMENT_PLATFORM = 14;
-	public static final int ELEMENT_PROPERTIES = 15;
-	public static final int ELEMENT_RAM = 16;
-	public static final int ELEMENT_SENSORS = 17;
-	public static final int ELEMENT_STORAGE = 18;
-	public static final int ELEMENT_UPTIME = 19;
-	public static final int ELEMENT_WIFI = 20;
-	
 	public static final String KEY_ELEMENTS = DetailsFragment.class.getName() + ".ELEMENTS";
-//	public static final String KEY_SCROLL_POSITION = DetailsFragment.class.getName() + ".SCROLL_POS";
 	
-	private int mGroup;
-	private Set<Integer> mElements;
+	private int[] mElements;
+	private ElementView[] mElementViews;
 	
 	private ScrollView mScroller;
 	private LinearLayout mLayout;
 	
-//	private Audio mAudio;
-//	private Battery mBattery;
-//	private Camera mCamera;
-//	private Cpu mCpu;
-//	private Display mDisplay;
-//	private Graphics mGraphics;
-//	private Location mLocation;
-//	private Ram mRam;
-////	private Sensors mSensors;
-//	private Storage mStorage;
-//	private Cellular mCellular;
-//	private Network mNetwork;
-//	private Wifi mWifi;
-//	private Bluetooth mBluetooth;
-//	private Platform mPlatform;
-//	private Uptime mUptime;
-//	private Properties mProperties;
-//	private Identifiers mIdentifiers;
-//	private Features mFeatures;
-//	private Keys mKeys;
-	
-	private SensorsView mSensorsView;
-	
+	// Will only work correctly if expand/collapses are saved
+	// This wasn't working with instance state and isn't important
+	// enough to bother managing its state persistently
 	private static int mScrollPos;
-
-	public static DetailsFragment newInstance(int group) {
-		 DetailsFragment f = newInstance(GroupListFragment.GROUPS[group]);
-		 f.setGroup(group);
-		 return f;
-	}
+	
+	
 	
     public static DetailsFragment newInstance(int[] elements) {
         DetailsFragment f = new DetailsFragment();
-        f.setGroup(-1);
         f.setElements(elements);
         return f;
     }
     
-    public Set<Integer> getElements() {
+    public int[] getElements() {
         return mElements;
-    }
-    
-    public int getGroup() {
-    	return mGroup;
-    }
-    
-    private void setGroup(int group) {
-    	mGroup = group;
     }
     
     private void setElements(int[] elements) {
     	if (elements == null || elements.length == 0) {
-        	elements = new int[] { ELEMENT_OVERVIEW };
+        	elements = GroupListFragment.getElements(0);
         }
-    	mElements = new HashSet<Integer>();
-    	for (int e : elements) mElements.add(e);
+    	mElements = elements;
+    	mElementViews = new ElementView[elements.length];
     }
     
     private void loadElements() {
-    	mSensorsView = new SensorsView(getActivity());
+    	for (int e : mElements) ElementView.add(getActivity(), e);
+    	ElementView.addToLayout(mLayout);
+//    	mSensorsView = new SensorsView(getActivity());
     	
-    	mLayout.addView(mSensorsView.getLayoutWrapper());
+//    	mLayout.addView(mSensorsView.getLayoutWrapper());
     }
     
     private void pauseElements() {
@@ -120,7 +63,7 @@ public class DetailsFragment extends SherlockFragment {
 //		if (mBluetooth != null) mBluetooth.pause();
 //		if (mUptime != null) mUptime.pause();
     	
-		if (mSensorsView != null) mSensorsView.onPause();
+//		if (mSensorsView != null) mSensorsView.onPause();
     }
     
     private void resumeElements() {
@@ -128,17 +71,17 @@ public class DetailsFragment extends SherlockFragment {
 //		if (mBattery != null) mBattery.startListening();		
 //		if (mLocation != null) mLocation.startListening();
 //		if (mWifi != null) mWifi.resume();
-		if (mSensorsView != null) mSensorsView.onResume();
+//		if (mSensorsView != null) mSensorsView.onResume();
 		
 		
     }
     
     private void restoreElements(Bundle state) {
-    	if (mSensorsView != null) mSensorsView.restoreState(state);
+//    	if (mSensorsView != null) mSensorsView.restoreState(state);
     }
     
     private void saveElements(Bundle outState) {
-    	if (mSensorsView != null) mSensorsView.saveState(outState);
+//    	if (mSensorsView != null) mSensorsView.saveState(outState);
     }
     
 	@Override
@@ -156,9 +99,9 @@ public class DetailsFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		if (container == null) return null;	
+		if (container == null) return null;
 		mScroller = (ScrollView) inflater.inflate(R.layout.details, container, false);		
-		mLayout = (LinearLayout) mScroller.findViewById(R.id.detailsLayout);
+		mLayout = (LinearLayout) mScroller.getChildAt(0);
 		loadElements();
 		return mScroller; 		
 	}	
@@ -166,18 +109,21 @@ public class DetailsFragment extends SherlockFragment {
 	@Override
 	public void onActivityCreated(final Bundle state) {
 		super.onActivityCreated(state);
+		if (getActivity().isFinishing()) return;
 		restoreElements(state);
 	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		if (getActivity().isFinishing()) return;
 		saveElements(outState);
 	}
 	
 	@Override
 	public void onResume() {	
 		super.onResume();
+		if (getActivity().isFinishing()) return;
 		resumeElements();
 		mScroller.post(new Runnable() {
 			@Override
@@ -190,6 +136,7 @@ public class DetailsFragment extends SherlockFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		if (getActivity().isFinishing()) return;
 		pauseElements();
 		mScrollPos = mScroller.getScrollY();
 	}

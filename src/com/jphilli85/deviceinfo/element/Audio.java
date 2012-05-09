@@ -15,7 +15,7 @@ import com.jphilli85.deviceinfo.R;
 
 public class Audio extends Element {	
 	private static final int API = Build.VERSION.SDK_INT;
-	
+	//TODO live audio
 	// AudioManager constants
 	public final String MODE_CURRENT;
 	public final String MODE_INVALID;
@@ -184,6 +184,14 @@ public class Audio extends Element {
 		return sources.toArray(new String[sources.size()]);
 	}
 	
+	public String getMode() {
+		return getMode(mAudioManager.getMode());
+	}
+	
+	public String getRingerMode() {
+		return getRingerMode(mAudioManager.getRingerMode());
+	}
+	
 	public int getAlarmVolume() {
 		return mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 	}
@@ -289,8 +297,8 @@ public class Audio extends Element {
 	public LinkedHashMap<String, String> getContents() {
 		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 		
-		contents.put("Mode", getMode(mAudioManager.getMode()));
-		contents.put("Ringer Mode", getRingerMode(mAudioManager.getRingerMode()));
+		contents.put("Mode", getMode());
+		contents.put("Ringer Mode", getRingerMode());
 		contents.put("System Volume", String.valueOf(getSystemVolume()));
 		contents.put("System Volume Max", String.valueOf(getSystemVolumeMax()));
 		contents.put("Ring Volume", String.valueOf(getRingVolume()));

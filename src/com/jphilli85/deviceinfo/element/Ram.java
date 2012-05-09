@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Ram implements ContentsMapper {
+public class Ram extends Element {
 	private static final String LOG_TAG = Ram.class.getSimpleName();
 	
 	private LinkedHashMap<String, String> mMeminfo;

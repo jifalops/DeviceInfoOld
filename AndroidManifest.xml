@@ -49,9 +49,5 @@
             </intent-filter>
         </activity>
         <activity android:name=".app.DetailsActivity" />
-        <provider 
-            android:authorities="com.jphilli85.deviceinfo" 
-            android:multiprocess="true"
-            android:name=".data.DeviceInfoProvider"/>
     </application>
 </manifest>

@@ -26,7 +26,7 @@
     <style name="RightPane">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">60</item>        
+        <item name="android:layout_weight">60</item>
     </style>
     
     
@@ -38,33 +38,29 @@
         <item name="android:orientation">vertical</item>
     </style>
     
-
-    
-    <style name="GroupIcon">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:padding">4dp</item>
-        <item name="android:src">"@drawable/icon</item>
-        
-    </style>
-    <style name="GroupLabel" parent="@style/Wide">
-        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
-        <item name="android:padding">4dp</item>
+    <style name="GroupItem" parent="@style/Wide">
+        <item name="android:layout_height">@dimen/lineHeight</item>
+        <item name="android:padding">@dimen/padding</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>        
         <item name="android:gravity">center_vertical</item>
     </style>
-
     
     
-    <style name="ExpandCollapse" parent="@style/Wrap">
-        
+	<style name="Icon">
+        <item name="android:layout_width">@dimen/iconSize</item>
+        <item name="android:layout_height">@dimen/iconSize</item>
+        <item name="android:padding">@dimen/padding</item>
+        <item name="android:layout_margin">@dimen/margins</item>
     </style>
-    <style name="ExpandCollapse.Small">
-        
+    <style name="Icon.Small">
+        <item name="android:layout_width">@dimen/iconSmall</item>
+        <item name="android:layout_height">@dimen/iconSmall</item>
     </style>
-    <style name="PlayPause" parent="@style/Wrap">
-        
-    </style>
-    <style name="PlayPause.Small">
-        
-    </style>
+    <style name="Icon.Micro">
+        <item name="android:layout_width">@dimen/iconMicro</item>
+        <item name="android:layout_height">@dimen/iconMicro</item>
+    </style>   
+    <style name="Icon.Save">
+        <item name="android:layout_gravity">right|center_vertical</item>
+    </style>     
 </resources>

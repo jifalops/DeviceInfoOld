@@ -3,10 +3,14 @@
     android:id="@+id/header"
     style="@style/ElementHeader">
     <ImageView 
-	    android:id="@+id/expandCollapse"
-	    style="@style/ExpandCollapse"
-	    android:contentDescription="@string/content_desc_expand_collapse"
+	    style="@style/Icon"
+	    android:contentDescription="@string/content_desc_expand_collapse" />
+    <ImageView 
+	    style="@style/Icon"
+	    android:contentDescription="@string/content_desc_icon" />
     <TextView 
-     	android:id="@+id/label"
      	style="@style/ElementHeaderLabel" />
+    <ImageView
+	    style="@style/Icon.Save"	    
+	    android:contentDescription="@string/content_desc_save" />
 </LinearLayout>

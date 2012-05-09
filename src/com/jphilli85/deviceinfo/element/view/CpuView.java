@@ -1,8 +1,24 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.element.Element;
 
-public class CpuView {
-	/** boolean array */
-	public static final String KEY_EXPAND_COLLAPSE = 
-			CpuView.class.getSimpleName() + ".expand_collapse";
+import android.content.Context;
+
+
+public class CpuView extends ElementView {
+	public CpuView() {
+		this(DeviceInfo.getAppContext());
+	}
+	protected CpuView(Context context) {
+		super(context);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="elements">
+		<!-- Do NOT change the order of these elements! -->
+        <item>Overview</item>		<!-- 0 -->
+        <item>Audio</item> 			<!-- 1 -->
+        <item>Battery</item> 		<!-- 2 -->
+        <item>Bluetooth</item> 		<!-- 3 -->
+        <item>Camera</item> 		<!-- 4 -->
+        <item>Cellular</item> 		<!-- 5 -->
+        <item>Processors</item> 	<!-- 6 -->
+        <item>Display</item> 		<!-- 7 -->
+        <item>Features</item> 		<!-- 8 -->
+        <item>Graphics</item> 		<!-- 9 -->
+        <item>Identifiers</item> 	<!-- 10 -->
+        <item>Keys</item> 			<!-- 11 -->
+        <item>Location</item> 		<!-- 12 -->
+        <item>Network</item> 		<!-- 13 -->
+        <item>Platform</item> 		<!-- 14 -->
+        <item>Properties</item> 	<!-- 15 -->
+        <item>RAM</item> 			<!-- 16 -->
+        <item>Sensors</item> 		<!-- 17 -->
+        <item>Storage</item> 		<!-- 18 -->
+        <item>Uptime</item> 		<!-- 19 -->
+        <item>WiFi</item>			<!-- 20 -->
+    </string-array>    
+    <string-array name="groups">
+        <item>Overview</item>				<!-- 0 -->
+        <item>Processors</item> 			<!-- 1 -->
+        <item>Memory</item> 				<!-- 2 -->
+        <item>Visual &amp; Audio</item> 	<!-- 3 -->
+        <item>Battery &amp; Sensors</item>	<!-- 4 -->
+        <item>Location</item> 				<!-- 5 -->
+        <item>Connections</item> 			<!-- 6 -->
+        <item>System</item> 				<!-- 7 -->        
+    </string-array>
+    <integer-array name="group0">
+        <item>0</item>
+    </integer-array>
+    <integer-array name="group1">
+        <item>6</item>
+    </integer-array>
+    <integer-array name="group2">
+        <item>16</item>
+        <item>18</item>
+    </integer-array>
+    <integer-array name="group3">
+        <item>7</item>
+        <item>1</item>
+        <item>9</item>
+        <item>4</item>
+    </integer-array>
+    <integer-array name="group4">
+        <item>2</item>
+        <item>17</item>        
+    </integer-array>
+    <integer-array name="group5">
+        <item>12</item>
+    </integer-array>
+    <integer-array name="group6">
+        <item>13</item>
+        <item>5</item>
+        <item>20</item>
+        <item>3</item>
+    </integer-array>
+    <integer-array name="group7">
+        <item>19</item>
+        <item>14</item>
+        <item>10</item>
+        <item>8</item>
+        <item>15</item>
+        <item>11</item>
+    </integer-array>
+</resources>

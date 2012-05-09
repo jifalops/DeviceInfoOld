@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ElementHeader" parent="@style/Wide">
-        
+        <item name="android:layout_height">@dimen/lineHeight</item>
+        <item name="android:padding">@dimen/padding</item>        
+        <item name="android:layout_gravity">center_vertical</item>
     </style>
     <style name="ElementHeaderLabel" parent="@style/Wrap">
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:padding">8dp</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">@dimen/padding</item>
+        <item name="android:layout_weight">1.0</item>
     </style>
     <style name="ElementSection" parent="@style/Wide">
-        
+        <item name="android:layout_height">@dimen/lineHeightSmall</item>
+        <item name="android:padding">@dimen/padding</item>        
+        <item name="android:layout_gravity">center_vertical</item>
     </style>
     <style name="ElementSectionLabel" parent="@style/Wrap">
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:paddingTop">8dp</item>
+        <item name="android:padding">@dimen/padding</item>   
     </style>
     <style name="ElementSubSection" parent="@style/Wide">
-        
+        <item name="android:layout_height">@dimen/lineHeightMicro</item>
+        <item name="android:padding">@dimen/padding</item> 
+        <item name="android:layout_gravity">center_vertical</item>
     </style>
     <style name="ElementSubSectionLabel" parent="@style/Wrap">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:paddingTop">8dp</item>
-    </style>
-    <style name="ElementList" parent="@style/Wide">
-        
+        <item name="android:padding">@dimen/padding</item> 
     </style>
 	<!--  Styles common to both the label and value in the list format -->
     <style name="ElementListItem" parent="@style/Wide">
@@ -33,16 +34,20 @@
     </style>
     <style name="ElementListItem.Label">
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:padding">@dimen/padding</item>
     </style>
     <style name="ElementListItem.Value">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:padding">@dimen/padding</item>
     </style>
     <style name="ElementListItem.Label.Small">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:padding">@dimen/padding</item>
     </style>
     <style name="ElementListItem.Value.Small">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textSize">@dimen/textSizeMicro</item>
+        <item name="android:padding">@dimen/padding</item>
     </style>
     <style name="ElementTable" parent="@style/Wide">
         <item name="android:stretchColumns">1</item>
@@ -57,9 +62,9 @@
         <item name="android:textSize">@dimen/textSizeMicro</item>
     </style>
     <style name="ElementTableItem.Label">
-        
+        <item name="android:paddingRight">@dimen/padding</item>
     </style>
     <style name="ElementTableItem.Value">
-        
-    </style>    
+        <item name="android:paddingLeft">@dimen/padding</item>
+    </style>         
 </resources>

@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-public class Features implements ContentsMapper {
+public class Features extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	private final PackageManager mPackageManager;

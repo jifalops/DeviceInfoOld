@@ -2,6 +2,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Scroller">
    	<LinearLayout 
-	    android:id="@+id/mainLayout"
 	    style="@style/DetailsWrapper" />
 </ScrollView>

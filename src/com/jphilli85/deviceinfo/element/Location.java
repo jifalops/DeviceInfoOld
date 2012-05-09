@@ -21,7 +21,7 @@ import android.os.Bundle;
 
 import com.jphilli85.deviceinfo.R;
 //TODO keep a best-guess location
-public class Location implements ContentsMapper, GpsStatus.Listener, GpsStatus.NmeaListener {
+public class Location extends Element implements GpsStatus.Listener, GpsStatus.NmeaListener {
 	public interface ProviderCallback {
 		/** Corresponds to LocationListener.onLocationChanged() */
 		void onLocationChanged(ProviderWrapper providerWrapper);

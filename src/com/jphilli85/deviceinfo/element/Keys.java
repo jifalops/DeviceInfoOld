@@ -11,7 +11,7 @@ import android.view.KeyEvent;
 
 import com.jphilli85.deviceinfo.R;
 
-public class Keys implements ContentsMapper {
+public class Keys extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	public final String KEYCODE_0;

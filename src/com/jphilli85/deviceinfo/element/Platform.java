@@ -11,7 +11,7 @@ import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Platform implements ContentsMapper {
+public class Platform extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
 	public final String ECLAIR;
 	public final String FROYO;

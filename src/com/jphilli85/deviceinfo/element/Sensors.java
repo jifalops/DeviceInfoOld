@@ -15,7 +15,7 @@ import android.os.Build;
 import com.jphilli85.deviceinfo.R;
 
 // TODO add microphone
-public class Sensors implements ContentsMapper {
+public class Sensors extends Element {
 	private static final String LOG_TAG = Sensors.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	

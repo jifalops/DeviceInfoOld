@@ -8,7 +8,7 @@ import android.os.Handler;
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Uptime implements ContentsMapper, ElementListener {
+public class Uptime extends ListeningElement {
 	
 	public interface Callback {
 		void onUptimeUpdated(float uptimeTotal, float uptimeAsleep);
@@ -74,10 +74,6 @@ public class Uptime implements ContentsMapper, ElementListener {
 		return contents;
 	}
 
-	@Override
-	public boolean startListening() {
-		return startListening(true);
-	}
 
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
@@ -95,42 +91,38 @@ public class Uptime implements ContentsMapper, ElementListener {
 		return !mIsListening;
 	}
 
-	@Override
-	public boolean isListening() {
-		return mIsListening;
-	}
 
-	@Override
-	public boolean pause() {
-		if (mIsPaused) return false;
-		mIsPaused = stopListening();
-		return mIsPaused;
-	}
-
-	@Override
-	public boolean resume() {
-		if (!mIsPaused) return false;
-		mIsPaused = !startListening();
-		return !mIsPaused;
-	}
-
-	@Override
-	public boolean isPaused() {
-		return mIsPaused;
-	}
-
-	@Override
-	public Object getCallback() {
-		return mCallback;
-	}
-
-	@Override
-	public boolean setCallback(Object callback) {
-		if (callback instanceof Callback) {
-			mCallback = (Callback) callback;
-			return true;
-		}
-		return false;
-	}
+//	@Override
+//	public boolean pause() {
+//		if (mIsPaused) return false;
+//		mIsPaused = stopListening();
+//		return mIsPaused;
+//	}
+//
+//	@Override
+//	public boolean resume() {
+//		if (!mIsPaused) return false;
+//		mIsPaused = !startListening();
+//		return !mIsPaused;
+//	}
+//
+//	@Override
+//	public boolean isPaused() {
+//		return mIsPaused;
+//	}
+//
+//	@Override
+//	public Object getCallback() {
+//		return mCallback;
+//	}
+//
+//	@Override
+//	public boolean setCallback(Object callback) {
+//		if (callback instanceof Callback) {
+//			mCallback = (Callback) callback;
+//			return true;
+//		}
+//		return false;
+//	}
 
 }

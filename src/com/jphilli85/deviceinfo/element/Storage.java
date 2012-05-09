@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Storage implements ContentsMapper {
+public class Storage extends Element {
 	private static final String LOG_TAG = Storage.class.getSimpleName();
 	
 	private List<Mount> mMounts;

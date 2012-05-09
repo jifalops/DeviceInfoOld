@@ -21,7 +21,7 @@ import android.os.Build;
 
 import com.jphilli85.deviceinfo.R;
 
-public class Network implements ContentsMapper, ElementListener {
+public class Network extends ListeningElement {
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	// ConnectivityManager strings
@@ -366,12 +366,6 @@ public class Network implements ContentsMapper, ElementListener {
 	}
 
 	@Override
-	public boolean startListening() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		// TODO Auto-generated method stub
 		return false;
@@ -383,39 +377,34 @@ public class Network implements ContentsMapper, ElementListener {
 		return false;
 	}
 
-	@Override
-	public boolean isListening() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
-	@Override
-	public boolean pause() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean resume() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isPaused() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Object getCallback() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean setCallback(Object callback) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//	@Override
+//	public boolean pause() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public boolean resume() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public boolean isPaused() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public Object getCallback() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public boolean setCallback(Object callback) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
 }

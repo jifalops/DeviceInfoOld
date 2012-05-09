@@ -1,9 +1,11 @@
 package com.jphilli85.deviceinfo.app;
 
 
+import java.util.Arrays;
+
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
@@ -13,51 +15,21 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 
 public class GroupListFragment extends SherlockListFragment {
 
 	/** Interface for communication with container Activity. */
 	public interface OnGroupSelectedListener {
-		public void onGroupSelected(int id);
+		public void onGroupSelected(int index);
 	}
 	
 	public static final String KEY_GROUP = GroupListFragment.class.getName() + ".GROUP";
 	
-	public static final int[] GROUP_OVERVIEW;
-	public static final int[] GROUP_CPU;
-	public static final int[] GROUP_MEMORY;
-	public static final int[] GROUP_AUDIO_VIDEO;
-	public static final int[] GROUP_BATTERY_SENSORS;
-	public static final int[] GROUP_LOCATION;
-	public static final int[] GROUP_CONNECTIONS;
-	public static final int[] GROUP_SYSTEM;
-	
-	public static final int[][] GROUPS;
-	
-	static {
-		GROUP_OVERVIEW = new int[] { DetailsFragment.ELEMENT_OVERVIEW };
-		GROUP_CPU = new int[] { DetailsFragment.ELEMENT_CPU };
-		GROUP_MEMORY = new int[] { DetailsFragment.ELEMENT_RAM, DetailsFragment.ELEMENT_STORAGE };
-		GROUP_AUDIO_VIDEO = new int[] { DetailsFragment.ELEMENT_DISPLAY, DetailsFragment.ELEMENT_GRAPHICS, 
-				DetailsFragment.ELEMENT_CAMERA, DetailsFragment.ELEMENT_AUDIO };
-		GROUP_BATTERY_SENSORS = new int[] { DetailsFragment.ELEMENT_BATTERY, DetailsFragment.ELEMENT_SENSORS };
-		GROUP_LOCATION = new int[] { DetailsFragment.ELEMENT_LOCATION };
-		GROUP_CONNECTIONS = new int[] { DetailsFragment.ELEMENT_NETWORK, DetailsFragment.ELEMENT_CELLULAR,
-				DetailsFragment.ELEMENT_WIFI, DetailsFragment.ELEMENT_BLUETOOTH };
-		GROUP_SYSTEM = new int[] { DetailsFragment.ELEMENT_UPTIME, DetailsFragment.ELEMENT_PLATFORM,
-				DetailsFragment.ELEMENT_IDENTIFIERS, DetailsFragment.ELEMENT_FEATURES, 
-				DetailsFragment.ELEMENT_PROPERTIES,	DetailsFragment.ELEMENT_KEYS };
-		
-		GROUPS = new int[][] { GROUP_OVERVIEW, GROUP_CPU, GROUP_MEMORY, GROUP_AUDIO_VIDEO,
-				GROUP_BATTERY_SENSORS, GROUP_LOCATION, GROUP_CONNECTIONS, GROUP_SYSTEM };		
-	}	
-	
 	private OnGroupSelectedListener mOnGroupSelectedListener;	
-
     private boolean mDualPane;
-    int mCurrentGroup;
-    
+    private int mCurrentGroup; 
 	private ListAdapter mAdapter;
     
     @Override
@@ -71,31 +43,21 @@ public class GroupListFragment extends SherlockListFragment {
         }
     }
     
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context c = getActivity();
-        String[] groups = new String[] {
-        	c.getString(R.string.group_label_overview), c.getString(R.string.group_label_cpu),
-        	c.getString(R.string.group_label_memory), c.getString(R.string.group_label_visual_audio),
-        	c.getString(R.string.group_label_battery_sensors), c.getString(R.string.group_label_location),
-        	c.getString(R.string.group_label_connections), c.getString(R.string.group_label_system)
-        };
-        
         mAdapter = new ArrayAdapter<String>(getActivity(), 
-        		R.layout.group_listitem, R.id.itemLabel, groups);
+        		R.layout.group_item, getResources().getStringArray(R.array.groups));
         setListAdapter(mAdapter);
         setHasOptionsMenu(true);
     }
-    
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         
         if (savedInstanceState == null) mCurrentGroup = 0;
-        else mCurrentGroup = savedInstanceState.getInt(KEY_GROUP);        
+        else mCurrentGroup = savedInstanceState.getInt(KEY_GROUP, 0);        
         
         // Check to see if we have a frame in which to embed the details
         // fragment directly in the containing UI.
@@ -117,37 +79,34 @@ public class GroupListFragment extends SherlockListFragment {
         outState.putInt(KEY_GROUP, mCurrentGroup);
     }
 
-    
-    
-    
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-//        String projection[] = { DeviceInfo.Group.COL_ID };
-//        Cursor cursor = getActivity().getContentResolver().query(
-//                Uri.withAppendedPath(DeviceInfo.Group.CONTENT_URI,
-//                        String.valueOf(id)), projection, null, null, null);
-//        if (cursor.moveToFirst()) {
-//            mOnGroupSelectedListener.onGroupSelected(cursor.getInt(0));
-//            Intent detailsIntent = new Intent();
-//    		detailsIntent.setAction(Intent.ACTION_VIEW)
-//    		.setData(Uri.parse(DeviceInfo.AUTHORITY))
-//    		.putExtra(EXTRA_DETAILS_ARRAY, new String[] { 
-//    			DeviceInfo.Group.CONTENT_URI + "/" + id });
-//        }
-//        cursor.close();
-//        l.setItemChecked(position, true); 
     	mOnGroupSelectedListener.onGroupSelected(position);
     	showDetails(position);    	
     }
     
+    public static int getGroup(int[] elements) {  
+    	int[][] groups = DeviceInfo.getGroups();
+    	for (int i = 0; i < groups.length; ++i) {    		
+    		if (Arrays.equals(groups[i], elements)) return i;
+    	}
+    	return -1; 
+    }
+    
+    public static int[] getElements(int group) {
+    	int[][] groups = DeviceInfo.getGroups();
+    	return groups[group];
+    }
+
     
     /**
      * Helper function to show the details of a selected item, either by
      * displaying a fragment in-place in the current UI, or starting a
      * whole new activity in which it is displayed.
      */
-    void showDetails(int index) {
+    private void showDetails(int index) {
         mCurrentGroup = index;
+        int[] elements = getElements(index);
 
         if (mDualPane) {
             // We can display everything in-place with fragments, so update
@@ -157,9 +116,9 @@ public class GroupListFragment extends SherlockListFragment {
             // Check what fragment is currently shown, replace if needed.
             DetailsFragment detailsFragment = (DetailsFragment)
                     getFragmentManager().findFragmentById(R.id.detailsFragment);
-            if (detailsFragment == null || detailsFragment.getGroup() != index) {
+            if (detailsFragment == null || getGroup(detailsFragment.getElements()) != index) {
                 // Make new fragment to show this selection.
-                detailsFragment = DetailsFragment.newInstance(index);
+                detailsFragment = DetailsFragment.newInstance(elements);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
@@ -174,7 +133,7 @@ public class GroupListFragment extends SherlockListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), DetailsActivity.class);
-            intent.putExtra(KEY_GROUP, index);
+            intent.putExtra(DetailsFragment.KEY_ELEMENTS, elements);
             startActivity(intent);
         }
     }

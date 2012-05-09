@@ -10,7 +10,7 @@ import android.telephony.TelephonyManager;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Identifiers implements ContentsMapper {
+public class Identifiers extends Element {
 
 	public final String ANDOID_ID;
 	public final String DEVICE_ID;

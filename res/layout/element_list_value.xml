@@ -1,7 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/label"
-    style="@style/ElementListItem.Label" />
-<TextView 
-    android:id="@+id/value" 
     style="@style/ElementListItem.Value" /> 

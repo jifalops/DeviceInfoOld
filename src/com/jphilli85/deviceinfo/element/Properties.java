@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 
-public class Properties implements ContentsMapper {
+public class Properties extends Element {
 
 	@Override
 	public LinkedHashMap<String, String> getContents() {

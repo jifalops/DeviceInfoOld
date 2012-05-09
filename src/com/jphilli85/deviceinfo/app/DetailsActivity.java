@@ -19,23 +19,14 @@ public class DetailsActivity extends SherlockFragmentActivity {
             return;
         }
 		
-		//setContentView(R.layout.details_activity);
-//		ViewGroup detailsWrapper = (ViewGroup)
-//				findViewById();
-		
 		if (savedInstanceState == null) {
             // During initial setup, plug in the details fragment.
-			int group = getIntent().getExtras().getInt(GroupListFragment.KEY_GROUP, 0);
+			int[] elements = getIntent().getExtras().getIntArray(DetailsFragment.KEY_ELEMENTS);
 			
-			DetailsFragment detailsFragment = DetailsFragment.newInstance(group);
-//					(DetailsFragment) 
-//					getSupportFragmentManager().
-//					findFragmentById(R.id.detailsFragment);
-//            detailsFragment.setArguments(getIntent().getExtras());  
+			DetailsFragment detailsFragment = DetailsFragment.newInstance(elements);
             getSupportFragmentManager().beginTransaction()
             .add(android.R.id.content, detailsFragment)
             .commit();
-        }
-		
+        }		
     }
 }

@@ -26,7 +26,7 @@ import android.text.TextUtils;
 import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.R;
 
-public class Wifi implements ContentsMapper, ElementListener {
+public class Wifi extends ListeningElement {
 	
 	public interface Callback {
 		void onScanCompleted(List<ScanResult> results);
@@ -322,13 +322,7 @@ public class Wifi implements ContentsMapper, ElementListener {
 		return mWifiManager;
 	}
 	
-	public Callback getCallback() {
-		return mCallback;
-	}
 	
-	public void setCallback(Callback callback) {
-		mCallback = callback;
-	}
 
 	
 	@Override
@@ -445,30 +439,25 @@ public class Wifi implements ContentsMapper, ElementListener {
 			
 			// TODO use the intent extras to return values to the callback
 			if (intent.getAction().equals(WifiManager.NETWORK_IDS_CHANGED_ACTION)) {
-				mWifi.getCallback().onNetworkIdsChanged(mWifi.getWifiManager().getConfiguredNetworks());
+				((Callback) mWifi.getCallback()).onNetworkIdsChanged(mWifi.getWifiManager().getConfiguredNetworks());
 			}
 			else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-				mWifi.getCallback().onNetworkStateChanged(mWifi);
+				((Callback) mWifi.getCallback()).onNetworkStateChanged(mWifi);
 			}
 			else if (intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {
-				try { mWifi.getCallback().onRssiChanged(mWifi.getWifiManager().getConnectionInfo().getRssi()); }
+				try { ((Callback) mWifi.getCallback()).onRssiChanged(mWifi.getWifiManager().getConnectionInfo().getRssi()); }
 				catch (NullPointerException ignored) {}
 			}
 			else if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-				mWifi.getCallback().onScanCompleted(mWifi.getWifiManager().getScanResults());								
+				((Callback) mWifi.getCallback()).onScanCompleted(mWifi.getWifiManager().getScanResults());								
 			}
 			else if (intent.getAction().equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-				mWifi.getCallback().onSupplicantConnectionChanged(mWifi);								
+				((Callback) mWifi.getCallback()).onSupplicantConnectionChanged(mWifi);								
 			}
 			else if (intent.getAction().equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
-				mWifi.getCallback().onSupplicantStateChanged(mWifi);								
+				((Callback) mWifi.getCallback()).onSupplicantStateChanged(mWifi);								
 			}
 		}
-	}
-
-	@Override
-	public boolean startListening() {
-		return startListening(true);
 	}
 
 	@Override
@@ -498,33 +487,29 @@ public class Wifi implements ContentsMapper, ElementListener {
 		return true;
 	}
 
-	@Override
-	public boolean isListening() {
-		return mIsListening;			
-	}
 
-	@Override
-	public boolean pause() {
-		if (mIsPaused) return false;
-		mIsPaused = stopListening();	
-		return mIsPaused;
-	}
-
-	@Override
-	public boolean resume() {
-		if (!mIsPaused) return false;
-		mIsPaused = !startListening();
-		return mIsPaused;
-	}
-	
-	@Override
-	public boolean isPaused() {
-		return mIsPaused;
-	}
-
-	@Override
-	public boolean setCallback(Object callback) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//	@Override
+//	public boolean pause() {
+//		if (mIsPaused) return false;
+//		mIsPaused = stopListening();	
+//		return mIsPaused;
+//	}
+//
+//	@Override
+//	public boolean resume() {
+//		if (!mIsPaused) return false;
+//		mIsPaused = !startListening();
+//		return mIsPaused;
+//	}
+//	
+//	@Override
+//	public boolean isPaused() {
+//		return mIsPaused;
+//	}
+//
+//	@Override
+//	public boolean setCallback(Object callback) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
 }

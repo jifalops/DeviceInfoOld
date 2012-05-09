@@ -19,7 +19,7 @@ import android.os.Build;
 // even if still using GLES20 methods.
 
 // TODO more values & limits
-public class Graphics implements ContentsMapper, GLSurfaceView.Renderer {
+public class Graphics extends Element implements GLSurfaceView.Renderer {
 	public static final float OPENGLES_VERSION_10 = 1.0f;
 	public static final float OPENGLES_VERSION_11 = 1.1f;
 	public static final float OPENGLES_VERSION_20 = 2.0f;
