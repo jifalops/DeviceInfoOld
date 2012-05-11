@@ -576,7 +576,7 @@ public class SensorsView extends ElementView {
 //		
 //		
 //		@Override
-//		public void onAccuracyChanged(SensorWrapper sw) {		
+//		public void onAccuracyChanged(SensorWrapper sw) {
 //			mAccuracyTextView.setText(sw.getAccuracyString(sw.getLastAccuracyStatus()));
 //			Log.i(LOG_TAG, "onAccuracyChanged called on " + sw.getTypeString());
 //		}

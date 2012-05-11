@@ -96,8 +96,8 @@ public class DeviceInfo {
 			}
 			
 			//
-			sDateFormat = new SimpleDateFormat(
-					context.getString(R.string.timestamp_pattern), 
+			sFilenameDateFormat = new SimpleDateFormat(context.getString(R.string.timestamp_filename));
+			sDisplayDateFormat = new SimpleDateFormat(context.getString(R.string.timestamp_display),
 					Locale.getDefault());
 			
 			// Dynamically support up to 100 groups defined in xml
@@ -165,11 +165,18 @@ public class DeviceInfo {
 	 * (Long form not implemented yet.)
 	 */
 	public static String getDuration(long seconds) {
-		return (int) (seconds / (60 * 60 * 24 * 7)) + sWeeks + " "
-			+ (seconds / (60 * 60 * 24)) % 7 + sDays + " "
-			+ (seconds / (60 * 60)) % 24 + sHours + " "
-			+ (seconds / 60) % 60 + sMinutes + " "
-			+ seconds % 60 + sSeconds;
+		int w = (int) (seconds / (60 * 60 * 24 * 7));
+		int d = (int) (seconds / (60 * 60 * 24)) % 7;
+		int h = (int) (seconds / (60 * 60)) % 24;
+		int m = (int) (seconds / 60) % 60;
+		int s = (int) seconds % 60;
+		String result = "";
+		if (w > 0) result += w + sWeeks + " ";
+		if (d > 0) result += d + sDays + " ";
+		if (h > 0) result += h + sHours + " ";
+		if (m > 0) result += m + sMinutes + " ";
+		result += s + sSeconds;
+		return result;
 	}
 	
 	/** 
@@ -178,20 +185,32 @@ public class DeviceInfo {
 	 * (Long form not implemented yet.)
 	 */
 	public static String getDuration(float seconds) {
-		return (int) (seconds / (60 * 60 * 24 * 7)) + sWeeks + " "
-			+ (int) (seconds / (60 * 60 * 24)) % 7 + sDays + " "
-			+ (int)(seconds / (60 * 60)) % 24 + sHours + " "
-			+ (int) (seconds / 60) % 60 + sMinutes + " "
-			+ (int) seconds % 60 + sSeconds;
+		int w = (int) (seconds / (60 * 60 * 24 * 7));
+		int d = (int) (seconds / (60 * 60 * 24)) % 7;
+		int h = (int) (seconds / (60 * 60)) % 24;
+		int m = (int) (seconds / 60) % 60;
+		int s = (int) seconds % 60;
+		String result = null;
+		if (w > 0) result += w + sWeeks + " ";
+		if (d > 0) result += d + sDays + " ";
+		if (h > 0) result += h + sHours + " ";
+		if (m > 0) result += m + sMinutes + " ";
+		result += s + sSeconds;
+		return result;
 	}	
 	
 	//###############################
 	
 	
-	private static SimpleDateFormat sDateFormat;
+	public static SimpleDateFormat sFilenameDateFormat;
+	public static SimpleDateFormat sDisplayDateFormat;
 	
-	public static String getTimestamp() {
-		return sDateFormat.format(new Date());
+	public static String getFilenameTimestamp() {
+		return sFilenameDateFormat.format(new Date());
+	}
+	
+	public static String getDisplayTimestamp() {
+		return sDisplayDateFormat.format(new Date());
 	}
 	
 	//###############################
@@ -308,4 +327,9 @@ public class DeviceInfo {
 	}
 	
 	//###############################
+	
+	public static double getPercent(double value, double outOf) {
+		if (value == 0 || outOf == 0) return 0;		
+		return value / outOf * 100;
+	}
 }

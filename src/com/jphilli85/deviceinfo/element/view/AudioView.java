@@ -1,6 +1,7 @@
 package com.jphilli85.deviceinfo.element.view;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Audio;
@@ -18,7 +19,7 @@ public class AudioView extends ElementView {
 		super(context);
 		mAudio = new Audio(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(context);
 		
 		table.add("Mode", mAudio.getMode());
 		table.add("Ringer Mode", mAudio.getRingerMode());
@@ -38,15 +39,8 @@ public class AudioView extends ElementView {
 		table.add("Music Active", String.valueOf(mAudio.isMusicActive()));
 		table.add("Speakerphone On", String.valueOf(mAudio.isSpeakerphoneOn()));
 		table.add("Wired Headset Connected", String.valueOf(mAudio.isWiredHeadsetConnected()));
-		String[] formats = mAudio.getSupportedFormats();
-		for (int i = 0; i < formats.length; ++i) {
-			table.add("Supported Format " + i, formats[i]);
-		}
-		String[] sources = mAudio.getSupportedSources();
-		for (int i = 0; i < sources.length; ++i) {
-			table.add("Supported Source " + i, sources[i]);
-		}
-		
+		table.add("Supported Formats", TextUtils.join(", ", mAudio.getSupportedFormats()));
+		table.add("Supported Sources", TextUtils.join(", ", mAudio.getSupportedSources()));		
 		add(table);
 	}
 	

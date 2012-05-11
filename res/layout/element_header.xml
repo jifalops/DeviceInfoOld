@@ -11,6 +11,9 @@
     <TextView 
      	style="@style/ElementHeaderLabel" />
     <ImageView
-	    style="@style/Icon.Save"	    
+	    style="@style/Icon.Gone"
+	    android:contentDescription="@string/content_desc_play_pause" />
+    <ImageView
+	    style="@style/Icon"	    
 	    android:contentDescription="@string/content_desc_save" />
 </LinearLayout>

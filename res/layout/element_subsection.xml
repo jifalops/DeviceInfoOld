@@ -6,4 +6,7 @@
 	    android:contentDescription="@string/content_desc_expand_collapse" />
     <TextView
     	style="@style/ElementSubSectionLabel" />
+    <ImageView
+	    style="@style/Icon.Gone"	    
+	    android:contentDescription="@string/content_desc_play_pause" />
 </LinearLayout>

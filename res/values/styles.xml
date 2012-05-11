@@ -59,8 +59,9 @@
     <style name="Icon.Micro">
         <item name="android:layout_width">@dimen/iconMicro</item>
         <item name="android:layout_height">@dimen/iconMicro</item>
-    </style>   
-    <style name="Icon.Save">
-        <item name="android:layout_gravity">right|center_vertical</item>
-    </style>     
+    </style>
+    
+    <style name="Icon.Gone">
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>

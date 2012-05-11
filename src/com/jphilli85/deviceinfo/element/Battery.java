@@ -106,6 +106,18 @@ public class Battery extends ListeningElement {
 		}		
 	}
 	
+	public String getStatusString() {
+		return getStatus(mStatus);
+	}
+	
+	public String getHealthString() {
+		return getHealth(mHealth);
+	}
+	
+	public String getPluggedInStatusString() {
+		return getPluggedInStatus(mPluggedStatus);
+	}
+	
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		if (!super.startListening(onlyIfCallbackSet)) return false;
@@ -193,9 +205,9 @@ public class Battery extends ListeningElement {
 		contents.put("Voltage (mV)", String.valueOf(getVoltage()));
 		contents.put("Temperature (C)", String.valueOf(getTemperature()));
 		contents.put("Technology", getTechnology());
-		contents.put("Status", getStatus(mStatus));
-		contents.put("Health", getHealth(mHealth));
-		contents.put("Plugged In Status", getPluggedInStatus(mPluggedStatus));
+		contents.put("Status", getStatusString());
+		contents.put("Health", getHealthString());
+		contents.put("Plugged In Status", getPluggedInStatusString());
 		contents.put("Icon Resource ID", String.valueOf(getIconResourceId()));
 		
 		return contents;

@@ -66,5 +66,9 @@
     </style>
     <style name="ElementTableItem.Value">
         <item name="android:paddingLeft">@dimen/padding</item>
-    </style>         
+    </style>  
+    
+    <style name="ElementCollapsibleContent" parent="@style/Wide">
+        <item name="android:orientation">vertical</item>
+    </style>
 </resources>

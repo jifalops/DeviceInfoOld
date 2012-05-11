@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.jphilli85.deviceinfo.ShellHelper;
@@ -38,7 +37,7 @@ public class Cpu extends ListeningElement {
 		mCpuinfo = ShellHelper.getProc("cpuinfo");
 		mLogicalCpus = new ArrayList<LogicalCpu>();
 		mCpuStat = new CpuStat();
-		mUpdateTask = new RepeatingTask(new Runnable() {			
+		mUpdateTask = new BackgroundRepeatingTask(new Runnable() {			
 			@Override
 			public void run() {
 				setTimestamp();
@@ -866,7 +865,7 @@ public class Cpu extends ListeningElement {
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		if (!super.startListening(onlyIfCallbackSet)) return false;
-		mUpdateTask.start(true);
+		mUpdateTask.start();
 		return setListening(true);
 	}
 	

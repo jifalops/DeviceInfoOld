@@ -29,8 +29,9 @@
     <string name="content_desc_camera">Camera</string>    
     <string name="content_desc_wifi">WiFi</string>
     
-    <string name="save_successful">Save succeeded</string>
-    <string name="save_unsuccessful">Save failed</string>
+    <string name="save_successful">Saved to SD card</string>
+    <string name="save_unsuccessful">Save to SD card failed</string>
     
-    <string name="timestamp_pattern">yyyy-MM-dd_HH-mm-ssZ</string>    
+    <string name="timestamp_filename">yyyy-MM-dd_HH-mm-ssZ</string>
+    <string name="timestamp_display">yyyy-MM-dd HH:mm:ssZ</string>     
 </resources>
