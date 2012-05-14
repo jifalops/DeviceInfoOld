@@ -1,6 +1,6 @@
 package com.jphilli85.deviceinfo.element.view;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 
 import android.content.Context;
@@ -9,7 +9,7 @@ import android.content.Context;
 public class BluetoothView extends ElementView {
 
 	public BluetoothView() {
-		this(DeviceInfo.getAppContext());
+		this(DeviceInfo.getContext());
 	}
 	
 	protected BluetoothView(Context context) {

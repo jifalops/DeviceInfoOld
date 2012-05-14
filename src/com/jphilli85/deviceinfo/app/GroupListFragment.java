@@ -15,8 +15,10 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.R.array;
+import com.jphilli85.deviceinfo.R.id;
+import com.jphilli85.deviceinfo.R.layout;
 
 public class GroupListFragment extends SherlockListFragment {
 

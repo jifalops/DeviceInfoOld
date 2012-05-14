@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
@@ -52,7 +52,7 @@ public class SensorsView extends ElementView {
 	private boolean mIsCollapsed;
 	
 	public SensorsView() {
-		this(DeviceInfo.getAppContext());
+		this(DeviceInfo.getContext());
 	}
 	
 	public SensorsView(Context context) {

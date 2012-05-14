@@ -5,7 +5,7 @@ import java.util.Date;
 
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.ForegroundRepeatingTask;
 
 public class TimeView extends ForegroundRepeatingTask {	

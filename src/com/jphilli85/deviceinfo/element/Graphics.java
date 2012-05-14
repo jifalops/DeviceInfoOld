@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -41,7 +41,7 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 	
 	public Graphics(GLSurfaceView glSurfaceView, Callback callback) {
 		mGlSurfaceView = glSurfaceView;
-		String ver = openGlesVersion(DeviceInfo.getAppContext());
+		String ver = openGlesVersion(DeviceInfo.getContext());
 		mOpenGlesVersion = ver == null ? 0.0f : Float.valueOf(ver);
 		mCallback = callback;
 

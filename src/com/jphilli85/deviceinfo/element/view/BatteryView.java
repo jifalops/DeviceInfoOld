@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Battery;
 import com.jphilli85.deviceinfo.element.Element;
 
@@ -27,17 +27,16 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 	private final TimeView mTimeView;
 	
 	public BatteryView() {
-		this(DeviceInfo.getAppContext());
+		this(DeviceInfo.getContext());
 	}
 	
 	public BatteryView(Context context) {
 		super(context);
 		
 		mBattery = new Battery(context);
-		mBattery.setCallback(this);		
-		setElementListener(mBattery);		
+		mBattery.setCallback(this);				
 		
-		TableSection table = new TableSection(context);
+		TableSection table = new TableSection();
 		
 		mTimestamp = table.getValueTextView();
 		mLevel = table.getValueTextView();
@@ -69,7 +68,8 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 		
 		// initialize
 		onReceive(null, null);
-		play();
+		// simulate a play click
+		mHeader.play();
 	}
 
 	@Override
@@ -95,22 +95,18 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 
 	@Override
 	public void onPlay() {
-		mTimeView.start();
+		mBattery.startListening();
+		mTimeView.start();		
 	}
 
 	@Override
 	public void onPause() {
+		mBattery.stopListening();
 		mTimeView.stop();
 	}
 
 	@Override
 	public void onActivityPause() {
-		//pause();
-	}
-
-	@Override
-	public boolean isPlaying() {
-		// TODO Auto-generated method stub
-		return false;
+		//TODO use preference
 	}
 }

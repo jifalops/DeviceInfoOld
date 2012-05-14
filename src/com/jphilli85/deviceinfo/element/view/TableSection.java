@@ -1,6 +1,5 @@
 package com.jphilli85.deviceinfo.element.view;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableLayout;
@@ -9,11 +8,11 @@ import android.widget.TextView;
 
 import com.jphilli85.deviceinfo.R;
 
-public class TableSection extends ElementViewSection {
+public class TableSection extends AbstractSection {
 	private TableLayout mTable;
 	
-	public TableSection(Context context) {
-		super(context);
+	public TableSection() {
+		super();
 		mTable = (TableLayout) inflate(R.layout.element_table);
 	}
 	

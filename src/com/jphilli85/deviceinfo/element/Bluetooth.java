@@ -14,8 +14,8 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Bluetooth extends ListeningElement {
 	private static final int API = Build.VERSION.SDK_INT;
@@ -613,9 +613,9 @@ public class Bluetooth extends ListeningElement {
 		};
 		
 		boolean a,b,c = false;
-		a = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.A2DP);
-		b = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.HEADSET);
-		if (API >= 14) c = mBluetoothAdapter.getProfileProxy(DeviceInfo.getAppContext(), listener, BluetoothProfile.HEALTH);
+		a = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.A2DP);
+		b = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.HEADSET);
+		if (API >= 14) c = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.HEALTH);
 		return setListening(a || b || c);		
 	}
 

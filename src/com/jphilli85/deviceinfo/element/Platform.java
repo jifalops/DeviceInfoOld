@@ -7,9 +7,9 @@ import android.content.Context;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.ShellHelper;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Platform extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
@@ -74,7 +74,7 @@ public class Platform extends Element {
 		contents.put("Build ID", Build.ID);
 		contents.put("Build Incremental Version", Build.VERSION.INCREMENTAL);
 		contents.put("Build Fingerprint", Build.FINGERPRINT);
-		contents.put("OpenGL Version", Graphics.openGlesVersion(DeviceInfo.getAppContext()));
+		contents.put("OpenGL Version", Graphics.openGlesVersion(DeviceInfo.getContext()));
 		contents.put("Kernel", getKernelVersion());
 		contents.put("Radio Version", Cellular.getRadioVersion());
 		contents.put("Radio Interface Version", Cellular.getRilVersion());

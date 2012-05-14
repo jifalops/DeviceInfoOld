@@ -14,22 +14,29 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
-import com.jphilli85.deviceinfo.element.ElementListener;
 
-public abstract class ElementView {
+public abstract class ElementView extends AbstractElementView {
 	private static final List<ElementView> sElementViews = new ArrayList<ElementView>();
-	private final Context mContext;	
 	protected Header mHeader;
 	private String mLabel;	
 	
-	public static final boolean add(Context context, int elementIndex) {	
-		Class<? extends ElementView> ev = DeviceInfo.getElementView(elementIndex);
+	public static final boolean add(int[] elementIndexes) {
+		if (elementIndexes == null) return false;
+		boolean result = true;		
+		for (int i : elementIndexes) {
+			if(!add(i)) result = false;			
+		}
+		return result;
+	}
+	
+	public static final boolean add(int elementIndex) {	
+		Class<? extends AbstractElementView> ev = DeviceInfo.getAbstractView(elementIndex);
 		if (ev == null) return false;
 		try {
-			sElementViews.add(ev.newInstance());
+			sElementViews.add((ElementView) ev.newInstance());
 		} catch (InstantiationException e) {
 			return false;
 		} catch (IllegalAccessException e) {
@@ -38,25 +45,12 @@ public abstract class ElementView {
 		return true;
 	}
 	
-	protected ElementView() {
-		this(DeviceInfo.getAppContext());
-	}
-	
-	protected ElementView(Context context) {
-		this(context, false);
-	}
-	
-	protected ElementView(Context context, boolean supportsPlayPause) {
-		mContext = context.getApplicationContext();			
-		
+	protected ElementView(Context context) {		
 		String[] elements = DeviceInfo.getElements();
-		for (int i = 0; i < elements.length; ++i) {
-			if (this.getClass() == DeviceInfo.getElementView(i)) {
+		for (int i = 1; i < elements.length; ++i) {
+			if (this.getClass() == DeviceInfo.getAbstractView(i)) {
 				mLabel = elements[i];
-				if (this.getClass() != OverviewView.class) {
-					mHeader = new Header(mContext, DeviceInfo.getElementIconResId(i), 
-							mLabel, new SaveListener(), supportsPlayPause);
-				}
+				mHeader = new Header(DeviceInfo.getElementIconResId(i), mLabel, this);
 				break;
 			}
 		}
@@ -68,7 +62,7 @@ public abstract class ElementView {
 		if (mHeader != null) mHeader.add(view);	
 	}
 	
-	protected final void add(ElementViewSection section) {
+	protected final void add(AbstractSection section) {
 		if (mHeader != null) mHeader.add(section);
 	}
 	
@@ -77,17 +71,9 @@ public abstract class ElementView {
 	 		if (ev.mHeader != null) ev.mHeader.addToLayout(layout); 
 	 	}
 		
-	}
+	}	
 	
-	private class SaveListener implements View.OnClickListener {
-		@Override
-		public void onClick(View v) {
-			save();
-		}			
-	}
-	
-	
-	protected final void save() {		
+	final void save() {		
 		List<String[]> list = new ArrayList<String[]>();
 		LinkedHashMap<String, String> contents = getElement().getContents();
 		for (Entry<String, String> e : contents.entrySet()) {
@@ -99,16 +85,17 @@ public abstract class ElementView {
 				+ "_" + DeviceInfo.getFilenameTimestamp()
 				+ ".csv.txt");
 		
-
-		try {			
+		Context c = DeviceInfo.getContext();
+		
+		try {
 			CSVWriter writer = new CSVWriter(new FileWriter(file));
 			writer.writeAll(list);
 			writer.close();
-			Toast.makeText(mContext, mContext.getString(R.string.save_successful), Toast.LENGTH_SHORT).show();
+			Toast.makeText(c, c.getString(R.string.save_successful), Toast.LENGTH_SHORT).show();
 		}
 		catch (SecurityException e) {}
 		catch (IOException e) {
-			Toast.makeText(mContext, mContext.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT).show();
+			Toast.makeText(c, c.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT).show();
 		}
 	}
 }

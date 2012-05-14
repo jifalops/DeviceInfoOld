@@ -5,8 +5,8 @@ import java.util.List;
 
 import android.os.Handler;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Uptime extends ListeningElement {
 	

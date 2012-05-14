@@ -11,8 +11,8 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.DisplayMetrics;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.ShellHelper;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Display extends Element {
 	// FIXME use configuration to determine opengl support
@@ -224,7 +224,7 @@ public class Display extends Element {
     @Override
 	public LinkedHashMap<String, String> getContents() {
     	LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-		Context context = DeviceInfo.getAppContext();
+		Context context = DeviceInfo.getContext();
 		
 		contents.put("Density DPI String", getDensityDpiString());
 		contents.put("Density DPI", String.valueOf(getDensityDpi()));

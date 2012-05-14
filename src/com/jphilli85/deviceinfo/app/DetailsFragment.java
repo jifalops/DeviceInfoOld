@@ -9,6 +9,7 @@ import android.widget.ScrollView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.element.view.ElementView;
 
 public class DetailsFragment extends SherlockFragment {
@@ -47,7 +48,7 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void loadElements() {
-    	for (int e : mElements) ElementView.add(getActivity(), e);
+    	ElementView.add(mElements);
     	ElementView.addToLayout(mLayout);
 //    	mSensorsView = new SensorsView(getActivity());
     	

@@ -3,8 +3,8 @@ package com.jphilli85.deviceinfo.app;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.jphilli85.deviceinfo.DeviceInfo;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.app.GroupListFragment.OnGroupSelectedListener;
 
 public class DeviceInfoActivity extends SherlockFragmentActivity implements 
@@ -15,8 +15,7 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
-		
-		if (DeviceInfo.getAppContext() == null) DeviceInfo.init(getApplication());
+
 		
 //		mDatabase = (new DeviceInfoDatabaseHelper(this)).getReadableDatabase();
 		

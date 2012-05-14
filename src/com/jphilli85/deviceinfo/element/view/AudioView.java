@@ -3,23 +3,23 @@ package com.jphilli85.deviceinfo.element.view;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.jphilli85.deviceinfo.DeviceInfo;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Audio;
 import com.jphilli85.deviceinfo.element.Element;
 
 
 public class AudioView extends ElementView {
 	private final Audio mAudio;
-	
+
 	public AudioView() {
-		this(DeviceInfo.getAppContext());
+		this(DeviceInfo.getContext());
 	}
 	
 	public AudioView(Context context) {
 		super(context);
 		mAudio = new Audio(context);
 		
-		TableSection table = new TableSection(context);
+		TableSection table = new TableSection();
 		
 		table.add("Mode", mAudio.getMode());
 		table.add("Ringer Mode", mAudio.getRingerMode());
