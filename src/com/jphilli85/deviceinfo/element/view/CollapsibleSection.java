@@ -3,9 +3,12 @@ package com.jphilli85.deviceinfo.element.view;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public abstract class CollapsibleSection extends AbstractSection {
 	public static final int INDEX_EXPAND_COLLAPSE = 0;
@@ -25,8 +28,6 @@ public abstract class CollapsibleSection extends AbstractSection {
 		ExpandCollapseListener listener = new ExpandCollapseListener();
 		setListener(INDEX_EXPAND_COLLAPSE, listener);
 		setListener(labelIndex, listener);
-		
-
 	}
 	
 	private void setLabel(String label, int index) {
@@ -41,7 +42,21 @@ public abstract class CollapsibleSection extends AbstractSection {
 		return mContent;
 	}
 	
+	protected void setHeaderIndent(int dp) {
+		setIndent(mHeader, dp);
+	}
 	
+	protected void setContentIndent(int dp) {
+		setIndent(mContent, dp);
+	}
+	
+	private void setIndent(ViewGroup vg, int dp) {
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		lp.setMargins(Convert.dpToPx(DeviceInfo.getContext(), dp), 
+				lp.topMargin, lp.rightMargin, lp.bottomMargin);
+		vg.setLayoutParams(lp);
+	}
 	
 	protected void setIcon(int iconRes, int index) {
 		if (iconRes == 0) return;

@@ -1,5 +1,6 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.view.View;
@@ -10,6 +11,10 @@ import com.jphilli85.deviceinfo.R;
 
 public class ListSection extends AbstractSection {
 	private List<View> mViews;
+	
+	public ListSection() {
+		mViews = new ArrayList<View>();
+	}
 	
 	public void add(CharSequence label, CharSequence value) {
 		TextView tv1 = (TextView) inflate(R.layout.element_list_label);

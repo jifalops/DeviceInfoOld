@@ -9,6 +9,12 @@ public abstract class ListeningElementView extends ElementView implements Playab
 		mHeader.setCallback(this);
 	}
 	
-	/** subclasses can use this to pause when the activity pauses */
-	public abstract void onActivityPause();
+	public final boolean isPlaying() {
+		return mHeader.isPlaying();
+	}
+		
+	public final void onActivityPause() {
+		//TODO make preference
+		mHeader.pause();
+	}
 }

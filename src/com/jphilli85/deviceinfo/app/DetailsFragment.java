@@ -9,8 +9,8 @@ import android.widget.ScrollView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.R.layout;
 import com.jphilli85.deviceinfo.element.view.ElementView;
+import com.jphilli85.deviceinfo.element.view.ListeningElementView;
 
 public class DetailsFragment extends SherlockFragment {
 	
@@ -48,7 +48,8 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void loadElements() {
-    	ElementView.add(mElements);
+    	if (mLayout == null) return;
+    	ElementView.add(mElements);    	
     	ElementView.addToLayout(mLayout);
 //    	mSensorsView = new SensorsView(getActivity());
     	
@@ -56,6 +57,12 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void pauseElements() {
+    	for (ElementView ev : ElementView.getElementViews()) {
+    		try { ((ListeningElementView) ev).onActivityPause(); }
+    		catch (ClassCastException ignored) {}
+    	}
+    	
+    	
 //		if (mGraphics != null) mGraphics.onPause();
 //		if (mBattery != null) mBattery.stopListening();		
 //		if (mLocation != null) mLocation.stopListeningAll();
@@ -102,7 +109,7 @@ public class DetailsFragment extends SherlockFragment {
 			Bundle savedInstanceState) {
 		if (container == null) return null;
 		mScroller = (ScrollView) inflater.inflate(R.layout.details, container, false);		
-		mLayout = (LinearLayout) mScroller.getChildAt(0);
+		mLayout = (LinearLayout) mScroller.getChildAt(0);		
 		loadElements();
 		return mScroller; 		
 	}	
@@ -124,22 +131,22 @@ public class DetailsFragment extends SherlockFragment {
 	@Override
 	public void onResume() {	
 		super.onResume();
-		if (getActivity().isFinishing()) return;
+		if (mScroller == null || getActivity().isFinishing()) return;
 		resumeElements();
-		mScroller.post(new Runnable() {
-			@Override
-			public void run() {
-				mScroller.scrollTo(0, mScrollPos);
-			}
-		});
+//		mScroller.post(new Runnable() {
+//			@Override
+//			public void run() {
+//				mScroller.scrollTo(0, mScrollPos);
+//			}
+//		});
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (getActivity().isFinishing()) return;
+//		if (getActivity().isFinishing()) return;
 		pauseElements();
-		mScrollPos = mScroller.getScrollY();
+//		mScrollPos = mScroller.getScrollY();
 	}
 	
 //	@Override

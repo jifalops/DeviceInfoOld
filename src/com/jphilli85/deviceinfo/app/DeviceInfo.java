@@ -1,6 +1,5 @@
 package com.jphilli85.deviceinfo.app;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -16,6 +15,7 @@ import android.os.Environment;
 import android.os.Looper;
 
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.ShellHelper;
 import com.jphilli85.deviceinfo.element.view.AbstractElementView;
 import com.jphilli85.deviceinfo.element.view.AudioView;
 import com.jphilli85.deviceinfo.element.view.BatteryView;
@@ -80,12 +80,10 @@ public class DeviceInfo extends Application {
 				+ "/" + getString(R.string.snapshots_directory);
 		
 		try {
-			(new File(sDataDir)).createNewFile();
-			(new File(sSnapshotDir)).createNewFile();
-//			ShellHelper.exec("mkdir " + sDataDir);
-//			ShellHelper.exec("mkdir " + sSnapshotDir);
-//		} catch (SecurityException e1) {
-//			e1.printStackTrace();
+			ShellHelper.exec("mkdir " + sDataDir);
+			ShellHelper.exec("mkdir " + sSnapshotDir);
+		} catch (SecurityException e1) {
+			e1.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}

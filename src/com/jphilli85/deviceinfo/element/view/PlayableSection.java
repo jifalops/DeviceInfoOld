@@ -6,8 +6,8 @@ import com.jphilli85.deviceinfo.R;
 
 public abstract class PlayableSection extends CollapsibleSection {	
 	public interface Callback {
-		void onPlay();
-		void onPause();
+		void onPlay(PlayableSection section);
+		void onPause(PlayableSection section);		
 	}
 	
 	private Callback mCallback;
@@ -35,16 +35,28 @@ public abstract class PlayableSection extends CollapsibleSection {
 
 	protected void pause() {
 		if (!mIsPlaying) return;
-		if (mCallback != null) mCallback.onPause();
-		setIcon(R.drawable.holo_dark_play, mPlayPauseIndex);
+		if (mCallback != null) mCallback.onPause(this);
+		setPlayIcon();
 		mIsPlaying = false;	
 	}
 	
 	protected void play() {
 		if (mIsPlaying) return;
-		if (mCallback != null) mCallback.onPlay();
-		setIcon(R.drawable.holo_dark_pause, mPlayPauseIndex);
+		if (mCallback != null) mCallback.onPlay(this);
+		setPauseIcon();
 		mIsPlaying = true;		
+	}
+	
+	protected void setPauseIcon() {
+		setIcon(R.drawable.holo_dark_pause, mPlayPauseIndex);
+	}
+	
+	protected void setPlayIcon() {
+		setIcon(R.drawable.holo_dark_play, mPlayPauseIndex);
+	}
+	
+	protected boolean isPlaying() {
+		return mIsPlaying;
 	}
 
 	private class PlayPauseListener implements View.OnClickListener {

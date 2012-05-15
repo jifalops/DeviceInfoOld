@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="section_header_indent">16</integer>
+    <integer name="section_content_indent">20</integer>
+    <integer name="subsection_header_indent">12</integer>
+    <integer name="subsection_content_indent">16</integer>
+</resources>

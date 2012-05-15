@@ -24,6 +24,7 @@ public abstract class ElementView extends AbstractElementView {
 	private String mLabel;	
 	
 	public static final boolean add(int[] elementIndexes) {
+		sElementViews.clear();
 		if (elementIndexes == null) return false;
 		boolean result = true;		
 		for (int i : elementIndexes) {
@@ -41,8 +42,22 @@ public abstract class ElementView extends AbstractElementView {
 			return false;
 		} catch (IllegalAccessException e) {
 			return false;
+		} catch (ClassCastException e) {
+			return false;
 		}
+		
 		return true;
+	}
+	
+	public static final List<ElementView> getElementViews() {
+		return sElementViews;
+	}
+	
+	public static final void addToLayout(ViewGroup layout) {
+	 	for (ElementView ev : sElementViews) {
+	 		if (ev.mHeader != null) ev.mHeader.addToLayout(layout); 
+	 	}
+		
 	}
 	
 	protected ElementView(Context context) {		
@@ -64,16 +79,10 @@ public abstract class ElementView extends AbstractElementView {
 	
 	protected final void add(AbstractSection section) {
 		if (mHeader != null) mHeader.add(section);
-	}
-	
-	public static final void addToLayout(ViewGroup layout) {
-	 	for (ElementView ev : sElementViews) {
-	 		if (ev.mHeader != null) ev.mHeader.addToLayout(layout); 
-	 	}
-		
 	}	
 	
-	final void save() {		
+	final void save() {	
+		if (getElement() == null) return;
 		List<String[]> list = new ArrayList<String[]>();
 		LinkedHashMap<String, String> contents = getElement().getContents();
 		for (Entry<String, String> e : contents.entrySet()) {
@@ -97,5 +106,15 @@ public abstract class ElementView extends AbstractElementView {
 		catch (IOException e) {
 			Toast.makeText(c, c.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	protected final void showElementContents() {		
+		TableSection table = new TableSection();		
+		LinkedHashMap<String, String> map = getElement().getContents();
+		for (String key : map.keySet()) {
+			table.add(key,  map.get(key));
+		}
+		mHeader.getContent().removeAllViews();
+		add(table);
 	}
 }

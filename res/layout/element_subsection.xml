@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/ElementSubSection">
     <ImageView
-	    style="@style/Icon.Micro"
+	    style="@style/Icon.Small"
 	    android:contentDescription="@string/content_desc_expand_collapse" />
     <TextView
     	style="@style/ElementSubSectionLabel" />

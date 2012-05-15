@@ -50,17 +50,12 @@
         <item name="android:layout_width">@dimen/iconSize</item>
         <item name="android:layout_height">@dimen/iconSize</item>
         <item name="android:padding">@dimen/padding</item>
-        <item name="android:layout_margin">@dimen/margins</item>
+        <item name="android:paddingLeft">0dp</item> 
     </style>
     <style name="Icon.Small">
         <item name="android:layout_width">@dimen/iconSmall</item>
         <item name="android:layout_height">@dimen/iconSmall</item>
-    </style>
-    <style name="Icon.Micro">
-        <item name="android:layout_width">@dimen/iconMicro</item>
-        <item name="android:layout_height">@dimen/iconMicro</item>
-    </style>
-    
+    </style>    
     <style name="Icon.Gone">
         <item name="android:visibility">gone</item>
     </style>

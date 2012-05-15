@@ -1,6 +1,8 @@
 package com.jphilli85.deviceinfo.element;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -468,6 +470,14 @@ public class Bluetooth extends ListeningElement {
 		}
 	}
 	
+	public String getScanMode() {
+		return getScanMode(mBluetoothAdapter.getScanMode());
+	}
+	
+	public String getAdapterState() {
+		return getAdapterState(mBluetoothAdapter.getState());
+	}
+	
 	public BluetoothAdapter getBluetoothAdapter() {
 		return mBluetoothAdapter;
 	}
@@ -487,6 +497,20 @@ public class Bluetooth extends ListeningElement {
 		return mHealthProfile;
 	}
 	
+	public String[] getServices(BluetoothClass cls) {
+		List<String> list = new ArrayList<String>();
+		if (cls.hasService(BluetoothClass.Service.AUDIO)) list.add(SERVICE_AUDIO);
+		if (cls.hasService(BluetoothClass.Service.CAPTURE)) list.add(SERVICE_CAPTURE);
+		if (cls.hasService(BluetoothClass.Service.INFORMATION)) list.add(SERVICE_INFORMATION);
+		if (cls.hasService(BluetoothClass.Service.LIMITED_DISCOVERABILITY)) list.add(SERVICE_LIMITED_DISCOVERABILITY);
+		if (cls.hasService(BluetoothClass.Service.NETWORKING)) list.add(SERVICE_NETWORKING);
+		if (cls.hasService(BluetoothClass.Service.OBJECT_TRANSFER)) list.add(SERVICE_OBJECT_TRANSFER);
+		if (cls.hasService(BluetoothClass.Service.POSITIONING)) list.add(SERVICE_POSITIONING);
+		if (cls.hasService(BluetoothClass.Service.RENDER)) list.add(SERVICE_RENDER);
+		if (cls.hasService(BluetoothClass.Service.TELEPHONY)) list.add(SERVICE_TELEPHONY);
+		return list.toArray(new String[list.size()]);
+	}
+	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
 		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
@@ -497,8 +521,8 @@ public class Bluetooth extends ListeningElement {
 		contents.put("MAC Address", address);
 		contents.put("MAC Is Valid", String.valueOf(isValid));
 		contents.put("Name", mBluetoothAdapter.getName());
-		contents.put("Scan Mode", getScanMode(mBluetoothAdapter.getScanMode()));
-		contents.put("Adapter State", getAdapterState(mBluetoothAdapter.getState()));
+		contents.put("Scan Mode", getScanMode());
+		contents.put("Adapter State", getAdapterState());
 		contents.put("Is Discovering", String.valueOf(mBluetoothAdapter.isDiscovering()));
 		contents.put("Is Enabled", String.valueOf(mBluetoothAdapter.isEnabled()));
 		
