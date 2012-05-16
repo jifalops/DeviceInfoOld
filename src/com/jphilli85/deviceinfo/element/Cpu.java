@@ -22,7 +22,7 @@ public class Cpu extends ListeningElement {
 	public static final int FREQUENCY_MEDIUM = 2000;
 	public static final int FREQUENCY_LOW = 5000;
 	
-	private final List<String> mCpuinfo;
+	private List<String> mCpuinfo;
 	private final List<LogicalCpu> mLogicalCpus;
 	private final CpuStat mCpuStat;
 	
@@ -31,7 +31,7 @@ public class Cpu extends ListeningElement {
 	private long mTimestamp;
 	private long mTimestampPrevious;
 
-	private final RepeatingTask mUpdateTask;
+	private final BackgroundRepeatingTask mUpdateTask;
 	
 	public Cpu() {	
 		mCpuinfo = ShellHelper.getProc("cpuinfo");
@@ -41,6 +41,7 @@ public class Cpu extends ListeningElement {
 			@Override
 			public void run() {
 				setTimestamp();
+				mCpuinfo = ShellHelper.getProc("cpuinfo");
 				updateCpuStats();
 				for (LogicalCpu c : mLogicalCpus) {
 					c.updateFrequency();
@@ -102,7 +103,7 @@ public class Cpu extends ListeningElement {
 		String line = null;
 		for (int i = 0; i < stats.size(); ++i) {
 			line = stats.get(i);
-			if (line.startsWith("cpu")) {
+			if (line.startsWith("cpu")) { //TODO if 0% usage the cpu is omitted
 				parts = line.split("\\s+");				
 				if (parts[0].endsWith(String.valueOf(i - 1))) {
 					if (mLogicalCpus.size() >= i &&

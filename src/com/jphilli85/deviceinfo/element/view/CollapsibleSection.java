@@ -81,12 +81,14 @@ public abstract class CollapsibleSection extends AbstractSection {
 	
 
 	
-	public void add(View view) {
+	public CollapsibleSection add(View view) {
 		mContent.addView(view);
+		return this;
 	}
 	
-	public void add(AbstractSection section) {
+	public CollapsibleSection add(AbstractSection section) {
 		section.addToLayout(mContent);		
+		return this;
 	}
 	
 	@Override

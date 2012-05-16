@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.location.GpsStatus.Listener;
 import android.os.Build;
 import android.telephony.CellLocation;
 import android.telephony.NeighboringCellInfo;
@@ -29,16 +30,16 @@ public class Cellular extends ThrottledListeningElement {
 	public static final int THROTTLE_INDEX_CELL_LOCATION = 0;
 	
 	/** Methods correspond to PhoneStateListener methods */
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		void onCallForwardingIndicatorChanged(boolean cfi);
-		void onCallStateChanged(int state, String incomingNumber);
-		void onCellLocationChanged(CellLocation location);
-		void onDataActivity(int direction);
-		void onDataConnectionStateChanged(int state);
-		void onDataConnectionStateChanged(int state, int networkType);
+		void onCallStateChanged(String incomingNumber);
+		void onCellLocationChanged();
+		void onDataActivity();
+//		void onDataConnectionStateChanged(int state);
+		void onDataConnectionStateChanged();
 		void onMessageWaitingIndicatorChanged(boolean mwi);
-		void onServiceStateChanged(ServiceState serviceState);
-		void onSignalStrengthsChanged(SignalStrength signalStrength);
+		void onServiceStateChanged();
+		void onSignalStrengthsChanged();
 	}
 
     // TelephonyManager Strings
@@ -453,7 +454,7 @@ public class Cellular extends ThrottledListeningElement {
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber) {
 			
-			if (getCallback() != null) ((Callback) getCallback()).onCallStateChanged(state, incomingNumber);
+			if (getCallback() != null) ((Callback) getCallback()).onCallStateChanged(incomingNumber);
 		}
 		
 		@Override
@@ -461,25 +462,19 @@ public class Cellular extends ThrottledListeningElement {
 			if (!isUpdateAllowed(THROTTLE_INDEX_CELL_LOCATION)) return;
 			setTimestamp(THROTTLE_INDEX_CELL_LOCATION);
 			mCellLocation = location;
-			if (getCallback() != null) ((Callback) getCallback()).onCellLocationChanged(location);
+			if (getCallback() != null) ((Callback) getCallback()).onCellLocationChanged();
 		}
 		
 		@Override
 		public void onDataActivity(int direction) {
 			
-			if (getCallback() != null) ((Callback) getCallback()).onDataActivity(direction);
-		}
-		
-		@Override
-		public void onDataConnectionStateChanged(int state) {
-			
-			if (getCallback() != null) ((Callback) getCallback()).onDataConnectionStateChanged(state);
+			if (getCallback() != null) ((Callback) getCallback()).onDataActivity();
 		}
 		
 		@Override
 		public void onDataConnectionStateChanged(int state, int networkType) {
 			
-			if (getCallback() != null) ((Callback) getCallback()).onDataConnectionStateChanged(state, networkType);
+			if (getCallback() != null) ((Callback) getCallback()).onDataConnectionStateChanged();
 		}
 		
 		@Override
@@ -491,13 +486,13 @@ public class Cellular extends ThrottledListeningElement {
 		@Override
 		public void onServiceStateChanged(ServiceState serviceState) {
 			mServiceState = serviceState;
-			if (getCallback() != null) ((Callback) getCallback()).onServiceStateChanged(serviceState);
+			if (getCallback() != null) ((Callback) getCallback()).onServiceStateChanged();
 		}
 		
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			mSignalStrength = signalStrength;
-			if (getCallback() != null) ((Callback) getCallback()).onSignalStrengthsChanged(signalStrength);
+			if (getCallback() != null) ((Callback) getCallback()).onSignalStrengthsChanged();
 		}
 	}
 }

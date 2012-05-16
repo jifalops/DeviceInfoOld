@@ -179,8 +179,8 @@ public class DeviceInfo extends Application {
 		int d = (int) (seconds / (60 * 60 * 24)) % 7;
 		int h = (int) (seconds / (60 * 60)) % 24;
 		int m = (int) (seconds / 60) % 60;
-		int s = (int) seconds % 60;
-		String result = null;
+		float s = seconds % 60;
+		String result = "";
 		if (w > 0) result += w + sWeeks + " ";
 		if (d > 0) result += d + sDays + " ";
 		if (h > 0) result += h + sHours + " ";

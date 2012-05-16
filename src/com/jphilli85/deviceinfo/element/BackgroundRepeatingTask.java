@@ -48,10 +48,10 @@ public class BackgroundRepeatingTask extends RepeatingTask {
 				publishProgress();
 				try { Thread.sleep(mInterval); } 
 				catch (InterruptedException e) {
-//					break;
+					break;
 				}
 			}
-//			return null;
+			return null;
 		}
 		
 		@Override
