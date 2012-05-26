@@ -210,16 +210,6 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 	}
 
 	@Override
-	public void onPlay(PlayableSection section) {
-		mCellular.startListening();
-	}
-
-	@Override
-	public void onPause(PlayableSection section) {
-		mCellular.stopListening();
-	}
-
-	@Override
 	public void onCallForwardingIndicatorChanged(boolean cfi) {
 		mCallForwarding.setText(String.valueOf(cfi));
 	}

@@ -95,13 +95,13 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 
 	@Override
 	public void onPlay(PlayableSection section) {
-		mBattery.startListening();
+		super.onPlay(section);
 		mTimeView.start();		
 	}
 
 	@Override
 	public void onPause(PlayableSection section) {
-		mBattery.stopListening();
+		super.onPause(section);
 		mTimeView.stop();
 	}
 }

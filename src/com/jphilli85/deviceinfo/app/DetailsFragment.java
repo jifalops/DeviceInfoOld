@@ -49,7 +49,14 @@ public class DetailsFragment extends SherlockFragment {
     
     private void loadElements() {
     	if (mLayout == null) return;
-    	ElementView.add(mElements);    	
+    	
+    	new Thread(new Runnable() {			
+			@Override
+			public void run() {
+				ElementView.add(mElements);
+			}
+		}).run();
+    	    	
     	ElementView.addToLayout(mLayout);
 //    	mSensorsView = new SensorsView(getActivity());
     	
@@ -75,6 +82,11 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void resumeElements() {
+    	for (ElementView ev : ElementView.getElementViews()) {
+    		try { ((ListeningElementView) ev).onActivityResume(); }
+    		catch (ClassCastException ignored) {}
+    	}
+    	
 //		if (mGraphics != null) mGraphics.onResume();
 //		if (mBattery != null) mBattery.startListening();		
 //		if (mLocation != null) mLocation.startListening();
@@ -109,7 +121,7 @@ public class DetailsFragment extends SherlockFragment {
 			Bundle savedInstanceState) {
 		if (container == null) return null;
 		mScroller = (ScrollView) inflater.inflate(R.layout.details, container, false);		
-		mLayout = (LinearLayout) mScroller.getChildAt(0);		
+		mLayout = (LinearLayout) mScroller.getChildAt(0);	
 		loadElements();
 		return mScroller; 		
 	}	
@@ -131,7 +143,7 @@ public class DetailsFragment extends SherlockFragment {
 	@Override
 	public void onResume() {	
 		super.onResume();
-		if (mScroller == null || getActivity().isFinishing()) return;
+		if (mScroller == null || getActivity().isFinishing()) return;		
 		resumeElements();
 //		mScroller.post(new Runnable() {
 //			@Override

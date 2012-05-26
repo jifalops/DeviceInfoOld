@@ -12,11 +12,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.NetworkInfo.State;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 
 import com.jphilli85.deviceinfo.R;
@@ -49,9 +47,7 @@ public class Network extends ListeningElement {
 	public final String STATE_SUSPENDED;
 	public final String STATE_UNKNOWN;
 	
-	private final ConnectivityManager mConnectivityManager;
-	private final WifiManager mWifiManager;
-	
+	private final ConnectivityManager mConnectivityManager;	
 	
 	public Network(Context context) {		
 		TYPE_BLUETOOTH = context.getString(R.string.connection_type_bluetooth);
@@ -77,9 +73,7 @@ public class Network extends ListeningElement {
 		STATE_SUSPENDED = context.getString(R.string.network_state_suspended);
 		STATE_UNKNOWN = context.getString(R.string.network_state_unknown);
 		
-		mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		
+		mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);		
 	}
 	
 	public String getNetworkTypeString(int type) {
@@ -215,7 +209,7 @@ public class Network extends ListeningElement {
 			int i = 0;
 			for (NetworkInfo ni : infos) {
 				contents.put("NetworkInfo " + i + " Type", getNetworkTypeString(ni.getType()));
-//				contents.put("NetworkInfo " + i + " Subtype", getNetworkTypeString(ni.getSubtype()));
+				contents.put("NetworkInfo " + i + " Subtype", getNetworkTypeString(ni.getSubtype()));
 				contents.put("NetworkInfo " + i + " TypeName", ni.getTypeName());
 				contents.put("NetworkInfo " + i + " SubtypeName", ni.getSubtypeName());
 				contents.put("NetworkInfo " + i + " State", getStateString(ni.getState()));
@@ -308,10 +302,11 @@ public class Network extends ListeningElement {
 							String.valueOf(inetAddress.isMCSiteLocal()));
 					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsMulticast", 
 							String.valueOf(inetAddress.isMulticastAddress()));
-					try {
-						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsReachable", 
-								String.valueOf(inetAddress.isReachable(5000)));
-					} catch (IOException ignored) {}
+					// TODO network on ui thread
+//					try {
+//						contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsReachable", 
+//								String.valueOf(inetAddress.isReachable(5000)));
+//					} catch (IOException ignored) {}
 					contents.put("NetworkInterface " + i + " InterfaceAddress " + j + " Address IsSiteLocal", 
 							String.valueOf(inetAddress.isSiteLocalAddress()));
 					
@@ -376,35 +371,4 @@ public class Network extends ListeningElement {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-
-//	@Override
-//	public boolean pause() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean resume() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean isPaused() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public Object getCallback() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public boolean setCallback(Object callback) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
 }

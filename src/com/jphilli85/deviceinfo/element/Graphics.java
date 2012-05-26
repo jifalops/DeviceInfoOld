@@ -19,12 +19,12 @@ import android.os.Build;
 // even if still using GLES20 methods.
 
 // TODO more values & limits
-public class Graphics extends Element implements GLSurfaceView.Renderer {
+public class Graphics extends ListeningElement implements GLSurfaceView.Renderer {
 	public static final float OPENGLES_VERSION_10 = 1.0f;
 	public static final float OPENGLES_VERSION_11 = 1.1f;
 	public static final float OPENGLES_VERSION_20 = 2.0f;
 
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		/** Corresponds to GLSurfaceView.Renderer.onSurfaceCreated(); */
 		void onSurfaceCreated(GL10 gl, EGLConfig config);
 		/** Corresponds to GLSurfaceView.Renderer.onSurfaceChanged(); */
@@ -34,16 +34,13 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 	}
 	
 	private final float mOpenGlesVersion;
-
-	private final Callback mCallback;
 	private OpenGles mOpenGles;
 	private final GLSurfaceView mGlSurfaceView;
 	
-	public Graphics(GLSurfaceView glSurfaceView, Callback callback) {
+	public Graphics(GLSurfaceView glSurfaceView) {
 		mGlSurfaceView = glSurfaceView;
 		String ver = openGlesVersion(DeviceInfo.getContext());
 		mOpenGlesVersion = ver == null ? 0.0f : Float.valueOf(ver);
-		mCallback = callback;
 
 		if (Build.VERSION.SDK_INT >= 8) {
 			glSurfaceView.setEGLContextClientVersion((int) mOpenGlesVersion);
@@ -67,10 +64,6 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 		return mOpenGles;
 	}
 	
-	public Callback getCallback() {
-		return mCallback;
-	}
-	
 	public GLSurfaceView getGlSurfaceView() {
 		return mGlSurfaceView;
 	}
@@ -83,6 +76,15 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 	 */
 	public float getOpenGlesVersion() {
 		return mOpenGlesVersion;
+	}
+	
+	
+	public void onPause() {
+		mGlSurfaceView.onPause();
+	}
+	
+	public void onResume() {
+		mGlSurfaceView.onResume();
 	}
 	
 	
@@ -139,15 +141,15 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 		public LinkedHashMap<String, String> getContents() {
 			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
 			
-			contents.put("OpenGL ES Version", String.valueOf(getOpenGlesVersion()));
-			contents.put("OpenGL ES Renderer", getRenderer());
-			contents.put("OpenGL ES Version", getVersion());
-			contents.put("OpenGL ES Vendor", getVendor());
-			contents.put("OpenGL ES MaxTextureSize", String.valueOf(getMaxTextureSize()));	
+			contents.put("Version", String.valueOf(getOpenGlesVersion()));
+			contents.put("Renderer", getRenderer());
+			contents.put("Version", getVersion());
+			contents.put("Vendor", getVendor());
+			contents.put("MaxTextureSize", String.valueOf(getMaxTextureSize()));	
 			String[] extensions = getExtensions();
 			if (extensions != null) {
 				for (int i = 0; i < extensions.length; ++i) {
-					contents.put("OpenGL ES Extension " + i, extensions[i]);
+					contents.put("Extension " + i, extensions[i]);
 				}
 			}
 			return contents;
@@ -181,8 +183,8 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 		@Override
 		public LinkedHashMap<String, String> getContents() {
 			LinkedHashMap<String, String> contents = super.getContents();
-			contents.put("OpenGL ES MaxTextureUnits", String.valueOf(getMaxTextureUnits()));
-			contents.put("OpenGL ES MaxTextureStackDepth", String.valueOf(getMaxTextureStackDepth()));
+			contents.put("MaxTextureUnits", String.valueOf(getMaxTextureUnits()));
+			contents.put("MaxTextureStackDepth", String.valueOf(getMaxTextureStackDepth()));
 			return contents;
 		}
 	}
@@ -220,19 +222,12 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 		@Override
 		public LinkedHashMap<String, String> getContents() {
 			LinkedHashMap<String, String> contents = super.getContents();
-			contents.put("OpenGL ES MaxTextureImageUnits", String.valueOf(getMaxTextureImageUnits()));
-			contents.put("OpenGL ES MaxRenderBufferSize", String.valueOf(getMaxRenderBufferSize()));
+			contents.put("MaxTextureImageUnits", String.valueOf(getMaxTextureImageUnits()));
+			contents.put("MaxRenderBufferSize", String.valueOf(getMaxRenderBufferSize()));
 			return contents;
 		}
 	}
-	
-	public void onPause() {
-		mGlSurfaceView.onPause();
-	}
-	
-	public void onResume() {
-		mGlSurfaceView.onResume();
-	}
+
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {		
@@ -241,29 +236,41 @@ public class Graphics extends Element implements GLSurfaceView.Renderer {
 			else if (mOpenGlesVersion == OPENGLES_VERSION_11) mOpenGles = new OpenGles11();
 			else if (mOpenGlesVersion == OPENGLES_VERSION_20) mOpenGles = new OpenGles20();
 		}
-		if (mCallback != null) mCallback.onSurfaceCreated(gl, config);
+		if ((Callback) getCallback() != null) ((Callback) getCallback()).onSurfaceCreated(gl, config);
 	}
 	
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 
-		if (mCallback != null) mCallback.onSurfaceChanged(gl, width, height);
+		if ((Callback) getCallback() != null) ((Callback) getCallback()).onSurfaceChanged(gl, width, height);
 	}
 	
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		
-		if (mCallback != null) mCallback.onDrawFrame(gl);
+		if ((Callback) getCallback() != null) ((Callback) getCallback()).onDrawFrame(gl);
 	}
 
 	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
-		if (mOpenGles == null) {
-			LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-			contents.put("OpenGL ES Version", String.valueOf(getOpenGlesVersion()));
-			return contents;
-		}
-		else return getOpenGles().getContents();
+		LinkedHashMap<String, String> contents = super.getContents();
+		contents.put("OpenGL ES Version", String.valueOf(getOpenGlesVersion()));
+		if (mOpenGles != null) contents.putAll(mOpenGles.getContents());		
+		return contents;
+	}
+	
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
+		onResume();
+		return setListening(true);
+	}
+	
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
+		onPause();
+		return !setListening(false);
 	}
 }

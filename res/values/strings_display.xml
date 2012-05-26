@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- DisplayMetrics constants -->
+    <string name="display_density_low">Low</string>
+    <string name="display_density_medium">Medium</string>
+    <string name="display_density_high">High</string>
+    <string name="display_density_xhigh">Extra High</string>
+    <string name="display_density_tv">TV</string>
+    
+	<!-- ImageFormat constants -->
+	<string name="display_format_jpeg">JPEG</string>
+	<string name="display_format_nv21">NV21</string>
+	<string name="display_format_yuy2">YUY2</string>
+	<string name="display_format_nv16">NV16</string>
+	
+	<!-- PixelFormat constants -->
+	<string name="display_format_ycbcr_420_sp">YCbCr 420 SP</string>
+	<string name="display_format_ycbcr_422_i">YCbCr 422 I</string>
+	<string name="display_format_ycbcr_422_sp">YCbCr 422 SP</string>
+	<string name="display_format_l_8">L 8</string>
+	<string name="display_format_la_88">LA 88</string>
+	<string name="display_format_opaque">Opaque</string>
+	<string name="display_format_rgb_332">RGB 332</string>
+	<string name="display_format_rgb_565">RGB 565</string>
+	<string name="display_format_rgb_888">RGB 888</string>
+	<string name="display_format_rgba_4444">RGBA 4444</string>
+	<string name="display_format_rgba_5551">RGBA 5551</string>
+	<string name="display_format_rgba_8888">RGBA 8888</string>
+	<string name="display_format_rgbx_8888">RGBX 8888</string>
+	<string name="display_format_translucent">Translucent</string>
+	<string name="display_format_transparent">Transparent</string>
+	<string name="display_unknown">Unknown</string>
+	
+	<!-- Configuration constants -->
+	<string name="display_orientation_portrait">Portrait</string>
+	<string name="display_orientation_landscape">Landscape</string>
+	<string name="display_orientation_square">Square</string>
+	<string name="display_undefined">Undefined</string>
+	<string name="display_size_small">Small</string>
+	<string name="display_size_normal">Normal</string>
+	<string name="display_size_large">Large</string>
+	<string name="display_size_xlarge">Extra Large</string>	
+</resources>

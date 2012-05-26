@@ -16,6 +16,22 @@ public class ListSection extends AbstractSection {
 		mViews = new ArrayList<View>();
 	}
 	
+	public void add(View view) {
+		mViews.add(view);
+	}
+	
+	public void add(CharSequence value) {
+		add(value, false);
+	}
+	
+	public void add(CharSequence value, boolean labelStyle) {
+		TextView tv;
+		if (labelStyle)  tv = (TextView) inflate(R.layout.element_list_label);
+		else tv = (TextView) inflate(R.layout.element_list_value);
+		tv.setText(value);
+		mViews.add(tv);
+	}
+	
 	public void add(CharSequence label, CharSequence value) {
 		TextView tv1 = (TextView) inflate(R.layout.element_list_label);
 		TextView tv2 = (TextView) inflate(R.layout.element_list_value);			

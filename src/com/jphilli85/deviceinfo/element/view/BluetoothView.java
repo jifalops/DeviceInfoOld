@@ -146,16 +146,6 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 	}
 
 	@Override
-	public void onPlay(PlayableSection section) {
-		mBluetooth.startListening();
-	}
-
-	@Override
-	public void onPause(PlayableSection section) {
-		mBluetooth.stopListening();
-	}
-
-	@Override
 	public void onServiceConnected(int profile, BluetoothProfile proxy) {
 		update();			
 	}

@@ -21,8 +21,9 @@ import android.os.Bundle;
 
 import com.jphilli85.deviceinfo.R;
 //TODO keep a best-guess location
-public class Location extends Element implements GpsStatus.Listener, GpsStatus.NmeaListener {
-	public interface ProviderCallback {
+public class Location extends ThrottledListeningElement implements GpsStatus.Listener, GpsStatus.NmeaListener {
+	
+	public interface ProviderCallback extends ListeningElement.Callback {
 		/** Corresponds to LocationListener.onLocationChanged() */
 		void onLocationChanged(ProviderWrapper providerWrapper);
 		/** Corresponds to LocationListener.onProviderDisabled() */
@@ -35,17 +36,23 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 		void onAddressChanged(ProviderWrapper providerWrapper);		
 	}
 	
-	public interface GpsCallback {
+	public interface GpsCallback extends ListeningElement.Callback {
 		/** Corresponds to GpsStatus.Listener.onGpsStatusChanged() */
 		void onGpsStatusChanged(Location location);
 		/** Corresponds to GpsStatus.NmeaListener.onNmeaReceived() */		
 		void onNmeaReceived(Location location);
 	}
 	
+	//TODO implement this
+	public static final int THROTTLE_COUNT = 3;
+	public static final int THROTTLE_INDEX_GPSSTATUS = 0;
+	public static final int THROTTLE_INDEX_LOCATION = 1;
+	public static final int THROTTLE_INDEX_ADDRESS = 2;
+	
 	// GPS Status update throttle (ms)
-	public static final int GPSSTATUS_FREQUENCY_HIGH = 500;
-	public static final int GPSSTATUS_FREQUENCY_MEDIUM = 1000;
-	public static final int GPSSTATUS_FREQUENCY_LOW = 2000;
+	public static final int GPSSTATUS_FREQUENCY_HIGH = 1000;
+	public static final int GPSSTATUS_FREQUENCY_MEDIUM = 2000;
+	public static final int GPSSTATUS_FREQUENCY_LOW = 3000;
 	
 	// Network/GPS location update throttle (ms)
 	public static final int LOCATION_FREQUENCY_HIGH = 1000;
@@ -62,7 +69,6 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 	private final List<ProviderWrapper> mProviders;
 	
 	private GpsCallback mGpsCallback;	
-	private boolean mIsListening;
 	
 	private GpsStatus mGpsStatus;		
 	private int mLastGpsStatusEvent;
@@ -87,6 +93,7 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 	public final String GPS_EVENT_STOPPED;
 	
 	public Location(Context context) {
+		super(THROTTLE_COUNT);
 		mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		mGeocoder = new Geocoder(context, Locale.getDefault());
 		mProviders = new ArrayList<ProviderWrapper>();
@@ -141,44 +148,42 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 		}
 	}
 	
-	public void startListening() {
-		startListening(true);
-	}
-	
-	public void startListening(boolean onlyIfCallbackSet) {
-		if (mIsListening || (onlyIfCallbackSet && mGpsCallback == null)) return;
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
 		mLocationManager.addGpsStatusListener(this);
 		mLocationManager.addNmeaListener(this);
-		mIsListening = true;
-	}
-	
-	public void stopListening() {
-		if (!mIsListening) return;		
-		mLocationManager.removeGpsStatusListener(this);
-		mLocationManager.removeNmeaListener(this);
-		mIsListening = false;
-	}
-	
-	public void startListeningAll() {
-		startListeningAll(true);
-	}
-	
-	public void startListeningAll(boolean onlyIfCallbackSet) {
-		startListening(onlyIfCallbackSet);
 		for (ProviderWrapper pw : mProviders) {
 			pw.startListening(onlyIfCallbackSet);
 		}
+		return setListening(true);
 	}
 	
-	public void stopListeningAll() {
-		stopListening();
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
+		mLocationManager.removeGpsStatusListener(this);
+		mLocationManager.removeNmeaListener(this);
 		for (ProviderWrapper pw : mProviders) {
 			pw.stopListening();
 		}
+		return !setListening(false);
 	}
 	
-	public boolean isListening() {
-		return mIsListening;
+	public boolean isAnyListening() {
+		if (isListening()) return true;
+		for (ProviderWrapper pw : mProviders) {
+			if (pw.isListening()) return true;
+		}
+		return false;
+	}
+	
+	public boolean isAllListening() {
+		if (!isListening()) return false;
+		for (ProviderWrapper pw : mProviders) {
+			if (!pw.isListening()) return false;
+		}
+		return true;
 	}
 	
 	public GpsStatus getGpsStatus() {
@@ -229,14 +234,6 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 		return mLastGpsStatusTimestamp;
 	}
 	
-	public GpsCallback getCallback() {
-		return mGpsCallback;
-	}
-	
-	public void setCallback(GpsCallback callback) {
-		mGpsCallback = callback;
-	}
-	
 	@Override
 	public void onGpsStatusChanged(int event) {
 		long time = System.currentTimeMillis();
@@ -244,7 +241,7 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 		mLastGpsStatusTimestamp = time;
 		mLastGpsStatusEvent = event;
 		updateGpsStatus();
-		if (mGpsCallback != null) mGpsCallback.onGpsStatusChanged(this);			
+		if (getCallback() != null) ((GpsCallback) getCallback()).onGpsStatusChanged(this);			
 	}
 
 	@Override
@@ -252,7 +249,7 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 		mLastNmeaTimestamp = timestamp;
 		mLastNmea = nmea;
 		updateGpsStatus();
-		if (mGpsCallback != null) mGpsCallback.onNmeaReceived(this);
+		if (getCallback() != null) ((GpsCallback) getCallback()).onNmeaReceived(this);
 	}
 	
 	
@@ -278,7 +275,7 @@ public class Location extends Element implements GpsStatus.Listener, GpsStatus.N
 			mProviderString = provider;
 			mMinTime = LOCATION_FREQUENCY_MEDIUM;
 			mAddressUpdateFrequency = ADDRESS_FREQUENCY_MEDIUM;
-			updateProvider();			
+			updateProvider();
 		}
 		
 		public android.location.Location getLastKnownLocation() {

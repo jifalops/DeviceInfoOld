@@ -2,6 +2,8 @@ package com.jphilli85.deviceinfo.element.view;
 
 import android.content.Context;
 
+import com.jphilli85.deviceinfo.element.ListeningElement;
+
 
 public abstract class ListeningElementView extends ElementView implements PlayableSection.Callback {
 	protected ListeningElementView(Context context) {
@@ -13,8 +15,23 @@ public abstract class ListeningElementView extends ElementView implements Playab
 		return mHeader.isPlaying();
 	}
 		
-	public final void onActivityPause() {
+	public void onActivityPause() {
 		//TODO make preference
 		mHeader.pause();
+	}
+	
+	public void onActivityResume() {
+		//TODO make preference
+		mHeader.play();
+	}
+	
+	@Override
+	public void onPlay(PlayableSection section) {
+		((ListeningElement) getElement()).startListening();
+	}
+	
+	@Override
+	public void onPause(PlayableSection section) {
+		((ListeningElement) getElement()).stopListening();	
 	}
 }

@@ -540,91 +540,124 @@ public class Cpu extends ListeningElement {
 		}
 		
 		public float getUserPercent() {
-			float divisor = mUserPrevious;
-			if (divisor == 0) return 0;
-			return (mUser - mUserPrevious) / divisor  * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getUserDifference())) / totalDif) * 100;
 		}
 		
 		public float getNicePercent() {
-			float divisor = mNicePrevious;
-			if (divisor == 0) return 0;
-			return (mNice - mNicePrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getNiceDifference())) / totalDif) * 100;
 		}
 		
 		public float getSystemPercent() {
-			float divisor = mSystemPrevious;
-			if (divisor == 0) return 0;
-			return (mSystem - mSystemPrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getSystemDifference())) / totalDif) * 100;
 		}
 		
 		public float getIdlePercent() {
-			float divisor = mIdlePrevious;
-			if (divisor == 0) return 0;
-			return (mIdle - mIdlePrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getIdleDifference())) / totalDif) * 100;
 		}
 		
 		public float getIoWaitPercent() {
-			float divisor = mIoWaitPrevious;
-			if (divisor == 0) return 0;
-			return (mIoWait - mIoWaitPrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getIoWaitDifference())) / totalDif) * 100;
 		}
 		
 		public float getIntrPercent() {
-			float divisor = mIntrPrevious;
-			if (divisor == 0) return 0;
-			return (mIntr - mIntrPrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getIntrDifference())) / totalDif) * 100;
 		}
 		
 		public float getSoftIrqPercent() {
-			float divisor = mSoftIrqPrevious;
-			if (divisor == 0) return 0;
-			return (mSoftIrq - mSoftIrqPrevious) / divisor * 100;
+			float totalDif = getTotalDifference();
+			if (totalDif == 0) return 0;
+			return ((totalDif - (totalDif - getSoftIrqDifference())) / totalDif) * 100;
 		}
 		
 		/** User + Nice */
 		public float getUserTotalPercent() {
-			float divisor = mUserPrevious + mNicePrevious;
+			float idleDif = getIdleTotalDifference();
+			float systemDif = getSystemTotalDifference();
+			float divisor = getUserTotalDifference() + idleDif + systemDif;
 			if (divisor == 0) return 0;
-			return ((mUser - mUserPrevious) + (mNice - mNicePrevious))
-				/ divisor * 100;
+			return ((divisor - idleDif - systemDif) / divisor) * 100;
 		}
+		
+//		/** User + Nice */
+//		public float getUserTotalPercent() {
+//			float divisor = mUserPrevious + mNicePrevious;
+//			if (divisor == 0) return 0;
+//			return ((mUser - mUserPrevious) + (mNice - mNicePrevious))
+//				/ divisor * 100;
+//		}
 		
 		/** System + Intr + SoftIrq */
 		public float getSystemTotalPercent() {
-			float divisor = mSystemPrevious + mIntrPrevious + mSoftIrqPrevious;
+			float idleDif =  getIdleTotalDifference();
+			float userDif = getUserTotalDifference();
+			float divisor = getSystemTotalDifference() + idleDif + userDif;
 			if (divisor == 0) return 0;
-			return ((mSystem - mSystemPrevious) 
-				+ (mIntr - mIntrPrevious) 
-				+ (mSoftIrq - mSoftIrqPrevious))
-				/ divisor * 100;
+			return ((divisor - idleDif - userDif) / divisor) * 100;
 		}
+		
+//		/** System + Intr + SoftIrq */
+//		public float getSystemTotalPercent() {
+//			float divisor = mSystemPrevious + mIntrPrevious + mSoftIrqPrevious;
+//			if (divisor == 0) return 0;
+//			return ((mSystem - mSystemPrevious) 
+//				+ (mIntr - mIntrPrevious) 
+//				+ (mSoftIrq - mSoftIrqPrevious))
+//				/ divisor * 100;
+//		}
 		
 		/** Idle + IoWait */
 		public float getIdleTotalPercent() {
-			float divisor = mIdlePrevious + mIoWaitPrevious;
+			float userDif = getUserTotalDifference();
+			float systemDif = getSystemTotalDifference();
+			float divisor = getIdleTotalDifference() + userDif + systemDif;
 			if (divisor == 0) return 0;
-			return ((mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious))
-					/ divisor * 100;
+			return ((divisor - userDif - systemDif) / divisor) * 100;
 		}
 		
+//		/** Idle + IoWait */
+//		public float getIdleTotalPercent() {
+//			float divisor = mIdlePrevious + mIoWaitPrevious;
+//			if (divisor == 0) return 0;
+//			return ((mIdle - mIdlePrevious) + (mIoWait - mIoWaitPrevious))
+//					/ divisor * 100;
+//		}
+		
 		public float getTotalPercent() {
-			float divisor = mUserPrevious
-					+ mNicePrevious
-					+ mSystemPrevious
-					+ mIdlePrevious
-					+ mIoWaitPrevious
-					+ mIntrPrevious 
-					+ mSoftIrqPrevious;
+			float divisor = getTotalDifference();
 			if (divisor == 0) return 0;
-			return ((mUser - mUserPrevious)
-				+ (mNice - mNicePrevious)
-				+ (mSystem - mSystemPrevious) 
-				+ (mIdle - mIdlePrevious)
-				+ (mIoWait - mIoWaitPrevious)
-				+ (mIntr - mIntrPrevious)				
-				+ (mSoftIrq - mSoftIrqPrevious))
-				/ divisor * 100;
+			return ((divisor - getIdleTotalDifference()) / divisor) * 100;
 		}
+		
+//		public float getTotalPercent() {
+//			float divisor = mUserPrevious
+//					+ mNicePrevious
+//					+ mSystemPrevious
+//					+ mIdlePrevious
+//					+ mIoWaitPrevious
+//					+ mIntrPrevious 
+//					+ mSoftIrqPrevious;
+//			if (divisor == 0) return 0;
+//			return ((mUser - mUserPrevious)
+//				+ (mNice - mNicePrevious)
+//				+ (mSystem - mSystemPrevious) 
+//				+ (mIdle - mIdlePrevious)
+//				+ (mIoWait - mIoWaitPrevious)
+//				+ (mIntr - mIntrPrevious)				
+//				+ (mSoftIrq - mSoftIrqPrevious))
+//				/ divisor * 100;
+//		}
 
 		public long getUser() {
 			return mUser;

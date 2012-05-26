@@ -68,8 +68,15 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 					
 		TableSection table = new TableSection();
 		Section overallStatSection;
-		Subsection logicalCpuSubsection, statSubsection;
-		Section logicalCpuSection = new Section("Logical CPUs");				
+		Section logicalCpuSection;
+		Subsection statSubsection;	
+		
+		table.add("Number of Logical CPUs (cores)", String.valueOf(mCores));
+		add(table);
+		
+		overallStatSection = new Section("Overall CPU Stat");
+		overallStatSection.add(getCpuStatTable(mCores));
+		add(overallStatSection);
 		
 		LogicalCpu cpu;		
 		for (int i = 0; i < mCores; ++i) {						
@@ -81,7 +88,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 				mTransitionTime[i] = table.getValueTextView();
 				mFrequencyTime[i] = table.getValueTextView();
 				
-				logicalCpuSubsection = new Subsection("Logical CPU " + (i + 1));
+				logicalCpuSection = new Section("Logical CPU " + (i + 1));
 				table = new TableSection();
 				table.add("Frequency (MHz)", mFrequency[i]);
 				table.add("Frequency Distribution (MHz, %)", mFrequencyTime[i]);
@@ -92,22 +99,16 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 				table.add("Transition Latency (ns)", String.valueOf(cpu.getTransitionLatency()));
 				table.add("Available Governors", TextUtils.join(", ", cpu.getAvailableGovernors()));
 				table.add("Driver", cpu.getDriver());
-				logicalCpuSubsection.add(table);
+				logicalCpuSection.add(table);
 				
 				statSubsection = new Subsection("CPU Stat");			
 				statSubsection.add(getCpuStatTable(i));
 				
-				logicalCpuSubsection.add(statSubsection);
+				logicalCpuSection.add(statSubsection);
 				
-				logicalCpuSection.add(logicalCpuSubsection);			
+				add(logicalCpuSection);			
 		}
-			
-		
-		overallStatSection = new Section("Overall CPU Stat");
-		overallStatSection.add(getCpuStatTable(mCores));
-		
-		add(overallStatSection);
-		add(logicalCpuSection);
+
 		add(mCpuInfoSection);
 		
 		onUpdated();
@@ -178,14 +179,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 	public Element getElement() {
 		return mCpu;
 	}
-	@Override
-	public void onPlay(PlayableSection section) {
-		mCpu.startListening();
-	}
-	@Override
-	public void onPause(PlayableSection section) {
-		mCpu.stopListening();
-	}
+
 	@Override
 	public void onUpdated() {
 		mCpuInfoSection.getContent().removeAllViews();
