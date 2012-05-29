@@ -45,11 +45,7 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 	
 	protected CellularView(Context context) {
 		super(context);
-		mCellular = new Cellular(context);
-		mCellular.setCallback(this);
-				
-		Section section;
-//		Subsection subsection;
+		
 		TableSection table = new TableSection();
 		
 		mCallForwarding = table.getValueTextView();
@@ -79,6 +75,119 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		mGsmSignal = table.getValueTextView(); 
 		mIsGsm = table.getValueTextView();
 
+		
+	}
+
+	@Override
+	public Element getElement() {
+		return mCellular;
+	}
+
+	@Override
+	public void onCallForwardingIndicatorChanged(boolean cfi) {
+		mCallForwarding.setText(String.valueOf(cfi));
+	}
+
+	@Override
+	public void onCallStateChanged(String incomingNumber) {
+		mCallState.setText(mCellular.getCallState());
+		if (incomingNumber != null) mCallState.append(" (" + incomingNumber + ")");
+	}
+
+	@Override
+	public void onCellLocationChanged() {
+		Subsection subsection;
+		TableSection table = new TableSection();
+		
+		if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_CDMA) {
+			CdmaCellLocation loc = (CdmaCellLocation) mCellular.getCellLocation();				
+			mBaseStation.setText(String.valueOf(loc.getBaseStationId()));
+			mBaseLat.setText(String.valueOf(loc.getBaseStationLatitude()));
+			mBaseLon.setText(String.valueOf(loc.getBaseStationLongitude()));
+			mNetwork.setText(String.valueOf(loc.getNetworkId()));
+			mSystem.setText(String.valueOf(loc.getSystemId()));
+		}
+		else if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {
+			GsmCellLocation loc = (GsmCellLocation) mCellular.getTelephonyManager().getCellLocation();
+			mCell.setText(String.valueOf(loc.getCid()));
+			mLac.setText(String.valueOf(loc.getLac()));
+			mPsc.setText(String.valueOf(loc.getPsc()));
+		}
+		
+		// NeighboringCellInfo info
+		mNeighboringCellSection.getContent().removeAllViews();
+		List<NeighboringCellInfo> cells = mCellular.getTelephonyManager().getNeighboringCellInfo();
+		if (cells != null && cells.size() > 0) {
+			int i = 0;
+			for (NeighboringCellInfo info : cells) {
+				subsection = new Subsection("Neighboring Cell " + (i + 1));
+				table = new TableSection();
+				table.add("Cell ID", String.valueOf(info.getCid()));
+				table.add("Location Area Code", String.valueOf(info.getLac()));
+				table.add("Network Type", String.valueOf(info.getNetworkType()));
+				table.add("Primary Scrambling Code", String.valueOf(info.getPsc()));
+				table.add("Received Signal Strength Indication", String.valueOf(info.getRssi()));
+				subsection.add(table);
+				mNeighboringCellSection.add(subsection);
+				++i;
+			}
+			
+		}
+		else {
+			table.add("", "No known neighboring cells");
+			mNeighboringCellSection.add(table);
+		}
+		
+	}
+
+	@Override
+	public void onDataActivity() {
+		mDataActivity.setText(mCellular.getDataActivity());
+	}
+
+	@Override
+	public void onDataConnectionStateChanged() {
+		mDataConnectionState.setText(mCellular.getDataState());
+		mNetworkType.setText(mCellular.getNetworkType());
+	}
+
+	@Override
+	public void onMessageWaitingIndicatorChanged(boolean mwi) {
+		mMessageWaiting.setText(String.valueOf(mwi));
+	}
+
+	@Override
+	public void onServiceStateChanged() {
+		 mServiceState.setText(mCellular.getServiceStateString());
+	}
+
+	@Override
+	public void onSignalStrengthsChanged() {
+		if (mCellular.getSignalStrength() != null) {
+			mCdmaDbm.setText(String.valueOf(mCellular.getSignalStrength().getCdmaDbm()));
+			mCdmaEcio.setText(String.valueOf(mCellular.getSignalStrength().getCdmaEcio()));
+			mEvdoDbm.setText(String.valueOf(mCellular.getSignalStrength().getEvdoDbm()));
+			mEvdoEcio.setText(String.valueOf(mCellular.getSignalStrength().getEvdoEcio()));
+			mEvdoSn.setText(String.valueOf(mCellular.getSignalStrength().getEvdoSnr()));
+			mGsmBitError.setText(String.valueOf(mCellular.getSignalStrength().getGsmBitErrorRate()));
+			mGsmSignal.setText(String.valueOf(mCellular.getSignalStrength().getGsmSignalStrength()));
+			mIsGsm.setText(String.valueOf(mCellular.getSignalStrength().isGsm()));			
+		}
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mCellular = new Cellular(context);
+		mCellular.setCallback(this);
+	}
+
+	@Override
+	protected void onInitialized() {
+		
+		Section section;
+//		Subsection subsection;
+		TableSection table = new TableSection();
+		
 		section = new Section("Cell Location");
 		// CellLocation info
 //		if (mCellular.getCellLocation() != null) {
@@ -202,103 +311,6 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		onSignalStrengthsChanged();
 		
 		mHeader.play();
-	}
-
-	@Override
-	public Element getElement() {
-		return mCellular;
-	}
-
-	@Override
-	public void onCallForwardingIndicatorChanged(boolean cfi) {
-		mCallForwarding.setText(String.valueOf(cfi));
-	}
-
-	@Override
-	public void onCallStateChanged(String incomingNumber) {
-		mCallState.setText(mCellular.getCallState());
-		if (incomingNumber != null) mCallState.append(" (" + incomingNumber + ")");
-	}
-
-	@Override
-	public void onCellLocationChanged() {
-		Subsection subsection;
-		TableSection table = new TableSection();
-		
-		if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_CDMA) {
-			CdmaCellLocation loc = (CdmaCellLocation) mCellular.getCellLocation();				
-			mBaseStation.setText(String.valueOf(loc.getBaseStationId()));
-			mBaseLat.setText(String.valueOf(loc.getBaseStationLatitude()));
-			mBaseLon.setText(String.valueOf(loc.getBaseStationLongitude()));
-			mNetwork.setText(String.valueOf(loc.getNetworkId()));
-			mSystem.setText(String.valueOf(loc.getSystemId()));
-		}
-		else if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {
-			GsmCellLocation loc = (GsmCellLocation) mCellular.getTelephonyManager().getCellLocation();
-			mCell.setText(String.valueOf(loc.getCid()));
-			mLac.setText(String.valueOf(loc.getLac()));
-			mPsc.setText(String.valueOf(loc.getPsc()));
-		}
-		
-		// NeighboringCellInfo info
-		mNeighboringCellSection.getContent().removeAllViews();
-		List<NeighboringCellInfo> cells = mCellular.getTelephonyManager().getNeighboringCellInfo();
-		if (cells != null && cells.size() > 0) {
-			int i = 0;
-			for (NeighboringCellInfo info : cells) {
-				subsection = new Subsection("Neighboring Cell " + (i + 1));
-				table = new TableSection();
-				table.add("Cell ID", String.valueOf(info.getCid()));
-				table.add("Location Area Code", String.valueOf(info.getLac()));
-				table.add("Network Type", String.valueOf(info.getNetworkType()));
-				table.add("Primary Scrambling Code", String.valueOf(info.getPsc()));
-				table.add("Received Signal Strength Indication", String.valueOf(info.getRssi()));
-				subsection.add(table);
-				mNeighboringCellSection.add(subsection);
-				++i;
-			}
-			
-		}
-		else {
-			table.add("", "No known neighboring cells");
-			mNeighboringCellSection.add(table);
-		}
-		
-	}
-
-	@Override
-	public void onDataActivity() {
-		mDataActivity.setText(mCellular.getDataActivity());
-	}
-
-	@Override
-	public void onDataConnectionStateChanged() {
-		mDataConnectionState.setText(mCellular.getDataState());
-		mNetworkType.setText(mCellular.getNetworkType());
-	}
-
-	@Override
-	public void onMessageWaitingIndicatorChanged(boolean mwi) {
-		mMessageWaiting.setText(String.valueOf(mwi));
-	}
-
-	@Override
-	public void onServiceStateChanged() {
-		 mServiceState.setText(mCellular.getServiceStateString());
-	}
-
-	@Override
-	public void onSignalStrengthsChanged() {
-		if (mCellular.getSignalStrength() != null) {
-			mCdmaDbm.setText(String.valueOf(mCellular.getSignalStrength().getCdmaDbm()));
-			mCdmaEcio.setText(String.valueOf(mCellular.getSignalStrength().getCdmaEcio()));
-			mEvdoDbm.setText(String.valueOf(mCellular.getSignalStrength().getEvdoDbm()));
-			mEvdoEcio.setText(String.valueOf(mCellular.getSignalStrength().getEvdoEcio()));
-			mEvdoSn.setText(String.valueOf(mCellular.getSignalStrength().getEvdoSnr()));
-			mGsmBitError.setText(String.valueOf(mCellular.getSignalStrength().getGsmBitErrorRate()));
-			mGsmSignal.setText(String.valueOf(mCellular.getSignalStrength().getGsmSignalStrength()));
-			mIsGsm.setText(String.valueOf(mCellular.getSignalStrength().isGsm()));			
-		}
 	}
 	
 }

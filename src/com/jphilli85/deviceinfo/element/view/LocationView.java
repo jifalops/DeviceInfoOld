@@ -12,21 +12,21 @@ import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
 
 public class LocationView extends ListeningElementView implements Location.GpsCallback, Location.ProviderCallback {
-	private final Location mLocation;
+	private Location mLocation;
 	
-	private final TextView
+	private  TextView
 		mGpsStatusEvent, mGpsStatusMaxSatellites,
 		mGpsStatusFirstFix, mNmea, 
 		mBestProvider;
 	
-	private final TextView[] 
+	private  TextView[] 
 		mAccuracy, mPower, 
 		mAddress, mStatus,
 		mAltitude, mBearing,
 		mLatitude, mLongitude,
 		mSpeed, mEnabled;
 		
-	private final int mNumProviders;
+	private int mNumProviders;
 	private final Section mSatellitesSection;
 	
 	public LocationView() {
@@ -35,87 +35,13 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 	
 	protected LocationView(Context context) {
 		super(context);
-		mLocation = new Location(context);		
-		mNumProviders = mLocation.getProviders().size();
-		mLocation.setCallback(this);
-		for (ProviderWrapper pw : mLocation.getProviders()) {
-			pw.setCallback(this);
-		}
+		
 		
 		mSatellitesSection = new Section("Satellites");
 		
-		TableSection table = new TableSection();
 		
-		mGpsStatusEvent = table.getValueTextView();
-		mGpsStatusMaxSatellites = table.getValueTextView();
-		mGpsStatusFirstFix = table.getValueTextView();
-		mNmea = table.getValueTextView();
-		mBestProvider = table.getValueTextView();
 		
-		mAccuracy = new TextView[mNumProviders];
-		mPower = new TextView[mNumProviders];
-		mAddress = new TextView[mNumProviders];
-		mStatus = new TextView[mNumProviders];
-		mAltitude = new TextView[mNumProviders];
-		mBearing = new TextView[mNumProviders];
-		mLatitude = new TextView[mNumProviders];
-		mLongitude = new TextView[mNumProviders];
-		mSpeed = new TextView[mNumProviders];
-		mEnabled = new TextView[mNumProviders];
 		
-		for (int i = 0; i < mNumProviders; ++i) {
-			mAccuracy[i] = table.getValueTextView();
-			mPower[i] = table.getValueTextView();
-			mAddress[i] = table.getValueTextView();
-			mStatus[i] = table.getValueTextView();
-			mAltitude[i] = table.getValueTextView();
-			mBearing[i] = table.getValueTextView();
-			mLatitude[i] = table.getValueTextView();
-			mLongitude[i] = table.getValueTextView();
-			mSpeed[i] = table.getValueTextView();
-			mEnabled[i] = table.getValueTextView();
-		}
-		
-		table.add("Number of Providers", String.valueOf(mNumProviders));
-		table.add("Best Provider", mBestProvider);
-		add(table);
-		
-		ProviderWrapper pw;
-		Section section = new Section("Providers");
-		Subsection subsection;		
-		for (int i = 0; i < mNumProviders; ++i) {
-			pw = mLocation.getProviders().get(i);
-			subsection = new Subsection("Provider " + (i + 1) 
-					+ " (" + pw.getProviderString() + ")");
-			table = new TableSection();			
-			table.add("Enabled", mEnabled[i]);
-			table.add("Accuracy", pw.getAccuracyString());
-			table.add("Status", mStatus[i]);			
-			table.add("Power", mPower[i]);
-			table.add("Latitude", mLatitude[i]);
-			table.add("Longitude", mLongitude[i]);
-			table.add("Altitude (m)", mAltitude[i]);
-			table.add("Speed (m/s)", mSpeed[i]);
-			table.add("Bearing (°)", mBearing[i]);
-			table.add("Accuracy (m)", mAccuracy[i]);
-			table.add("Address", mAddress[i]);
-
-			table.add("HasMonetaryCost", String.valueOf(pw.getProvider().hasMonetaryCost()));
-			table.add("Requires Cellular", String.valueOf(pw.getProvider().requiresCell()));
-			table.add("Requires Network", String.valueOf(pw.getProvider().requiresNetwork()));
-			table.add("Requires Satellite", String.valueOf(pw.getProvider().requiresSatellite()));
-			table.add("Supports Altitude", String.valueOf(pw.getProvider().supportsAltitude()));
-			table.add("Supports Bearing", String.valueOf(pw.getProvider().supportsBearing()));
-			table.add("Supports Speed", String.valueOf(pw.getProvider().supportsSpeed()));
-			
-			subsection.add(table);
-			section.add(subsection);
-		}
-		
-		add(section);
-		add(mSatellitesSection);
-		
-		mHeader.play();
 	}
 
 	private int getProviderIndex(ProviderWrapper providerWrapper) {
@@ -234,6 +160,93 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 	@Override
 	public void onNmeaReceived(Location location) {
 		mNmea.setText(mLocation.getLastNmea());
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mLocation = new Location(context);		
+		mNumProviders = mLocation.getProviders().size();
+		mLocation.setCallback(this);
+		for (ProviderWrapper pw : mLocation.getProviders()) {
+			pw.setCallback(this);
+		}
+		
+		TableSection table = new TableSection();
+		
+		mGpsStatusEvent = table.getValueTextView();
+		mGpsStatusMaxSatellites = table.getValueTextView();
+		mGpsStatusFirstFix = table.getValueTextView();
+		mNmea = table.getValueTextView();
+		mBestProvider = table.getValueTextView();
+		
+		mAccuracy = new TextView[mNumProviders];
+		mPower = new TextView[mNumProviders];
+		mAddress = new TextView[mNumProviders];
+		mStatus = new TextView[mNumProviders];
+		mAltitude = new TextView[mNumProviders];
+		mBearing = new TextView[mNumProviders];
+		mLatitude = new TextView[mNumProviders];
+		mLongitude = new TextView[mNumProviders];
+		mSpeed = new TextView[mNumProviders];
+		mEnabled = new TextView[mNumProviders];
+		
+		for (int i = 0; i < mNumProviders; ++i) {
+			mAccuracy[i] = table.getValueTextView();
+			mPower[i] = table.getValueTextView();
+			mAddress[i] = table.getValueTextView();
+			mStatus[i] = table.getValueTextView();
+			mAltitude[i] = table.getValueTextView();
+			mBearing[i] = table.getValueTextView();
+			mLatitude[i] = table.getValueTextView();
+			mLongitude[i] = table.getValueTextView();
+			mSpeed[i] = table.getValueTextView();
+			mEnabled[i] = table.getValueTextView();
+		}
+	}
+
+	@Override
+	protected void onInitialized() {
+		TableSection table = new TableSection();
+		table.add("Number of Providers", String.valueOf(mNumProviders));
+		table.add("Best Provider", mBestProvider);
+		add(table);
+		
+		ProviderWrapper pw;
+		Section section = new Section("Providers");
+		Subsection subsection;		
+		for (int i = 0; i < mNumProviders; ++i) {
+			pw = mLocation.getProviders().get(i);
+			subsection = new Subsection("Provider " + (i + 1) 
+					+ " (" + pw.getProviderString() + ")");
+			table = new TableSection();			
+			table.add("Enabled", mEnabled[i]);
+			table.add("Accuracy", pw.getAccuracyString());
+			table.add("Status", mStatus[i]);			
+			table.add("Power", mPower[i]);
+			table.add("Latitude", mLatitude[i]);
+			table.add("Longitude", mLongitude[i]);
+			table.add("Altitude (m)", mAltitude[i]);
+			table.add("Speed (m/s)", mSpeed[i]);
+			table.add("Bearing (°)", mBearing[i]);
+			table.add("Accuracy (m)", mAccuracy[i]);
+			table.add("Address", mAddress[i]);
+
+			table.add("HasMonetaryCost", String.valueOf(pw.getProvider().hasMonetaryCost()));
+			table.add("Requires Cellular", String.valueOf(pw.getProvider().requiresCell()));
+			table.add("Requires Network", String.valueOf(pw.getProvider().requiresNetwork()));
+			table.add("Requires Satellite", String.valueOf(pw.getProvider().requiresSatellite()));
+			table.add("Supports Altitude", String.valueOf(pw.getProvider().supportsAltitude()));
+			table.add("Supports Bearing", String.valueOf(pw.getProvider().supportsBearing()));
+			table.add("Supports Speed", String.valueOf(pw.getProvider().supportsSpeed()));
+			
+			subsection.add(table);
+			section.add(subsection);
+		}
+		
+		add(section);
+		add(mSatellitesSection);
+		
+		mHeader.play();
 	}
 
 }

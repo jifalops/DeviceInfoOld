@@ -21,8 +21,8 @@ public abstract class ListeningElementView extends ElementView implements Playab
 	}
 	
 	public void onActivityResume() {
-		//TODO make preference
-		mHeader.play();
+		//TODO make preference (caused error)
+//		mHeader.play();
 	}
 	
 	@Override

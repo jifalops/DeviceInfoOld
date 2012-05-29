@@ -7,7 +7,7 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.view.ViewGroup.LayoutParams;
 
 import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
@@ -15,7 +15,8 @@ import com.jphilli85.deviceinfo.element.Graphics;
 
 
 public class GraphicsView extends ListeningElementView implements Graphics.Callback {
-	private final Graphics mGraphics;
+	private Graphics mGraphics;
+	private final GLSurfaceView mGlSurfaceView;
 	
 	public GraphicsView() {
 		this(DeviceInfo.getContext());
@@ -23,15 +24,8 @@ public class GraphicsView extends ListeningElementView implements Graphics.Callb
 	
 	protected GraphicsView(Context context) {
 		super(context);
-		GLSurfaceView surface = new GLSurfaceView(context);
-		add(surface);
-		mGraphics = new Graphics(surface);		
-		mGraphics.setCallback(this);
-		
-		
-		//stuff
-		
-		mHeader.play();
+		mGlSurfaceView = new GLSurfaceView(context);
+		mGlSurfaceView.setLayoutParams(new LayoutParams(1, 1));
 		
 	}
 
@@ -49,7 +43,7 @@ public class GraphicsView extends ListeningElementView implements Graphics.Callb
 	@Override
 	public void onActivityResume() {	
 		super.onActivityResume();
-		mGraphics.onResume();
+		if (mGraphics != null) mGraphics.onResume();
 	}
 
 	@Override
@@ -62,16 +56,33 @@ public class GraphicsView extends ListeningElementView implements Graphics.Callb
 				showElementContents();				
 			}
 		});
-		Log.d("GraphicsView", "onSurfaceCreated: Main thread? " + DeviceInfo.isOnMainThread());
+//		Log.d("GraphicsView", "onSurfaceCreated: Main thread? " + DeviceInfo.isOnMainThread());
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		Log.d("GraphicsView", "onSurfaceChanged: Main thread? " + DeviceInfo.isOnMainThread());
+//		Log.d("GraphicsView", "onSurfaceChanged: Main thread? " + DeviceInfo.isOnMainThread());
 	}
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
-		Log.d("GraphicsView", "onDrawFrame: Main thread? " + DeviceInfo.isOnMainThread());
+//		Log.d("GraphicsView", "onDrawFrame: Main thread? " + DeviceInfo.isOnMainThread());
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mGraphics = new Graphics(mGlSurfaceView);		
+		mGraphics.setCallback(this);
+	}
+
+	@Override
+	protected void onInitialized() {
+		add(mGlSurfaceView);
+		
+		
+		
+		//stuff
+		
+		mHeader.play();
 	}
 }

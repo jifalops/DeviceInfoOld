@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -69,8 +70,11 @@ public abstract class ElementView extends AbstractElementView {
 				break;
 			}
 		}
+		new InitializeTask().execute(context);
 	}
 
+	protected abstract void initialize(Context context);
+	protected abstract void onInitialized();
 	protected abstract Element getElement();
 
 	protected final void add(View view) {
@@ -116,5 +120,24 @@ public abstract class ElementView extends AbstractElementView {
 		}
 		mHeader.getContent().removeAllViews();
 		add(table);
+	}
+	
+	private class InitializeTask extends AsyncTask<Context, Void, Void> {
+		@Override
+		protected void onPreExecute() {		
+			//TODO mHeader.showProgressThingy
+		}
+		
+		@Override
+		protected Void doInBackground(Context... params) {
+			initialize(params[0]);
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO mHeader.hideProgressThingy
+			onInitialized();
+		}
 	}
 }

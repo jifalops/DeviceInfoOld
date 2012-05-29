@@ -18,10 +18,24 @@ public class KeysView extends ElementView {
 	protected KeysView(Context context) {
 		super(context);
 		
+		
+	}
+
+	@Override
+	public Element getElement() {
+		return mKeys; //TODO can be null (disable save)
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		try { mKeys = new Keys(context); } 
+		catch (UnavailableFeatureException e) {}	
+	}
+
+	@Override
+	protected void onInitialized() {
 		ListSection list = new ListSection();
 		
-		try { mKeys = new Keys(context); } 
-		catch (UnavailableFeatureException e) {}		
 		
 		if (mKeys != null) {
 			Section section = new Section("Available");
@@ -43,11 +57,6 @@ public class KeysView extends ElementView {
 			list.add("You device does not support this");
 			add(list);
 		}		
-	}
-
-	@Override
-	public Element getElement() {
-		return mKeys; //TODO can be null (disable save)
 	}
 
 }

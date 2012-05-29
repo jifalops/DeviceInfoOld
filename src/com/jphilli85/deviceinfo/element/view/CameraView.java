@@ -19,9 +19,21 @@ public class CameraView extends ElementView {
 	}
 	
 	protected CameraView(Context context) {
-		super(context);
+		super(context);	
+	}
+
+	@Override
+	public Element getElement() {
+		return mCamera;
+	}
+
+	@Override
+	protected void initialize(Context context) {
 		mCamera = new Camera(context);
-		
+	}
+
+	@Override
+	protected void onInitialized() {
 		TableSection table = new TableSection();		
 		table.add("Number of Cameras", String.valueOf(mCamera.getNumCameras()));
 		add(table);
@@ -48,10 +60,5 @@ public class CameraView extends ElementView {
 			section.add(table);	
 			add(section);
 		}		
-	}
-
-	@Override
-	public Element getElement() {
-		return mCamera;
 	}
 }

@@ -8,7 +8,7 @@ import com.jphilli85.deviceinfo.element.Features;
 
 
 public class FeaturesView extends ElementView {
-	private final Features mFeatures;
+	private Features mFeatures;
 	
 	public FeaturesView() {
 		this(DeviceInfo.getContext());
@@ -16,8 +16,23 @@ public class FeaturesView extends ElementView {
 	
 	protected FeaturesView(Context context) {
 		super(context);
-		mFeatures = new Features(context);
 		
+		
+		
+	}
+
+	@Override
+	public Element getElement() {
+		return mFeatures;
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mFeatures = new Features(context);
+	}
+
+	@Override
+	protected void onInitialized() {
 		ListSection list = new ListSection();
 		
 		Section section = new Section("Available");		
@@ -34,11 +49,6 @@ public class FeaturesView extends ElementView {
 		}
 		section.add(list);
 		add(section);
-	}
-
-	@Override
-	public Element getElement() {
-		return mFeatures;
 	}
 
 }

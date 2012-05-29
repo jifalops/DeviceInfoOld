@@ -33,9 +33,6 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 	public BatteryView(Context context) {
 		super(context);
 		
-		mBattery = new Battery(context);
-		mBattery.setCallback(this);				
-		
 		TableSection table = new TableSection();
 		
 		mTimestamp = table.getValueTextView();
@@ -49,27 +46,7 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 		mPresent = table.getValueTextView();
 		mIcon = new ImageView(context);
 		
-		mTimeView = new TimeView(mTimestamp);
-		
-		table.add("Level", mLevel);
-		// TODO celcius and farenheit
-		table.add("Temperature", mTemp);
-		table.add("Status",  mStatus);
-		table.add("Plugged Status", mPluggedStatus);
-		table.add("Voltage", mVoltage);
-		table.add("Technology", mTechnology);
-		table.add("Health", mHealth);
-		table.add("Present", mPresent);
-		table.add("System icon", mIcon);
-		table.add("Since Last Change", mTimestamp);
-		
-	
-		add(table);
-		
-		// initialize
-		onReceive(null, null);
-		// simulate a play click
-		mHeader.play();
+		mTimeView = new TimeView(mTimestamp);			
 	}
 
 	@Override
@@ -103,5 +80,36 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 	public void onPause(PlayableSection section) {
 		super.onPause(section);
 		mTimeView.stop();
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mBattery = new Battery(context);
+		mBattery.setCallback(this);	
+	}
+
+	@Override
+	protected void onInitialized() {
+		TableSection table = new TableSection();
+		
+		table.add("Level", mLevel);
+		// TODO celcius and farenheit
+		table.add("Temperature", mTemp);
+		table.add("Status",  mStatus);
+		table.add("Plugged Status", mPluggedStatus);
+		table.add("Voltage", mVoltage);
+		table.add("Technology", mTechnology);
+		table.add("Health", mHealth);
+		table.add("Present", mPresent);
+		table.add("System icon", mIcon);
+		table.add("Since Last Change", mTimestamp);
+		
+	
+		add(table);
+		
+		// initialize
+		onReceive(null, null);
+		// simulate a play click
+		mHeader.play();
 	}
 }

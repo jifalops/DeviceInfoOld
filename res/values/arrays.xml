@@ -47,8 +47,8 @@
     <integer-array name="group3">
         <item>7</item>
         <item>1</item>
-        <item>9</item>
         <item>4</item>
+        <item>9</item>
     </integer-array>
     <integer-array name="group4">
         <item>2</item>

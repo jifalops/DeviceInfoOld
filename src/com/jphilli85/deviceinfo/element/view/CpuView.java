@@ -16,11 +16,11 @@ import com.jphilli85.deviceinfo.element.Element;
 
 
 public class CpuView extends ListeningElementView implements Cpu.Callback {
-	private final Cpu mCpu;
+	private Cpu mCpu;
 	private final Section mCpuInfoSection;
-	private final int mCores;
+	private int mCores;
 	
-	private final TextView[] 
+	private TextView[] 
 			// LogicalCpu
 			mFrequency, mGovernor,
 			mTransitions, mTransitionTime,
@@ -38,81 +38,9 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 	}
 	protected CpuView(Context context) {
 		super(context);
-		mCpu = new Cpu();
-		mCpu.setCallback(this);
+		
 		
 		mCpuInfoSection = new Section("CPU Info");
-		
-		mCores = mCpu.getLogicalCpus().size();	
-		
-		mFrequency = new TextView[mCores];
-		mTransitions = new TextView[mCores];
-		mGovernor = new TextView[mCores];
-		mTransitionTime = new TextView[mCores];
-		mFrequencyTime = new TextView[mCores];
-		
-		int stats = mCores + 1;
-		mUserPercent = new TextView[stats]; 
-		mNicePercent = new TextView[stats]; 
-		mSystemPercent = new TextView[stats];
-		mIdlePercent = new TextView[stats];
-		mIoWaitPercent = new TextView[stats]; 
-		mIntrPercent = new TextView[stats];
-		mSoftIrqPercent = new TextView[stats];
-		mUserTotal = new TextView[stats];
-		mSystemTotal = new TextView[stats];
-		mIdleTotal = new TextView[stats]; 
-		mTotal = new TextView[stats];
-		
-		
-					
-		TableSection table = new TableSection();
-		Section overallStatSection;
-		Section logicalCpuSection;
-		Subsection statSubsection;	
-		
-		table.add("Number of Logical CPUs (cores)", String.valueOf(mCores));
-		add(table);
-		
-		overallStatSection = new Section("Overall CPU Stat");
-		overallStatSection.add(getCpuStatTable(mCores));
-		add(overallStatSection);
-		
-		LogicalCpu cpu;		
-		for (int i = 0; i < mCores; ++i) {						
-				cpu = mCpu.getLogicalCpus().get(i);
-				
-				mFrequency[i] = table.getValueTextView();
-				mTransitions[i] = table.getValueTextView();
-				mGovernor[i] = table.getValueTextView();
-				mTransitionTime[i] = table.getValueTextView();
-				mFrequencyTime[i] = table.getValueTextView();
-				
-				logicalCpuSection = new Section("Logical CPU " + (i + 1));
-				table = new TableSection();
-				table.add("Frequency (MHz)", mFrequency[i]);
-				table.add("Frequency Distribution (MHz, %)", mFrequencyTime[i]);
-				table.add("Governor", mGovernor[i]);
-				table.add("Transitions", mTransitions[i]);
-				table.add("Time in Transitions", mTransitionTime[i]);
-				
-				table.add("Transition Latency (ns)", String.valueOf(cpu.getTransitionLatency()));
-				table.add("Available Governors", TextUtils.join(", ", cpu.getAvailableGovernors()));
-				table.add("Driver", cpu.getDriver());
-				logicalCpuSection.add(table);
-				
-				statSubsection = new Subsection("CPU Stat");			
-				statSubsection.add(getCpuStatTable(i));
-				
-				logicalCpuSection.add(statSubsection);
-				
-				add(logicalCpuSection);			
-		}
-
-		add(mCpuInfoSection);
-		
-		onUpdated();
-		mHeader.play();
 	}
 	
 	private TableSection getCpuStatTable(int index) {
@@ -215,6 +143,82 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 		mSystemTotal[index].setText(String.valueOf((stat.getSystemTotalPercent())));
 		mIdleTotal[index].setText(String.valueOf((stat.getIdleTotalPercent())));
 		mTotal[index].setText(String.valueOf((stat.getTotalPercent())));
+	}
+	@Override
+	protected void initialize(Context context) {
+		mCpu = new Cpu();
+		mCpu.setCallback(this);
+		
+		mCores = mCpu.getLogicalCpus().size();	
+		
+		mFrequency = new TextView[mCores];
+		mTransitions = new TextView[mCores];
+		mGovernor = new TextView[mCores];
+		mTransitionTime = new TextView[mCores];
+		mFrequencyTime = new TextView[mCores];
+		
+		int stats = mCores + 1;
+		mUserPercent = new TextView[stats]; 
+		mNicePercent = new TextView[stats]; 
+		mSystemPercent = new TextView[stats];
+		mIdlePercent = new TextView[stats];
+		mIoWaitPercent = new TextView[stats]; 
+		mIntrPercent = new TextView[stats];
+		mSoftIrqPercent = new TextView[stats];
+		mUserTotal = new TextView[stats];
+		mSystemTotal = new TextView[stats];
+		mIdleTotal = new TextView[stats]; 
+		mTotal = new TextView[stats];
+	}
+	@Override
+	protected void onInitialized() {
+		TableSection table = new TableSection();
+		Section overallStatSection;
+		Section logicalCpuSection;
+		Subsection statSubsection;	
+		
+		table.add("Number of Logical CPUs (cores)", String.valueOf(mCores));
+		add(table);
+		
+		overallStatSection = new Section("Overall CPU Stat");
+		overallStatSection.add(getCpuStatTable(mCores));
+		add(overallStatSection);
+		
+		LogicalCpu cpu;		
+		for (int i = 0; i < mCores; ++i) {						
+				cpu = mCpu.getLogicalCpus().get(i);
+				
+				mFrequency[i] = table.getValueTextView();
+				mTransitions[i] = table.getValueTextView();
+				mGovernor[i] = table.getValueTextView();
+				mTransitionTime[i] = table.getValueTextView();
+				mFrequencyTime[i] = table.getValueTextView();
+				
+				logicalCpuSection = new Section("Logical CPU " + (i + 1));
+				table = new TableSection();
+				table.add("Frequency (MHz)", mFrequency[i]);
+				table.add("Frequency Distribution (MHz, %)", mFrequencyTime[i]);
+				table.add("Governor", mGovernor[i]);
+				table.add("Transitions", mTransitions[i]);
+				table.add("Time in Transitions", mTransitionTime[i]);
+				
+				table.add("Transition Latency (ns)", String.valueOf(cpu.getTransitionLatency()));
+				table.add("Available Governors", TextUtils.join(", ", cpu.getAvailableGovernors()));
+				table.add("Driver", cpu.getDriver());
+				logicalCpuSection.add(table);
+				
+				statSubsection = new Subsection("CPU Stat");			
+				statSubsection.add(getCpuStatTable(i));
+				
+				logicalCpuSection.add(statSubsection);
+				
+				add(logicalCpuSection);			
+		}
+
+		add(mCpuInfoSection);
+		
+		onUpdated();
+		mHeader.play();
 	}
 
 }

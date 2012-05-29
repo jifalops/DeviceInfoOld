@@ -31,75 +31,13 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 	
 	protected BluetoothView(Context context) {
 		super(context);
-		try { mBluetooth = new Bluetooth(context); } 
-		catch (UnavailableFeatureException e) {
-			ListSection list = new ListSection();
-			list.add("Bluetooth not supported", null);
-			add(list);
-			return;
-		}
 		
-		mBluetooth.setCallback(this);
-		
-		
-		String address = mBluetooth.getBluetoothAdapter().getAddress();
-						
 		TableSection table = new TableSection();
 		
 		mA2dpProfile = table.getValueTextView();
 		mHeadsetProfile = table.getValueTextView();
 		mHeadsetProfileAudio = table.getValueTextView();
-		mHealthProfile = table.getValueTextView();
-		
-		table.add("Enabled", String.valueOf(mBluetooth.getBluetoothAdapter().isEnabled()));
-		table.add("Name", mBluetooth.getBluetoothAdapter().getName());
-		table.add("MAC Address", address);
-		table.add("Scan Mode", mBluetooth.getScanMode());
-		table.add("Adapter State", mBluetooth.getAdapterState());
-		table.add("Discovering", String.valueOf(mBluetooth.getBluetoothAdapter().isDiscovering()));
-		
-		mAdapterDevice = mBluetooth.getBluetoothAdapter().getRemoteDevice(address);
-		if (mAdapterDevice == null) table.add("Adapter Device", "");
-		else {
-			table.add("Paired State", mBluetooth.getBondState(mAdapterDevice.getBondState()));
-			BluetoothClass cls = mAdapterDevice.getBluetoothClass();
-			if (cls == null) table.add("Bluetooth Class", "");
-			else {
-				table.add("Major Class", mBluetooth.getDeviceMajorType(cls.getMajorDeviceClass()));
-				table.add("Minor Class", mBluetooth.getDeviceType(cls.getDeviceClass()));
-				table.add("Services", TextUtils.join(", ", mBluetooth.getServices(cls)));
-			}
-		}
-		
-		table.add("A2DP Profile Connection State", mA2dpProfile);			
-		table.add("Headset Profile Connection State", mHeadsetProfile);
-		table.add("Headset Profile Audio Connected", mHeadsetProfileAudio);	
-		table.add("Health Profile Connection State", mHealthProfile);		
-	
-		Section adapter = new Section("Adapter");
-		adapter.add(table);
-		Section devices = new Section("Devices");
-		Set<BluetoothDevice> devs = mBluetooth.getBluetoothAdapter().getBondedDevices();
-		if (devs == null) {
-			ListSection list = new ListSection();
-			list.add(null, "No known devices");
-			devices.add(list);			
-		}
-		else {
-			int i = 1;
-			for (BluetoothDevice d : devs) {
-				Subsection section = new Subsection("Device " + i);
-				section.add(getDeviceTable(d));
-				devices.add(section);
-				++i;
-			}
-		}
-		
-		add(adapter);
-		add(devices);
-		
-		update();
-		mHeader.play();
+		mHealthProfile = table.getValueTextView();				
 	}
 	
 	private TableSection getDeviceTable(BluetoothDevice dev) {
@@ -180,5 +118,75 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 						mBluetooth.getHeadsetProfile().isAudioConnected(mAdapterDevice)));				
 			}
 		}
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		try { mBluetooth = new Bluetooth(context); } 
+		catch (UnavailableFeatureException ignored) {}
+	}
+
+	@Override
+	protected void onInitialized() {
+		if (mBluetooth == null) {
+			ListSection list = new ListSection();
+			list.add("Bluetooth not supported", null);
+			add(list);
+			return;
+		}
+		
+		mBluetooth.setCallback(this);
+		
+		TableSection table = new TableSection();
+		String address = mBluetooth.getBluetoothAdapter().getAddress();
+		table.add("Enabled", String.valueOf(mBluetooth.getBluetoothAdapter().isEnabled()));
+		table.add("Name", mBluetooth.getBluetoothAdapter().getName());
+		table.add("MAC Address", address);
+		table.add("Scan Mode", mBluetooth.getScanMode());
+		table.add("Adapter State", mBluetooth.getAdapterState());
+		table.add("Discovering", String.valueOf(mBluetooth.getBluetoothAdapter().isDiscovering()));
+		
+		mAdapterDevice = mBluetooth.getBluetoothAdapter().getRemoteDevice(address);
+		if (mAdapterDevice == null) table.add("Adapter Device", "");
+		else {
+			table.add("Paired State", mBluetooth.getBondState(mAdapterDevice.getBondState()));
+			BluetoothClass cls = mAdapterDevice.getBluetoothClass();
+			if (cls == null) table.add("Bluetooth Class", "");
+			else {
+				table.add("Major Class", mBluetooth.getDeviceMajorType(cls.getMajorDeviceClass()));
+				table.add("Minor Class", mBluetooth.getDeviceType(cls.getDeviceClass()));
+				table.add("Services", TextUtils.join(", ", mBluetooth.getServices(cls)));
+			}
+		}
+		
+		table.add("A2DP Profile Connection State", mA2dpProfile);			
+		table.add("Headset Profile Connection State", mHeadsetProfile);
+		table.add("Headset Profile Audio Connected", mHeadsetProfileAudio);	
+		table.add("Health Profile Connection State", mHealthProfile);		
+	
+		Section adapter = new Section("Adapter");
+		adapter.add(table);
+		Section devices = new Section("Devices");
+		Set<BluetoothDevice> devs = mBluetooth.getBluetoothAdapter().getBondedDevices();
+		if (devs == null) {
+			ListSection list = new ListSection();
+			list.add(null, "No known devices");
+			devices.add(list);			
+		}
+		else {
+			int i = 1;
+			for (BluetoothDevice d : devs) {
+				Subsection section = new Subsection("Device " + i);
+				section.add(getDeviceTable(d));
+				devices.add(section);
+				++i;
+			}
+		}
+		
+		add(adapter);
+		add(devices);
+		
+		update();
+		mHeader.play();
 	}
 }

@@ -9,7 +9,7 @@ import com.jphilli85.deviceinfo.element.Element;
 
 
 public class AudioView extends ElementView {
-	private final Audio mAudio;
+	private Audio mAudio;
 
 	public AudioView() {
 		this(DeviceInfo.getContext());
@@ -17,8 +17,20 @@ public class AudioView extends ElementView {
 	
 	public AudioView(Context context) {
 		super(context);
+	}
+	
+	@Override
+	public Element getElement() {
+		return mAudio;
+	}
+
+	@Override
+	protected void initialize(Context context) {
 		mAudio = new Audio(context);
-		
+	}
+
+	@Override
+	protected void onInitialized() {
 		TableSection table = new TableSection();
 		
 		table.add("Mode", mAudio.getMode());
@@ -42,10 +54,5 @@ public class AudioView extends ElementView {
 		table.add("Supported Formats", TextUtils.join(", ", mAudio.getSupportedFormats()));
 		table.add("Supported Sources", TextUtils.join(", ", mAudio.getSupportedSources()));		
 		add(table);
-	}
-	
-	@Override
-	public Element getElement() {
-		return mAudio;
 	}
 }

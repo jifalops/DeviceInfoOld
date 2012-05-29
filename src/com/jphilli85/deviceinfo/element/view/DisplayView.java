@@ -8,14 +8,29 @@ import com.jphilli85.deviceinfo.element.Element;
 
 
 public class DisplayView extends ElementView {
-	private final Display mDisplay;
+	private Display mDisplay;
 	
 	public DisplayView() {
 		this(DeviceInfo.getContext());
 	}
 	protected DisplayView(Context context) {
 		super(context);
+		
+		
+		
+	}
+
+	@Override
+	public Element getElement() {
+		return mDisplay;
+	}
+	@Override
+	protected void initialize(Context context) {
 		mDisplay = new Display(context);
+	}
+	@Override
+	protected void onInitialized() {
+		Context context = DeviceInfo.getContext();
 		
 		TableSection table = new TableSection();
 		
@@ -45,10 +60,5 @@ public class DisplayView extends ElementView {
 		table.add("Smallest Screen Width DP", String.valueOf(mDisplay.getSmallestScreenWidthDp(context)));
 		
 		add(table);
-	}
-
-	@Override
-	public Element getElement() {
-		return mDisplay;
 	}
 }

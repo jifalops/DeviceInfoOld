@@ -132,6 +132,18 @@ public class SensorsView extends ElementView {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	protected void initialize(Context context) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onInitialized() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 	

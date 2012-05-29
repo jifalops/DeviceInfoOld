@@ -8,7 +8,7 @@ import android.content.Context;
 
 
 public class IdentifiersView extends ElementView {
-	private final Identifiers mIdentifiers;
+	private Identifiers mIdentifiers;
 	
 	public IdentifiersView() {
 		this(DeviceInfo.getContext());
@@ -16,8 +16,23 @@ public class IdentifiersView extends ElementView {
 	
 	protected IdentifiersView(Context context) {
 		super(context);
-		mIdentifiers = new Identifiers(context);
 		
+		
+		
+	}
+
+	@Override
+	public Element getElement() {
+		return mIdentifiers;
+	}
+
+	@Override
+	protected void initialize(Context context) {
+		mIdentifiers = new Identifiers(context);
+	}
+
+	@Override
+	protected void onInitialized() {
 		TableSection table = new TableSection();
 
 		table.add("Device ID", mIdentifiers.DEVICE_ID);
@@ -32,11 +47,6 @@ public class IdentifiersView extends ElementView {
 		
 		//TODO more
 		//wifi, bt, others?
-	}
-
-	@Override
-	public Element getElement() {
-		return mIdentifiers;
 	}
 
 }
