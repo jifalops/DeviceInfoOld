@@ -34,4 +34,10 @@ public abstract class ListeningElementView extends ElementView implements Playab
 	public void onPause(PlayableSection section) {
 		((ListeningElement) getElement()).stopListening();	
 	}
+	
+	@Override
+	protected void onInitialized() {	
+		super.onInitialized();
+		mHeader.play();
+	}
 }

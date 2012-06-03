@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.widget.TextView;
 
@@ -31,6 +32,9 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 	
 	protected BluetoothView(Context context) {
 		super(context);
+		
+		try { mBluetooth = new Bluetooth(context); } 
+		catch (UnavailableFeatureException ignored) {}
 		
 		TableSection table = new TableSection();
 		
@@ -122,12 +126,8 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 
 	@Override
 	protected void initialize(Context context) {
-		try { mBluetooth = new Bluetooth(context); } 
-		catch (UnavailableFeatureException ignored) {}
-	}
-
-	@Override
-	protected void onInitialized() {
+		
+		
 		if (mBluetooth == null) {
 			ListSection list = new ListSection();
 			list.add("Bluetooth not supported", null);
@@ -187,6 +187,11 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 		add(devices);
 		
 		update();
-		mHeader.play();
+	}
+	
+	@Override
+	protected void onInitialized() {
+		if (mBluetooth != null) mBluetooth.setCallback(this);
+		super.onInitialized();
 	}
 }

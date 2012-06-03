@@ -9,6 +9,7 @@ import android.widget.ScrollView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
+import com.jphilli85.deviceinfo.element.view.AbstractElementView;
 import com.jphilli85.deviceinfo.element.view.ElementView;
 import com.jphilli85.deviceinfo.element.view.ListeningElementView;
 
@@ -46,25 +47,38 @@ public class DetailsFragment extends SherlockFragment {
     	mElements = elements;
     	mElementViews = new ElementView[elements.length];
     }
+	
+	public final boolean add(int elementIndex) {	
+		
+		
+		return true;
+	}
     
     private void loadElements() {
     	if (mLayout == null) return;
-    	
-    	new Thread(new Runnable() {			
-			@Override
-			public void run() {
-				ElementView.add(mElements);
-			}
-		}).run();
+    	Class<? extends AbstractElementView> ev = null;
+    	for (int i = 0; i < mElements.length; ++i) {
+    		ev = DeviceInfo.getAbstractView(mElements[i]);
+    		if (ev == null) continue;
+    		
+    		try { 
+    			mElementViews[i] = ((ElementView) ev.newInstance());
+    			mElementViews[i].addToLayout(mLayout);
+			} 
+    		catch (java.lang.InstantiationException e) {} 
+    		catch (IllegalAccessException e) {} 
+    		catch (ClassCastException e) {}     		
+    	}
     	    	
-    	ElementView.addToLayout(mLayout);
+    	
 //    	mSensorsView = new SensorsView(getActivity());
     	
 //    	mLayout.addView(mSensorsView.getLayoutWrapper());
     }
     
+    
     private void pauseElements() {
-    	for (ElementView ev : ElementView.getElementViews()) {
+    	for (ElementView ev : mElementViews) {
     		try { ((ListeningElementView) ev).onActivityPause(); }
     		catch (ClassCastException ignored) {}
     	}
@@ -82,7 +96,7 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void resumeElements() {
-    	for (ElementView ev : ElementView.getElementViews()) {
+    	for (ElementView ev : mElementViews) {
     		try { ((ListeningElementView) ev).onActivityResume(); }
     		catch (ClassCastException ignored) {}
     	}

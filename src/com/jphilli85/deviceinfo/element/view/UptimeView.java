@@ -1,37 +1,53 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import android.content.Context;
+import android.widget.TextView;
+
 import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
+import com.jphilli85.deviceinfo.element.Uptime;
 
-import android.content.Context;
 
-
-public class UptimeView extends ElementView {
+public class UptimeView extends ElementView implements Uptime.Callback {
+	private Uptime mUptime;
+	
+	private final TextView mTotal, mSleep, mAwake;
+	
 	public UptimeView() {
 		this(DeviceInfo.getContext());
 	}
 	
 	protected UptimeView(Context context) {
 		super(context);
-		// TODO Auto-generated constructor stub
+		
+		TableSection table = new TableSection();
+		mTotal = table.getValueTextView();
+		mSleep = table.getValueTextView();
+		mAwake = table.getValueTextView();
+		
+		table.add("Total", mTotal);
+		table.add("Asleep", mSleep);
+		table.add("Awake", mAwake);
+		add(table);
+		
+		mUptime = new Uptime();
 	}
 
 	@Override
 	public Element getElement() {
-		// TODO Auto-generated method stub
-		return null;
+		return mUptime;
 	}
 
 	@Override
-	protected void initialize(Context context) {
-		// TODO Auto-generated method stub
-		
+	protected void initialize(Context context) {		
+		mUptime.setCallback(this);
+		mUptime.startListening();
 	}
 
 	@Override
-	protected void onInitialized() {
-		// TODO Auto-generated method stub
-		
+	public void onUptimeUpdated(float uptimeTotal, float uptimeAsleep) {
+		mTotal.setText(DeviceInfo.getDuration((long) uptimeTotal));
+		mSleep.setText(DeviceInfo.getDuration((long) uptimeAsleep));
+		mAwake.setText(DeviceInfo.getDuration((long) (uptimeTotal - uptimeAsleep)));
 	}
-
 }

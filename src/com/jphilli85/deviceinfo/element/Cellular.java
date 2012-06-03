@@ -91,7 +91,7 @@ public class Cellular extends ThrottledListeningElement {
     public final String STATE_POWER_OFF;
     
     private final TelephonyManager mTelephonyManager;    
-    private final PhoneStateListener mListener;
+    private PhoneStateListener mListener;
     
     private final int mMcc;
     private final int mMnc;
@@ -103,8 +103,7 @@ public class Cellular extends ThrottledListeningElement {
 	public Cellular(Context context) {
 		super(THROTTLE_COUNT);
 		
-		mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);		
-		mListener = new MyPhoneStateListener();
+		mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);				
 		
 		Configuration config = context.getResources().getConfiguration();
 		mMcc = config.mcc;
@@ -306,6 +305,7 @@ public class Cellular extends ThrottledListeningElement {
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		if (!super.startListening(onlyIfCallbackSet)) return false;
+		mListener = new MyPhoneStateListener();
 		mTelephonyManager.listen(mListener,
 			PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR
 			| PhoneStateListener.LISTEN_CALL_STATE

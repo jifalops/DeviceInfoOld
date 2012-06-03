@@ -86,10 +86,7 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 	protected void initialize(Context context) {
 		mBattery = new Battery(context);
 		mBattery.setCallback(this);	
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		TableSection table = new TableSection();
 		
 		table.add("Level", mLevel);
@@ -109,7 +106,5 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 		
 		// initialize
 		onReceive(null, null);
-		// simulate a play click
-		mHeader.play();
 	}
 }

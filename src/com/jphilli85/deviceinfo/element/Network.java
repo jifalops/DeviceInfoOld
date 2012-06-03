@@ -19,7 +19,7 @@ import android.os.Build;
 
 import com.jphilli85.deviceinfo.R;
 
-public class Network extends ListeningElement {
+public class Network extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
 	
 	// ConnectivityManager strings
@@ -181,6 +181,42 @@ public class Network extends ListeningElement {
 				.isNetworkTypeValid(ConnectivityManager.TYPE_DUMMY);
 		
 		return false;
+	}
+	
+	public String[] getValidNetworkTypes() {
+		List<String> list = new ArrayList<String>();
+		if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_WIFI))
+			list.add(TYPE_WIFI);
+		if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_MOBILE))
+			list.add(TYPE_MOBILE);
+		
+		if (API >= 8) {
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_MOBILE_DUN))
+				list.add(TYPE_MOBILE_DUN);
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_MOBILE_HIPRI))
+				list.add(TYPE_MOBILE_HIPRI);
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_MOBILE_MMS))
+				list.add(TYPE_MOBILE_MMS);
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_MOBILE_SUPL))
+				list.add(TYPE_MOBILE_SUPL);
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_WIMAX))
+				list.add(TYPE_WIMAX);
+		}
+		if (API >= 13) {
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_BLUETOOTH))
+				list.add(TYPE_BLUETOOTH);
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_ETHERNET))
+				list.add(TYPE_ETHERNET);	
+		}
+		if (API >= 14) {		
+			if (ConnectivityManager.isNetworkTypeValid(ConnectivityManager.TYPE_DUMMY))
+				list.add(TYPE_DUMMY);
+		}
+		return list.toArray(new String[list.size()]);
+	}
+	
+	public boolean isConnecting(NetworkInfo ni) {		
+		return ni.isConnectedOrConnecting() && !ni.isConnected();
 	}
 
 	@Override
@@ -358,17 +394,5 @@ public class Network extends ListeningElement {
 		}
 		
 		return contents;
-	}
-
-	@Override
-	public boolean startListening(boolean onlyIfCallbackSet) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean stopListening() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

@@ -1,37 +1,72 @@
 package com.jphilli85.deviceinfo.element.view;
 
-import com.jphilli85.deviceinfo.app.DeviceInfo;
-import com.jphilli85.deviceinfo.element.Element;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import android.content.Context;
+import android.widget.TextView;
+
+import com.jphilli85.deviceinfo.app.DeviceInfo;
+import com.jphilli85.deviceinfo.element.Element;
+import com.jphilli85.deviceinfo.element.Ram;
 
 
-public class RamView extends ElementView {
+public class RamView extends ListeningElementView implements Ram.Callback {
+	private Ram mRam;
+	private int mLastSize;
+	private TextView[] mValues;
+	
 	public RamView() {
 		this(DeviceInfo.getContext());
 	}
 	
 	protected RamView(Context context) {
 		super(context);
-		// TODO Auto-generated constructor stub
+		
+		
 	}
 
 	@Override
 	public Element getElement() {
-		// TODO Auto-generated method stub
-		return null;
+		return mRam;
 	}
 
 	@Override
 	protected void initialize(Context context) {
-		// TODO Auto-generated method stub
-		
+		mRam = new Ram();
+		mRam.setCallback(this);
 	}
 
 	@Override
-	protected void onInitialized() {
-		// TODO Auto-generated method stub
-		
+	public void onUpdated(LinkedHashMap<String, String> meminfo) {
+		if (meminfo.size() != mLastSize) {
+			mLastSize = meminfo.size();
+			mValues = new TextView[mLastSize + 1];					
+			
+			mHeader.getContent().removeAllViews();
+			TableSection table = new TableSection();
+			
+			mValues[0] = table.getValueTextView();
+			table.add("Usage (%)", mValues[0]);
+			mValues[0].setText(mRam.getUsagePercent());
+			
+			int i = 1;
+			for (Entry<String, String> e : meminfo.entrySet()) {	
+				mValues[i] = table.getValueTextView();
+				table.add(e.getKey(), mValues[i]);
+				mValues[i].setText(e.getValue());
+				++i;
+			}
+			add(table);
+		}
+		else {
+			mValues[0].setText(mRam.getUsagePercent());
+			int i = 1;
+			for (Entry<String, String> e : meminfo.entrySet()) {				
+				mValues[i].setText(e.getValue());
+				++i;
+			}
+		}
 	}
 
 }

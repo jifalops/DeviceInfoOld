@@ -6,18 +6,36 @@ import java.util.Map;
 
 import android.util.Log;
 
+import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.ShellHelper;
+import com.jphilli85.deviceinfo.app.DeviceInfo;
+import com.jphilli85.deviceinfo.element.Uptime.Callback;
 
-public class Ram extends Element {
+public class Ram extends ListeningElement {
 	private static final String LOG_TAG = Ram.class.getSimpleName();
 	
-	private LinkedHashMap<String, String> mMeminfo;
+	public interface Callback extends ListeningElement.Callback {
+		void onUpdated(LinkedHashMap<String, String> meminfo);
+	}
+	
+	private final LinkedHashMap<String, String> mMeminfo;
+	private final BackgroundRepeatingTask mUpdateTask;
 	
 	public Ram() {
 		mMeminfo = new LinkedHashMap<String, String>();
-		if (!updateMeminfo()) {
-			Log.e(LOG_TAG, "Error reading from '/proc/meminfo'."); 
-		}			
+		mUpdateTask = new BackgroundRepeatingTask(new Runnable() {			
+			@Override
+			public void run() {
+				updateMeminfo();
+			}
+		});		
+		mUpdateTask.setInterval(2000);
+		mUpdateTask.setCallback(new Runnable() {			
+			@Override
+			public void run() {
+				if (getCallback() != null) ((Callback) getCallback()).onUpdated(mMeminfo); 
+			}
+		});
 	}
 	
 	/** Get the current meminfo from /proc */
@@ -31,6 +49,7 @@ public class Ram extends Element {
         	if (parts.length != 2) continue;
         	mMeminfo.put(parts[0].trim(), parts[1].trim());
         }
+               
         return !mMeminfo.isEmpty();
     }
 	
@@ -44,12 +63,42 @@ public class Ram extends Element {
     }
 	
 	public String getTotal() {
-        return getMeminfo("MemTotal");     
+		return getMeminfo("MemTotal");
     }
 	
 	public String getFree() {
         return getMeminfo("MemFree");     
     }
+	
+	public String getUsagePercent() {
+		long total = getLongFromValue(getTotal());		
+		long using = total - getLongFromValue(getFree());
+		return Convert.round(DeviceInfo.getPercent(using, total), 1);		
+	}
+	
+	public long getLongFromValue(String value) {
+		if (value == null) return 0;
+		String[] parts = value.split("\\s+");
+		if (parts == null || parts.length == 0) return 0;
+		try { return Long.valueOf(parts[0]); }
+		catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+	
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
+		mUpdateTask.start();
+		return setListening(true);
+	}
+	
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
+		mUpdateTask.stop();
+		return !setListening(false);
+	}
 	
 	
 	@Override

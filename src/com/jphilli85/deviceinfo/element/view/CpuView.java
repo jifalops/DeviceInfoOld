@@ -169,9 +169,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 		mSystemTotal = new TextView[stats];
 		mIdleTotal = new TextView[stats]; 
 		mTotal = new TextView[stats];
-	}
-	@Override
-	protected void onInitialized() {
+		
 		TableSection table = new TableSection();
 		Section overallStatSection;
 		Section logicalCpuSection;
@@ -218,7 +216,5 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 		add(mCpuInfoSection);
 		
 		onUpdated();
-		mHeader.play();
 	}
-
 }

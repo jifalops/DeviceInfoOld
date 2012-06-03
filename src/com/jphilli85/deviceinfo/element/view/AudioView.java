@@ -27,10 +27,7 @@ public class AudioView extends ElementView {
 	@Override
 	protected void initialize(Context context) {
 		mAudio = new Audio(context);
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		TableSection table = new TableSection();
 		
 		table.add("Mode", mAudio.getMode());

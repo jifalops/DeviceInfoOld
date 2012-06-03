@@ -29,10 +29,7 @@ public class FeaturesView extends ElementView {
 	@Override
 	protected void initialize(Context context) {
 		mFeatures = new Features(context);
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		ListSection list = new ListSection();
 		
 		Section section = new Section("Available");		
@@ -50,5 +47,4 @@ public class FeaturesView extends ElementView {
 		section.add(list);
 		add(section);
 	}
-
 }

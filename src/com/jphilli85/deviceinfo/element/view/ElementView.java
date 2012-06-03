@@ -20,46 +20,10 @@ import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 
 public abstract class ElementView extends AbstractElementView {
-	private static final List<ElementView> sElementViews = new ArrayList<ElementView>();
+	
+	
 	protected Header mHeader;
 	private String mLabel;	
-	
-	public static final boolean add(int[] elementIndexes) {
-		sElementViews.clear();
-		if (elementIndexes == null) return false;
-		boolean result = true;		
-		for (int i : elementIndexes) {
-			if(!add(i)) result = false;			
-		}
-		return result;
-	}
-	
-	public static final boolean add(int elementIndex) {	
-		Class<? extends AbstractElementView> ev = DeviceInfo.getAbstractView(elementIndex);
-		if (ev == null) return false;
-		try {
-			sElementViews.add((ElementView) ev.newInstance());
-		} catch (InstantiationException e) {
-			return false;
-		} catch (IllegalAccessException e) {
-			return false;
-		} catch (ClassCastException e) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public static final List<ElementView> getElementViews() {
-		return sElementViews;
-	}
-	
-	public static final void addToLayout(ViewGroup layout) {
-	 	for (ElementView ev : sElementViews) {
-	 		if (ev.mHeader != null) ev.mHeader.addToLayout(layout); 
-	 	}
-		
-	}
 	
 	protected ElementView(Context context) {		
 		String[] elements = DeviceInfo.getElements();
@@ -73,9 +37,12 @@ public abstract class ElementView extends AbstractElementView {
 		new InitializeTask().execute(context);
 	}
 
-	protected abstract void initialize(Context context);
-	protected abstract void onInitialized();
+	protected abstract void initialize(Context context);	
 	protected abstract Element getElement();
+	
+	protected void onInitialized() {
+		showContent();
+	}
 
 	protected final void add(View view) {
 		if (mHeader != null) mHeader.add(view);	
@@ -83,7 +50,15 @@ public abstract class ElementView extends AbstractElementView {
 	
 	protected final void add(AbstractSection section) {
 		if (mHeader != null) mHeader.add(section);
-	}	
+	}
+	
+	protected final void showContent() {
+		if (mHeader != null) mHeader.showContent();
+	}
+	
+	public final void addToLayout(ViewGroup layout) {
+		if (mHeader != null) mHeader.addToLayout(layout);
+	}
 	
 	final void save() {	
 		if (getElement() == null) return;

@@ -14,7 +14,7 @@ import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Graphics;
 
 
-public class GraphicsView extends ListeningElementView implements Graphics.Callback {
+public class GraphicsView extends ElementView implements Graphics.Callback {
 	private Graphics mGraphics;
 	private final GLSurfaceView mGlSurfaceView;
 	
@@ -35,25 +35,14 @@ public class GraphicsView extends ListeningElementView implements Graphics.Callb
 	}
 
 	@Override
-	public void onActivityPause() {		
-		super.onActivityPause();
-		mGraphics.onPause();
-	}
-	
-	@Override
-	public void onActivityResume() {	
-		super.onActivityResume();
-		if (mGraphics != null) mGraphics.onResume();
-	}
-
-	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		Handler h = new Handler(Looper.getMainLooper());
 		h.post(new Runnable() {
 			
 			@Override
 			public void run() {
-				showElementContents();				
+				showElementContents();			
+				mGraphics.stopListening();
 			}
 		});
 //		Log.d("GraphicsView", "onSurfaceCreated: Main thread? " + DeviceInfo.isOnMainThread());
@@ -73,16 +62,8 @@ public class GraphicsView extends ListeningElementView implements Graphics.Callb
 	protected void initialize(Context context) {
 		mGraphics = new Graphics(mGlSurfaceView);		
 		mGraphics.setCallback(this);
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		add(mGlSurfaceView);
-		
-		
-		
-		//stuff
-		
-		mHeader.play();
+		mGraphics.startListening();
 	}
 }

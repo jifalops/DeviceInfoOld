@@ -15,9 +15,7 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 	private Location mLocation;
 	
 	private  TextView
-		mGpsStatusEvent, mGpsStatusMaxSatellites,
-		mGpsStatusFirstFix, mNmea, 
-		mBestProvider;
+		mGpsStatusEvent, mNmea,	mBestProvider;
 	
 	private  TextView[] 
 		mAccuracy, mPower, 
@@ -37,7 +35,7 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		super(context);
 		
 		
-		mSatellitesSection = new Section("Satellites");
+		mSatellitesSection = new Section("GPS");
 		
 		
 		
@@ -80,7 +78,6 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 			mSpeed[index].setText(null);
 		}
 		mPower[index].setText(providerWrapper.getPowerRequirementString());	
-		updateBestProvider();
 	}
 
 	@Override
@@ -97,7 +94,7 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 
 	@Override
 	public void onStatusChanged(ProviderWrapper providerWrapper) {
-		mStatus[getProviderIndex(providerWrapper)].setText(providerWrapper.getLastStatusString());
+		mStatus[getProviderIndex(providerWrapper)].setText(providerWrapper.getLastStatusString());		
 	}
 
 	@Override
@@ -108,7 +105,8 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		if (address == null) return;		
 		for (int i = 0; i < address.getMaxAddressLineIndex(); ++i) {
 			mAddress[index].append(address.getAddressLine(i) + "\n");	
-		}		
+		}	
+		updateBestProvider();
 	}
 
 	@Override
@@ -116,15 +114,15 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		mGpsStatusEvent.setText(mLocation.getLastGpsStatusEventString());
 		GpsStatus status = mLocation.getGpsStatus();
 		
-		mSatellitesSection.getContent().removeAllViews();
+		mSatellitesSection.getContent().removeAllViews();		
 		ListSection list = new ListSection();
 		list.add("No Satellites Visible");
 		
-		if (status != null) {
-			mGpsStatusFirstFix.setText(String.valueOf(status.getTimeToFirstFix()));
-			mGpsStatusMaxSatellites.setText(String.valueOf(status.getMaxSatellites()));
-			
+		if (status != null) {						
 			TableSection table = new TableSection();
+			table.add("First Fix (ms)", String.valueOf(status.getTimeToFirstFix()));
+			table.add("Max Satellites", String.valueOf(status.getMaxSatellites()));
+			
 			Iterable<GpsSatellite> sats = status.getSatellites();			
 			if (sats != null) {		
 				Subsection subsection;
@@ -151,8 +149,6 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 			else mSatellitesSection.add(list);
 		}
 		else {
-			mGpsStatusFirstFix.setText(null);
-			mGpsStatusMaxSatellites.setText(null);
 			mSatellitesSection.add(list);
 		}
 	}
@@ -174,8 +170,6 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		TableSection table = new TableSection();
 		
 		mGpsStatusEvent = table.getValueTextView();
-		mGpsStatusMaxSatellites = table.getValueTextView();
-		mGpsStatusFirstFix = table.getValueTextView();
 		mNmea = table.getValueTextView();
 		mBestProvider = table.getValueTextView();
 		
@@ -202,13 +196,10 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 			mSpeed[i] = table.getValueTextView();
 			mEnabled[i] = table.getValueTextView();
 		}
-	}
-
-	@Override
-	protected void onInitialized() {
-		TableSection table = new TableSection();
+		
 		table.add("Number of Providers", String.valueOf(mNumProviders));
-		table.add("Best Provider", mBestProvider);
+		table.add("Best Provider", mBestProvider);	
+		table.add("NMEA Message", mNmea);
 		add(table);
 		
 		ProviderWrapper pw;
@@ -245,8 +236,5 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		
 		add(section);
 		add(mSatellitesSection);
-		
-		mHeader.play();
 	}
-
 }

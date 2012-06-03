@@ -30,10 +30,7 @@ public class KeysView extends ElementView {
 	protected void initialize(Context context) {
 		try { mKeys = new Keys(context); } 
 		catch (UnavailableFeatureException e) {}	
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		ListSection list = new ListSection();
 		
 		
@@ -56,7 +53,6 @@ public class KeysView extends ElementView {
 		else { 
 			list.add("You device does not support this");
 			add(list);
-		}		
+		}	
 	}
-
 }

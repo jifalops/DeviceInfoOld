@@ -27,10 +27,6 @@ public class DisplayView extends ElementView {
 	@Override
 	protected void initialize(Context context) {
 		mDisplay = new Display(context);
-	}
-	@Override
-	protected void onInitialized() {
-		Context context = DeviceInfo.getContext();
 		
 		TableSection table = new TableSection();
 		

@@ -21,6 +21,7 @@ import android.os.Bundle;
 
 import com.jphilli85.deviceinfo.R;
 //TODO keep a best-guess location
+// TODO use a separate thread for listeners and publishProgress when appropriate
 public class Location extends ThrottledListeningElement implements GpsStatus.Listener, GpsStatus.NmeaListener {
 	
 	public interface ProviderCallback extends ListeningElement.Callback {
@@ -44,10 +45,16 @@ public class Location extends ThrottledListeningElement implements GpsStatus.Lis
 	}
 	
 	//TODO implement this
-	public static final int THROTTLE_COUNT = 3;
+	public static final int THROTTLE_COUNT = 4;
 	public static final int THROTTLE_INDEX_GPSSTATUS = 0;
 	public static final int THROTTLE_INDEX_LOCATION = 1;
 	public static final int THROTTLE_INDEX_ADDRESS = 2;
+	public static final int THROTTLE_INDEX_NMEA = 3;
+	
+	// Nmea update throttle (ms)
+	public static final int NMEA_FREQUENCY_HIGH = 1000;
+	public static final int NMEA_FREQUENCY_MEDIUM = 2000;
+	public static final int NMEA_FREQUENCY_LOW = 3000;
 	
 	// GPS Status update throttle (ms)
 	public static final int GPSSTATUS_FREQUENCY_HIGH = 1000;
@@ -77,6 +84,8 @@ public class Location extends ThrottledListeningElement implements GpsStatus.Lis
 	
 	private long mLastGpsStatusTimestamp;
 	private int mGpsStatusUpdateFrequency;
+	
+	private int mNmeaUpdateFrequency;
 	
 	public final String STATUS_AVAILABLE;
 	public final String STATUS_OUT_OF_SERVICE;
@@ -116,8 +125,10 @@ public class Location extends ThrottledListeningElement implements GpsStatus.Lis
 			mProviders.add(new ProviderWrapper(s));
 		}
 		
-		// These two are actually unrelated
+		
 		mGpsStatusUpdateFrequency = GPSSTATUS_FREQUENCY_MEDIUM;
+		mNmeaUpdateFrequency = NMEA_FREQUENCY_MEDIUM;
+		
 		updateGpsStatus();
 	}
 	
@@ -246,7 +257,9 @@ public class Location extends ThrottledListeningElement implements GpsStatus.Lis
 
 	@Override
 	public void onNmeaReceived(long timestamp, String nmea) {
-		mLastNmeaTimestamp = timestamp;
+		long time = System.currentTimeMillis();
+		if (time - mLastNmeaTimestamp < mNmeaUpdateFrequency) return;
+		mLastNmeaTimestamp = time;
 		mLastNmea = nmea;
 		updateGpsStatus();
 		if (getCallback() != null) ((GpsCallback) getCallback()).onNmeaReceived(this);

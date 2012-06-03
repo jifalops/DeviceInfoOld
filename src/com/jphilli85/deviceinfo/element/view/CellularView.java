@@ -3,6 +3,7 @@ package com.jphilli85.deviceinfo.element.view;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Looper;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
@@ -176,13 +177,8 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 	}
 
 	@Override
-	protected void initialize(Context context) {
-		mCellular = new Cellular(context);
-		mCellular.setCallback(this);
-	}
-
-	@Override
-	protected void onInitialized() {
+	protected void initialize(Context context) {		
+		mCellular = new Cellular(context);		
 		
 		Section section;
 //		Subsection subsection;
@@ -309,8 +305,11 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		onDataConnectionStateChanged();
 		onServiceStateChanged();
 		onSignalStrengthsChanged();
-		
-		mHeader.play();
 	}
 	
+	@Override
+	protected void onInitialized() {
+		mCellular.setCallback(this);
+		super.onInitialized();
+	}
 }

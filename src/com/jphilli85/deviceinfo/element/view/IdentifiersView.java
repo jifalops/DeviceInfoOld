@@ -29,10 +29,7 @@ public class IdentifiersView extends ElementView {
 	@Override
 	protected void initialize(Context context) {
 		mIdentifiers = new Identifiers(context);
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		TableSection table = new TableSection();
 
 		table.add("Device ID", mIdentifiers.DEVICE_ID);
@@ -48,5 +45,4 @@ public class IdentifiersView extends ElementView {
 		//TODO more
 		//wifi, bt, others?
 	}
-
 }

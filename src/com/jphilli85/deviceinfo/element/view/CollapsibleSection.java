@@ -92,7 +92,7 @@ public abstract class CollapsibleSection extends AbstractSection {
 	}
 	
 	@Override
-	public final void addToLayout(ViewGroup layout) {
+	public void addToLayout(ViewGroup layout) {
 		layout.addView(mHeader);
 		layout.addView(mContent);
 	}

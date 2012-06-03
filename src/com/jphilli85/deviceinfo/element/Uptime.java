@@ -10,29 +10,22 @@ import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Uptime extends ListeningElement {
 	
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		void onUptimeUpdated(float uptimeTotal, float uptimeAsleep);
 	}
 	
 	private float mUptimeTotal;
 	private float mUptimeAsleep;
 	
-	private final Handler mHandler;
-	private final Runnable mUpdateRunnable;
-	
-	private boolean mIsPaused;
-	private boolean mIsListening;
-	private Callback mCallback;
-	
+	private final ForegroundRepeatingTask mUpdateTask;
+
 	public Uptime() {
-		mHandler = new Handler();
-		
-		mUpdateRunnable = new Runnable() {
+		mUpdateTask = new ForegroundRepeatingTask(new Runnable() {
 			public void run() {		        
 				updateUptime();
-			    mHandler.postDelayed(this, 500);
 		   }
-		};
+		});
+		mUpdateTask.setInterval(1000);		
 	}
 	
 	public float getUptimeTotal() {
@@ -59,36 +52,32 @@ public class Uptime extends ListeningElement {
 			}
 			else if (parts.length == 1) mUptimeTotal = Float.valueOf(parts[0]);
 		}
-		catch (NumberFormatException ignored) {}
-		if (mCallback != null) mCallback.onUptimeUpdated(mUptimeTotal, mUptimeAsleep);
+		catch (NumberFormatException ignored) {}	
+		if (getCallback() != null) ((Callback) getCallback()).onUptimeUpdated(mUptimeTotal, mUptimeAsleep);
 	}
 	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();		
-		contents.put("Uptime Total", DeviceInfo.getDuration(mUptimeTotal));
-		contents.put("Uptime Sleep", DeviceInfo.getDuration(mUptimeAsleep));
-		contents.put("Uptime Awake", DeviceInfo.getDuration(mUptimeTotal - mUptimeAsleep));
-		contents.put("IsListening", String.valueOf(mIsListening));
-		contents.put("IsPaused", String.valueOf(mIsPaused));
+		LinkedHashMap<String, String> contents = super.getContents();
+		contents.put("Uptime Total", DeviceInfo.getDuration((long) mUptimeTotal));
+		contents.put("Uptime Sleep", DeviceInfo.getDuration((long) mUptimeAsleep));
+		contents.put("Uptime Awake", DeviceInfo.getDuration((long) (mUptimeTotal - mUptimeAsleep)));
 		return contents;
 	}
 
 
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
-		if (mIsListening || (onlyIfCallbackSet && mCallback == null)) return false;		
-		mHandler.post(mUpdateRunnable);
-		mIsListening = true;
-		return mIsListening;
+		if (!super.startListening(onlyIfCallbackSet)) return false;				
+		mUpdateTask.start();		
+		return setListening(true);
 	}
 
 	@Override
 	public boolean stopListening() {
-		if (!mIsListening) return false;
-		mHandler.removeCallbacks(mUpdateRunnable);
-		mIsListening = false;
-		return !mIsListening;
+		if (!super.stopListening()) return false;
+		mUpdateTask.stop();
+		return !setListening(false);
 	}
 
 

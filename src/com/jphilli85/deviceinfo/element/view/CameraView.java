@@ -30,10 +30,7 @@ public class CameraView extends ElementView {
 	@Override
 	protected void initialize(Context context) {
 		mCamera = new Camera(context);
-	}
-
-	@Override
-	protected void onInitialized() {
+		
 		TableSection table = new TableSection();		
 		table.add("Number of Cameras", String.valueOf(mCamera.getNumCameras()));
 		add(table);
