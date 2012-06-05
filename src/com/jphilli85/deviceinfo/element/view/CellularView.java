@@ -112,7 +112,7 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 			GsmCellLocation loc = (GsmCellLocation) mCellular.getTelephonyManager().getCellLocation();
 			mCell.setText(String.valueOf(loc.getCid()));
 			mLac.setText(String.valueOf(loc.getLac()));
-			mPsc.setText(String.valueOf(loc.getPsc()));
+			if (API >= 9) mPsc.setText(String.valueOf(loc.getPsc()));
 		}
 		
 		// NeighboringCellInfo info

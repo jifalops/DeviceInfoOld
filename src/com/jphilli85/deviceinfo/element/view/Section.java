@@ -11,5 +11,6 @@ public class Section extends PlayableSection {
 		super(R.layout.element_section, INDEX_LABEL, label, INDEX_PLAY_PAUSE);	
 		setHeaderIndent(DeviceInfo.getContext().getResources().getInteger(R.integer.section_header_indent));
 		setContentIndent(DeviceInfo.getContext().getResources().getInteger(R.integer.section_content_indent));
+		collapse();
 	}
 }

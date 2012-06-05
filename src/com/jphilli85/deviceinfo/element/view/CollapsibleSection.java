@@ -27,7 +27,7 @@ public abstract class CollapsibleSection extends AbstractSection {
 		setIcon(R.drawable.holo_dark_collapse, INDEX_EXPAND_COLLAPSE);	
 		ExpandCollapseListener listener = new ExpandCollapseListener();
 		setListener(INDEX_EXPAND_COLLAPSE, listener);
-		setListener(labelIndex, listener);
+		setListener(labelIndex, listener);		
 	}
 	
 	private void setLabel(String label, int index) {
@@ -67,13 +67,13 @@ public abstract class CollapsibleSection extends AbstractSection {
 		mHeader.getChildAt(index).setOnClickListener(listener);
 	}
 	
-	private void expand() {
+	protected void expand() {
 		mContent.setVisibility(View.VISIBLE);
 		setIcon(R.drawable.holo_dark_collapse, INDEX_EXPAND_COLLAPSE);
 		mIsCollapsed = false;
 	}
 	
-	private void collapse() {
+	protected void collapse() {
 		mContent.setVisibility(View.GONE);
 		setIcon(R.drawable.holo_dark_expand, INDEX_EXPAND_COLLAPSE);
 		mIsCollapsed = true;

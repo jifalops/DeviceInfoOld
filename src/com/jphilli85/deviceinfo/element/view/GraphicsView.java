@@ -41,6 +41,7 @@ public class GraphicsView extends ElementView implements Graphics.Callback {
 			
 			@Override
 			public void run() {
+				//FIXME can run after activity is gone
 				showElementContents();			
 				mGraphics.stopListening();
 			}

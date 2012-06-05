@@ -201,7 +201,8 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 				table.add("Time in Transitions", mTransitionTime[i]);
 				
 				table.add("Transition Latency (ns)", String.valueOf(cpu.getTransitionLatency()));
-				table.add("Available Governors", TextUtils.join(", ", cpu.getAvailableGovernors()));
+				String[] govs = cpu.getAvailableGovernors();
+				if (govs != null) table.add("Available Governors", TextUtils.join(", ", govs));
 				table.add("Driver", cpu.getDriver());
 				logicalCpuSection.add(table);
 				

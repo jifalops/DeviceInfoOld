@@ -47,8 +47,11 @@ public class PlatformView extends ElementView {
 		table.add("Radio Version", Cellular.getRadioVersion());
 		table.add("Radio Interface Version", Cellular.getRilVersion());
 		table.add("Baseband", Cellular.getBaseband());
-		table.add("Bootloader", Build.BOOTLOADER);
-		table.add("Hardware", Build.HARDWARE);
+		if (API >= 8) {
+			table.add("Bootloader", Build.BOOTLOADER);
+			table.add("Hardware", Build.HARDWARE);
+		}
+		
 		table.add("Board", Build.BOARD);
 		add(table);
 	}

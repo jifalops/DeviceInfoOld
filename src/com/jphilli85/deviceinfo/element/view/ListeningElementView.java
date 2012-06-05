@@ -27,11 +27,13 @@ public abstract class ListeningElementView extends ElementView implements Playab
 	
 	@Override
 	public void onPlay(PlayableSection section) {
+		if (getElement() == null) return;
 		((ListeningElement) getElement()).startListening();
 	}
 	
 	@Override
 	public void onPause(PlayableSection section) {
+		if (getElement() == null) return;
 		((ListeningElement) getElement()).stopListening();	
 	}
 	

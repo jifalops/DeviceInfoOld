@@ -96,9 +96,9 @@ public class ShellHelper {
         	// Each property has the format [name]: [value]
         	// Remove first and last bracket.        	
         	s = s.trim().substring(1, s.length() - 1);
-        	parts = s.split("]:\\s+\\[");
+        	parts = s.split("]:\\s+\\[", 2);
         	if (parts == null || parts.length != 2) {
-        		Log.d(LOG_TAG, "getprop property does not have exactly 2 parts.");
+        		Log.d(LOG_TAG + ".GetProp", "property does not have exactly 2 parts." + ((parts == null || parts.length == 0) ?  "" : parts[0]));
         		continue;
         	}
         	props.put(parts[0], parts[1]);

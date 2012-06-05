@@ -31,6 +31,8 @@ public class UptimeView extends ElementView implements Uptime.Callback {
 		add(table);
 		
 		mUptime = new Uptime();
+		mUptime.setCallback(this);
+		mUptime.startListening();
 	}
 
 	@Override
@@ -40,8 +42,7 @@ public class UptimeView extends ElementView implements Uptime.Callback {
 
 	@Override
 	protected void initialize(Context context) {		
-		mUptime.setCallback(this);
-		mUptime.startListening();
+		
 	}
 
 	@Override
