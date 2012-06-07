@@ -27,7 +27,8 @@ public abstract class CollapsibleSection extends AbstractSection {
 		setIcon(R.drawable.holo_dark_collapse, INDEX_EXPAND_COLLAPSE);	
 		ExpandCollapseListener listener = new ExpandCollapseListener();
 		setListener(INDEX_EXPAND_COLLAPSE, listener);
-		setListener(labelIndex, listener);		
+		setListener(labelIndex, listener);	
+		collapse();
 	}
 	
 	private void setLabel(String label, int index) {

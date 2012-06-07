@@ -1,6 +1,5 @@
 package com.jphilli85.deviceinfo.element;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.DhcpInfo;
+import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
@@ -21,6 +21,7 @@ import android.net.wifi.WifiConfiguration.Protocol;
 import android.net.wifi.WifiConfiguration.Status;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.jphilli85.deviceinfo.Convert;
@@ -28,13 +29,13 @@ import com.jphilli85.deviceinfo.R;
 
 public class Wifi extends ListeningElement {
 	
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		void onScanCompleted(List<ScanResult> results);
 		void onNetworkIdsChanged(List<WifiConfiguration> configurations);
-		void onNetworkStateChanged(Wifi wifi);
+		void onNetworkStateChanged(NetworkInfo networkInfo, String bssid, WifiInfo wifiInfo);
 		void onRssiChanged(int rssi);
-		void onSupplicantConnectionChanged(Wifi wifi);
-		void onSupplicantStateChanged(Wifi wifi);
+		void onSupplicantConnectionChanged(boolean connected);
+		void onSupplicantStateChanged(SupplicantState state, int error);
 	}
 	
 	private interface StringsCallback {
@@ -95,12 +96,7 @@ public class Wifi extends ListeningElement {
 	private final WifiManager mWifiManager;
 	private final WifiReceiver mReceiver;
 	private final Network mNetwork;
-	// TODO stop leaking contexts
 	private final Context mContext;
-		
-	private Callback mCallback;	
-	private boolean mIsListening;
-	private boolean mIsPaused;
 	
 	public Wifi(Context context) {		
 		ERROR_AUTHENTICATING = context.getString(R.string.wifi_error_authenticating);
@@ -322,19 +318,31 @@ public class Wifi extends ListeningElement {
 		return mWifiManager;
 	}
 	
+	public String getDetailedState() {
+		WifiInfo winfo = mWifiManager.getConnectionInfo();
+		if (winfo == null) return null;
+		return mNetwork.getStateString(WifiInfo.getDetailedStateOf(winfo.getSupplicantState()));	
+	}
 	
-
+	public String getDetailedState(SupplicantState state) {		
+		return mNetwork.getStateString(WifiInfo.getDetailedStateOf(state));	
+	}
+	
+	
+	// TODO use system properties for ip, dns, etc as a backup
 	
 	@Override
 	public LinkedHashMap<String, String> getContents() {
-		LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> contents = super.getContents();
 		
 		// Wifi
 		contents.put("State", getWifiStateString(mWifiManager.getWifiState()));
 		
 		// WifiManager
 		contents.put("IsEnabled", String.valueOf(mWifiManager.isWifiEnabled()));
-		contents.put("Can Ping Supplicant", String.valueOf(mWifiManager.pingSupplicant()));
+		
+//		Requires CHANGE_WIFI_STATE permission
+//		contents.put("Can Ping Supplicant", String.valueOf(mWifiManager.pingSupplicant()));
 		
 		// WifiInfo
 		WifiInfo winfo = mWifiManager.getConnectionInfo();
@@ -435,34 +443,52 @@ public class Wifi extends ListeningElement {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (mWifi == null || mWifi.getCallback() == null) return;
+			if (mWifi == null || mWifi.getCallback() == null || intent == null) return;
 			
 			// TODO use the intent extras to return values to the callback
 			if (intent.getAction().equals(WifiManager.NETWORK_IDS_CHANGED_ACTION)) {
 				((Callback) mWifi.getCallback()).onNetworkIdsChanged(mWifi.getWifiManager().getConfiguredNetworks());
 			}
-			else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-				((Callback) mWifi.getCallback()).onNetworkStateChanged(mWifi);
+			else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {		
+				NetworkInfo ni = null;
+				String bssid = null;
+				WifiInfo wi = null;
+				Parcelable p = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);			
+				if (p != null) {
+					ni = (NetworkInfo) p;
+					if (ni.getState() == NetworkInfo.State.CONNECTED) {						
+						bssid = intent.getStringExtra(WifiManager.EXTRA_BSSID);
+						p = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+						if (p != null) wi = (WifiInfo) p;
+					}
+				}
+				
+				((Callback) mWifi.getCallback()).onNetworkStateChanged(ni, bssid, wi);
 			}
-			else if (intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {
-				try { ((Callback) mWifi.getCallback()).onRssiChanged(mWifi.getWifiManager().getConnectionInfo().getRssi()); }
-				catch (NullPointerException ignored) {}
+			else if (intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {				
+				((Callback) mWifi.getCallback()).onRssiChanged(intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, 0));				
 			}
 			else if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
 				((Callback) mWifi.getCallback()).onScanCompleted(mWifi.getWifiManager().getScanResults());								
 			}
 			else if (intent.getAction().equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-				((Callback) mWifi.getCallback()).onSupplicantConnectionChanged(mWifi);								
+				((Callback) mWifi.getCallback()).onSupplicantConnectionChanged(
+						intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false));								
 			}
 			else if (intent.getAction().equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
-				((Callback) mWifi.getCallback()).onSupplicantStateChanged(mWifi);								
+				SupplicantState ss = null;
+				Parcelable p = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+				if (p != null) ss = (SupplicantState) p; 
+				
+				((Callback) mWifi.getCallback()).onSupplicantStateChanged(
+						ss, intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0));								
 			}
 		}
 	}
 
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
-		if (mIsListening || (onlyIfCallbackSet && mCallback == null) || mContext == null) return false;
+		if (!super.startListening(onlyIfCallbackSet) || mContext == null) return false;
 		mContext.registerReceiver(mReceiver, 
 				new IntentFilter(WifiManager.NETWORK_IDS_CHANGED_ACTION));
 		mContext.registerReceiver(mReceiver, 
@@ -475,41 +501,13 @@ public class Wifi extends ListeningElement {
 				new IntentFilter(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION));
 		mContext.registerReceiver(mReceiver, 
 				new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
-		mIsListening = true;
-		return true;
+		return setListening(true);
 	}
 
 	@Override
 	public boolean stopListening() {
-		if (!mIsListening || mContext == null) return false;
+		if (!super.stopListening() || mContext == null) return false;
 		mContext.unregisterReceiver(mReceiver);
-		mIsListening = false;
-		return true;
+		return !setListening(false);
 	}
-
-
-//	@Override
-//	public boolean pause() {
-//		if (mIsPaused) return false;
-//		mIsPaused = stopListening();	
-//		return mIsPaused;
-//	}
-//
-//	@Override
-//	public boolean resume() {
-//		if (!mIsPaused) return false;
-//		mIsPaused = !startListening();
-//		return mIsPaused;
-//	}
-//	
-//	@Override
-//	public boolean isPaused() {
-//		return mIsPaused;
-//	}
-//
-//	@Override
-//	public boolean setCallback(Object callback) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
 }

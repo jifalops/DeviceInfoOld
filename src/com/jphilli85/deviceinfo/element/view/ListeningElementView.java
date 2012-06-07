@@ -40,6 +40,6 @@ public abstract class ListeningElementView extends ElementView implements Playab
 	@Override
 	protected void onInitialized() {	
 		super.onInitialized();
-		mHeader.play();
+		//mHeader.play();
 	}
 }

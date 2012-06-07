@@ -12,6 +12,7 @@ import android.content.Context;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
 
+import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Network;
@@ -93,6 +94,7 @@ public class NetworkView extends ElementView {
 		add(section);
 	}
 	
+	// TODO this is not very solid
 	private void updateActiveInterface() {
 		List<NetworkInterface> networks = new ArrayList<NetworkInterface>();
 		try { networks = Collections.list(NetworkInterface.getNetworkInterfaces());	} 
@@ -104,7 +106,7 @@ public class NetworkView extends ElementView {
 				mActiveInterface = ni;
 				return;
 			}
-			if (ni.getName().equalsIgnoreCase("wifi")) {
+			if (!ni.getName().equalsIgnoreCase("lo")) {
 				mActiveInterfaceType = mNetwork.TYPE_WIFI;
 				mActiveInterface = ni;
 				return;
@@ -118,16 +120,17 @@ public class NetworkView extends ElementView {
 		try { addr = mActiveInterface.getHardwareAddress(); } 
 		catch (SocketException ignored) {}
 		if (addr == null) return null;
-		StringBuilder address = new StringBuilder();
-		boolean first = true;
-		for (byte b : addr) {
-			if (first) {
-				address.append(b & 0xFF);
-				first = false;
-			}
-			else address.append(':').append(b & 0xFF);
-		}
-		return address.toString();		
+		return Convert.ByteArray.toHexString(addr, ":");
+//		StringBuilder address = new StringBuilder();
+//		boolean first = true;
+//		for (byte b : addr) {
+//			if (first) {
+//				address.append(b & 0xFF);
+//				first = false;
+//			}
+//			else address.append(':').append(b & 0xFF);
+//		}
+//		return address.toString();		
 	}
 	
 	public String getIpAddressCidr() {

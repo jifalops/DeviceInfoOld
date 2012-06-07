@@ -15,7 +15,7 @@ import android.os.Build;
 import com.jphilli85.deviceinfo.R;
 
 // TODO add microphone
-public class Sensors extends Element {
+public class Sensors extends ListeningElement {
 	private static final String LOG_TAG = Sensors.class.getSimpleName();
 	private static final int API = Build.VERSION.SDK_INT;
 	
@@ -25,10 +25,10 @@ public class Sensors extends Element {
 	public static final int CATEGORY_ENVIRONMENT = 3;
 	
 	public static final int FREQUENCY_HIGH = 100;
-	public static final int FREQUENCY_DEFAULT = 200;
+	public static final int FREQUENCY_MEDIUM = 200;
 	public static final int FREQUENCY_LOW = 500;
 	
-	public interface Callback {
+	public interface Callback extends ListeningElement.Callback {
 		/** Corresponds to SensorEventListener.onAccuracyChanged() */
 		void onAccuracyChanged(SensorWrapper sensorWrapper);
 		/** Corresponds to SensorEventListener.onSensorChanged() */
@@ -171,7 +171,7 @@ public class Sensors extends Element {
 			mSensorTypeString = type;
 			mCategory = category;
 			mUnit = unit;
-			mFrequency = FREQUENCY_DEFAULT;
+			mFrequency = FREQUENCY_MEDIUM;
 			
 			switch (category) {
 			case CATEGORY_MOTION: 
@@ -254,6 +254,10 @@ public class Sensors extends Element {
 			case SensorManager.SENSOR_STATUS_UNRELIABLE: return ACCURACY_UNRELIABLE;			
 			}
 			return null;
+		}
+		
+		public String getAccuracyString() {
+			return getAccuracyString(mLastAccuracy);
 		}
 		
 		/** The SensorEvent's timestamp in nanoseconds */
@@ -394,7 +398,7 @@ public class Sensors extends Element {
 			contents.put("Is Listening Stopped By Pause", String.valueOf(isPaused()));
 			contents.put("MinUpdateFrequency (ms)", String.valueOf(getMinUpdateFrequency()));
 			contents.put("Last Event Timestmp (ns)", String.valueOf(getLastEventTimestamp()));
-			contents.put("Last Event Accuracy", String.valueOf(getLastAccuracy())); 
+//			contents.put("Last Event Accuracy", String.valueOf(getLastAccuracy())); 
 			//FIXME accuracy shit
 			contents.put("Last Accuracy Status", getAccuracyString(getLastAccuracy()));
 			contents.put("Last Accuracy Status Timestamp (ms)", String.valueOf(getLastAccuracyTimestamp()));
@@ -949,39 +953,56 @@ public class Sensors extends Element {
 		float t = mAmbientTemperatureSensors.get(0).getAmbientTemperature();		
 		return (float) (216.7 * (rh / 100.0 * 6.112 * Math.exp(17.62 * t / (243.12 + t)) / (273.15 + t)));
 	}
+
 	
-	public void startListening() {
-		startListening(true);
-	}
-	
-	/** @param onlyIfCallbackSet defaults to true. */
-	public void startListening(boolean onlyIfCallbackSet) {
+	@Override
+	public boolean startListening(boolean onlyIfCallbackSet) {
+		if (!super.startListening(onlyIfCallbackSet)) return false;
 		for (SensorWrapper sw : mSensors) {
 			if (onlyIfCallbackSet && sw.getCallback() == null) {
 				continue;
 			}
 			sw.startListening(onlyIfCallbackSet);
 		}
+		return setListening(true);
 	}
 	
-	public void stopListening() {
+	@Override
+	public boolean stopListening() {
+		if (!super.stopListening()) return false;
 		for (SensorWrapper sw : mSensors) {
 			sw.stopListening();
 		}
+		return !setListening(false);
 	}
 	
-	/** Pauses all sensors */
-	public void onPause() {
+	@Override
+	public void setCallback(ListeningElement.Callback callback) {
+		super.setCallback(callback);
 		for (SensorWrapper sw : mSensors) {
-			sw.onPause();
+			sw.setCallback((Callback) callback);
 		}
 	}
 	
-	/** Resumes listening on sensors that were stopped with onPause() */
-	public void onResume() {
-		for (SensorWrapper sw : mSensors) {
-			sw.onResume();
+//	/** Pauses all sensors */
+//	public void onPause() {
+//		for (SensorWrapper sw : mSensors) {
+//			sw.onPause();
+//		}
+//	}
+//	
+//	/** Resumes listening on sensors that were stopped with onPause() */
+//	public void onResume() {
+//		for (SensorWrapper sw : mSensors) {
+//			sw.onResume();
+//		}
+//	}
+	
+	public int getSensorIndex(SensorWrapper sensorWrapper) {
+		for (int i = 0; i < mSensors.length; ++i) {
+			if (mSensors[i] == sensorWrapper) return i;
 		}
+		return -1;
 	}
 
 	@Override

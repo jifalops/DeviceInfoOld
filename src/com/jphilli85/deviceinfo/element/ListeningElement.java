@@ -53,7 +53,7 @@ public abstract class ListeningElement extends Element implements ElementListene
 	 * Using the generic callback defined in this class (ListeningElement)
 	 * will result in a runtime exception. 
 	 */
-	public final void setCallback(Callback callback) {
+	public void setCallback(Callback callback) {
 		mCallback = callback;
 	}
 	
