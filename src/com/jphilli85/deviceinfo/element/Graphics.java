@@ -48,6 +48,7 @@ public class Graphics extends ListeningElement implements GLSurfaceView.Renderer
 
 		glSurfaceView.setRenderer(this);
 		glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		glSurfaceView.requestRender();
 	}
 	
 	/** 

@@ -28,9 +28,7 @@ public class DetailsFragment extends SherlockFragment {
 	// enough to bother managing its state persistently
 	private static int mScrollPos;
 	
-	
-	
-    public static DetailsFragment newInstance(int[] elements) {
+    public static DetailsFragment newInstance(int[] elements) {    	
         DetailsFragment f = new DetailsFragment();
         f.setElements(elements);
         return f;
@@ -40,7 +38,7 @@ public class DetailsFragment extends SherlockFragment {
         return mElements;
     }
     
-    private void setElements(int[] elements) {
+    private void setElements(int[] elements) { 
     	if (elements == null || elements.length == 0) {
         	elements = GroupListFragment.getElements(0);
         }
@@ -78,9 +76,10 @@ public class DetailsFragment extends SherlockFragment {
     
     
     private void pauseElements() {
+    	if (mElementViews == null) return;
     	for (ElementView ev : mElementViews) {
-    		try { ((ListeningElementView) ev).onActivityPause(); }
-    		catch (ClassCastException ignored) {}
+    		if (ev == null) continue;
+    		ev.onActivityPause();
     	}
     	
     	
@@ -96,9 +95,10 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void resumeElements() {
+    	if (mElementViews == null) return;
     	for (ElementView ev : mElementViews) {
-    		try { ((ListeningElementView) ev).onActivityResume(); }
-    		catch (ClassCastException ignored) {}
+    		if (ev == null) continue;
+    		ev.onActivityResume();
     	}
     	
 //		if (mGraphics != null) mGraphics.onResume();
@@ -144,6 +144,7 @@ public class DetailsFragment extends SherlockFragment {
 	public void onActivityCreated(final Bundle state) {
 		super.onActivityCreated(state);
 		if (getActivity().isFinishing()) return;
+		setRetainInstance(true);
 		restoreElements(state);
 	}
 	

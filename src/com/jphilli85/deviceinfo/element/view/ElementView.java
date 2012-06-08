@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -20,12 +21,19 @@ import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 
 public abstract class ElementView extends AbstractElementView {
-	
+	private final Toast mSaveSuccessfulToast;
+	private final Toast mSaveUnsuccessfulToast;
 	
 	protected Header mHeader;
 	private String mLabel;	
 	
-	protected ElementView(Context context) {		
+	private final InitializeTask mInitializeTask;
+	
+	protected ElementView(Context context) {	
+		Context c = context.getApplicationContext();
+		mSaveSuccessfulToast = Toast.makeText(c, c.getString(R.string.save_successful), Toast.LENGTH_SHORT);
+		mSaveUnsuccessfulToast = Toast.makeText(c, c.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT);
+		
 		String[] elements = DeviceInfo.getElements();
 		for (int i = 1; i < elements.length; ++i) {
 			if (this.getClass() == DeviceInfo.getAbstractView(i)) {
@@ -34,7 +42,8 @@ public abstract class ElementView extends AbstractElementView {
 				break;
 			}
 		}
-		new InitializeTask().execute(context);
+		mInitializeTask = new InitializeTask();
+		mInitializeTask.execute(context);
 	}
 
 	protected abstract void initialize(Context context);	
@@ -61,30 +70,7 @@ public abstract class ElementView extends AbstractElementView {
 	}
 	
 	final void save() {	
-		if (getElement() == null) return;
-		List<String[]> list = new ArrayList<String[]>();
-		LinkedHashMap<String, String> contents = getElement().getContents();
-		for (Entry<String, String> e : contents.entrySet()) {
-			list.add(new String[] { e.getKey(), e.getValue() });
-		}
-		
-		File file = new File(DeviceInfo.getSnapshotDirectory()
-				+ "/" + mLabel
-				+ "_" + DeviceInfo.getFilenameTimestamp()
-				+ ".csv.txt");
-		
-		Context c = DeviceInfo.getContext();
-		
-		try {
-			CSVWriter writer = new CSVWriter(new FileWriter(file));
-			writer.writeAll(list);
-			writer.close();
-			Toast.makeText(c, c.getString(R.string.save_successful), Toast.LENGTH_SHORT).show();
-		}
-		catch (SecurityException e) {}
-		catch (IOException e) {
-			Toast.makeText(c, c.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT).show();
-		}
+		new SaveTask().execute();
 	}
 	
 	protected final void showElementContents() {		
@@ -98,21 +84,78 @@ public abstract class ElementView extends AbstractElementView {
 	}
 	
 	private class InitializeTask extends AsyncTask<Context, Void, Void> {
+		private final String LOG_TAG = InitializeTask.class.getSimpleName();
+		
 		@Override
 		protected void onPreExecute() {		
-			//TODO mHeader.showProgressThingy
+			mHeader.showProgressBar();
 		}
 		
 		@Override
 		protected Void doInBackground(Context... params) {
-			initialize(params[0]);
+			try { initialize(params[0]); }
+			catch (Throwable t) {
+				if (t.getMessage() != null)	Log.e(LOG_TAG, t.getMessage());
+				t.printStackTrace();
+			}
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			// TODO mHeader.hideProgressThingy
+			mHeader.hideProgressBar();
 			onInitialized();
 		}
+	}
+	
+	private class SaveTask extends AsyncTask<Void, Void, Toast> {
+		@Override
+		protected Toast doInBackground(Void... params) {			
+			Element element = getElement();
+			if (element == null) return mSaveUnsuccessfulToast;
+			List<String[]> list = new ArrayList<String[]>();
+			LinkedHashMap<String, String> contents;
+			synchronized (element) {
+				contents = element.getContents();
+			}
+			if (contents == null) return mSaveUnsuccessfulToast;
+			for (Entry<String, String> e : contents.entrySet()) {
+				list.add(new String[] { e.getKey(), e.getValue() });
+			}
+			
+			File file = new File(DeviceInfo.getSnapshotDirectory()
+					+ "/" + mLabel
+					+ "_" + DeviceInfo.getFilenameTimestamp()
+					+ ".csv.txt");
+			
+			
+			
+			try {
+				CSVWriter writer = new CSVWriter(new FileWriter(file));
+				writer.writeAll(list);
+				writer.close();
+				return mSaveSuccessfulToast;
+			}
+			catch (SecurityException e) {
+				return mSaveUnsuccessfulToast;
+			} 
+			catch (IOException e) {
+				return mSaveUnsuccessfulToast;
+			}
+		}
+		
+		
+		@Override
+		protected void onPostExecute(Toast result) {
+			if (result != null) result.show();
+		}
+	}
+	
+	public void onActivityPause() {
+		mInitializeTask.cancel(true);
+	}
+	
+	public void onActivityResume() {
+
 	}
 }

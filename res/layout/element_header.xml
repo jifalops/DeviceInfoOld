@@ -16,4 +16,10 @@
     <ImageView
 	    style="@style/Icon"	    
 	    android:contentDescription="@string/content_desc_save" />
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone" />
 </LinearLayout>

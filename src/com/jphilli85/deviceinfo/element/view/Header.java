@@ -16,6 +16,7 @@ public class Header extends PlayableSection {
 	public static final int INDEX_LABEL = 2;
 	public static final int INDEX_PLAY_PAUSE = 3;
 	public static final int INDEX_SAVE = 4;
+	public static final int INDEX_PROGRESS_BAR = 5;
 	
 	private final LinearLayout mContainer;
 	
@@ -34,6 +35,22 @@ public class Header extends PlayableSection {
 		mContainer = new LinearLayout(DeviceInfo.getContext());
 		mContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		mContainer.setOrientation(LinearLayout.VERTICAL);
+	}
+	
+	public void showProgressBar() {
+		ViewGroup header = getHeader();
+		header.getChildAt(INDEX_PLAY_PAUSE).setVisibility(View.GONE);
+		header.getChildAt(INDEX_SAVE).setVisibility(View.GONE);
+		header.getChildAt(INDEX_PROGRESS_BAR).setVisibility(View.VISIBLE);
+	}
+	
+	public void hideProgressBar() {
+		ViewGroup header = getHeader();		
+		header.getChildAt(INDEX_PROGRESS_BAR).setVisibility(View.GONE);		
+		header.getChildAt(INDEX_SAVE).setVisibility(View.VISIBLE);
+		if (getCallback() != null) {
+			header.getChildAt(INDEX_PLAY_PAUSE).setVisibility(View.VISIBLE);
+		}
 	}
 	
 	@Override

@@ -9,7 +9,7 @@ import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
 
-public class SensorsView extends ListeningElementView implements Sensors.Callback {	
+public class SensorsView extends ListeningElementView implements Sensors.Callback, PlayableSection.Callback {	
 	private Sensors mSensors;
 	
 	private TextView[] 		
@@ -131,17 +131,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		
 		 
 		
-		mPlayables[index].setCallback(new PlayableSection.Callback() {					
-			@Override
-			public void onPlay(PlayableSection section) {
-				sw.startListening();
-			}
-			
-			@Override
-			public void onPause(PlayableSection section) {
-				sw.stopListening();
-			}
-		});
+		mPlayables[index].setCallback(this);
 		
 		mPlayables[index].add(getValuesTable(sw, index));
 		subsection.add(mPlayables[index]);

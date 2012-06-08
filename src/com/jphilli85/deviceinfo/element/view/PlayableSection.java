@@ -23,10 +23,18 @@ public abstract class PlayableSection extends CollapsibleSection {
 	void setCallback(Callback callback) {
 		mCallback = callback;
 		if (callback != null) {
-			getHeader().getChildAt(mPlayPauseIndex).setVisibility(View.VISIBLE);
+			showPlayPause();
 			setIcon(R.drawable.holo_dark_play, mPlayPauseIndex);
 			setListener(mPlayPauseIndex, new PlayPauseListener());
 		}
+	}
+	
+	public void showPlayPause() {
+		getHeader().getChildAt(mPlayPauseIndex).setVisibility(View.VISIBLE);
+	}
+	
+	public void hidePlayPause() {
+		getHeader().getChildAt(mPlayPauseIndex).setVisibility(View.GONE);
 	}
 	
 	Callback getCallback() {
