@@ -23,22 +23,23 @@ import com.jphilli85.deviceinfo.R.layout;
 public class GroupListFragment extends SherlockListFragment {
 
 	/** Interface for communication with container Activity. */
-	public interface OnGroupSelectedListener {
-		public void onGroupSelected(int index);
+	public interface Callback {
+		void showDetails(int group);
+		boolean isDualPane();
 	}
 	
-	public static final String KEY_GROUP = GroupListFragment.class.getName() + ".GROUP";
 	
-	private OnGroupSelectedListener mOnGroupSelectedListener;	
-    private boolean mDualPane;
-    private int mCurrentGroup; 
+	
+	private Callback mCallback;	
+//    private boolean mDualPane;
+//    private int mCurrentGroup; 
 	private ListAdapter mAdapter;
     
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-        	mOnGroupSelectedListener = (OnGroupSelectedListener) activity;
+        	mCallback = (Callback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnGroupSelectedListener");
@@ -58,33 +59,25 @@ public class GroupListFragment extends SherlockListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         
-        if (savedInstanceState == null) mCurrentGroup = 0;
-        else mCurrentGroup = savedInstanceState.getInt(KEY_GROUP, 0);        
+//        if (savedInstanceState == null) mCurrentGroup = 0;
+//        else mCurrentGroup = savedInstanceState.getInt(KEY_GROUP, 0);        
         
-        // Check to see if we have a frame in which to embed the details
-        // fragment directly in the containing UI.
-        ViewGroup detailsWrapper = (ViewGroup) 
-        		getActivity().findViewById(R.id.detailsFragmentWrapper);
-        mDualPane = detailsWrapper != null && detailsWrapper.getVisibility() == View.VISIBLE;
+       
         
-        if (mDualPane) {
+        if (((Callback) getActivity()).isDualPane()) {
             // In dual-pane mode, the list view highlights the selected item.
             getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             // Make sure our UI is in the correct state.
-            showDetails(mCurrentGroup);
+//            showDetails(mCurrentGroup);           
         }   
+//        setRetainInstance(true);
     }
     
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(KEY_GROUP, mCurrentGroup);
-    }
+
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	mOnGroupSelectedListener.onGroupSelected(position);
-    	showDetails(position);    	
+    	mCallback.showDetails(position);	
     }
     
     public static int getGroup(int[] elements) {  
@@ -99,47 +92,6 @@ public class GroupListFragment extends SherlockListFragment {
     	int[][] groups = DeviceInfo.getGroups();
     	return groups[group];
     }
-
-    
-    /**
-     * Helper function to show the details of a selected item, either by
-     * displaying a fragment in-place in the current UI, or starting a
-     * whole new activity in which it is displayed.
-     */
-    private void showDetails(int index) {
-        mCurrentGroup = index;
-        int[] elements = getElements(index);
-
-        if (mDualPane) {
-            // We can display everything in-place with fragments, so update
-            // the list to highlight the selected item and show the data.
-            getListView().setItemChecked(index, true);
-
-            // Check what fragment is currently shown, replace if needed.
-            DetailsFragment detailsFragment = (DetailsFragment)
-                    getFragmentManager().findFragmentById(R.id.detailsFragment);
-            if (detailsFragment == null || getGroup(detailsFragment.getElements()) != index) {
-                // Make new fragment to show this selection.
-                detailsFragment = DetailsFragment.newInstance(elements);
-
-                // Execute a transaction, replacing any existing fragment
-                // with this one inside the frame.
-                getFragmentManager().beginTransaction()
-                .replace(R.id.detailsFragmentWrapper, detailsFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit();
-            }
-
-        } else {
-            // Otherwise we need to launch a new activity to display
-            // the dialog fragment with selected text.
-            Intent intent = new Intent();
-            intent.setClass(getActivity(), DetailsActivity.class);
-            intent.putExtra(DetailsFragment.KEY_ELEMENTS, elements);
-            startActivity(intent);
-        }
-    }
-	
 	
 	
 //

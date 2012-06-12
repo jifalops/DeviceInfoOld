@@ -115,7 +115,8 @@ public class DetailsFragment extends SherlockFragment {
     }
     
     private void saveElements(Bundle outState) {
-//    	if (mSensorsView != null) mSensorsView.saveState(outState);
+    	outState.putIntArray(KEY_ELEMENTS, mElements);
+//    	outState.put
     }
     
 	@Override
@@ -123,7 +124,10 @@ public class DetailsFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 		if (mElements == null) {
 			if (savedInstanceState == null) setElements(null);
-			else setElements(savedInstanceState.getIntArray(KEY_ELEMENTS));
+			else {
+				
+				setElements(savedInstanceState.getIntArray(KEY_ELEMENTS));
+			}
 		}
 		setHasOptionsMenu(true);
 	}
@@ -144,7 +148,7 @@ public class DetailsFragment extends SherlockFragment {
 	public void onActivityCreated(final Bundle state) {
 		super.onActivityCreated(state);
 		if (getActivity().isFinishing()) return;
-		setRetainInstance(true);
+//		setRetainInstance(true);
 		restoreElements(state);
 	}
 	
