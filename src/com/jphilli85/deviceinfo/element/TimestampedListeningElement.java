@@ -2,10 +2,13 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
+import android.content.Context;
+
 public abstract class TimestampedListeningElement extends ListeningElement implements TimestampedEvents {
 	private final long[] mTimestamps;
 	
-	public TimestampedListeningElement(int numTimestamps) {
+	public TimestampedListeningElement(Context context, int numTimestamps) {
+		super(context);
 		mTimestamps = new long[numTimestamps];
 	}
 	

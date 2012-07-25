@@ -37,9 +37,10 @@ public class Graphics extends ListeningElement implements GLSurfaceView.Renderer
 	private OpenGles mOpenGles;
 	private final GLSurfaceView mGlSurfaceView;
 	
-	public Graphics(GLSurfaceView glSurfaceView) {
+	public Graphics(Context context, GLSurfaceView glSurfaceView) {
+		super(context);
 		mGlSurfaceView = glSurfaceView;
-		String ver = openGlesVersion(DeviceInfo.getContext());
+		String ver = openGlesVersion(context);
 		mOpenGlesVersion = ver == null ? 0.0f : Float.valueOf(ver);
 
 		if (Build.VERSION.SDK_INT >= 8) {

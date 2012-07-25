@@ -23,14 +23,8 @@ public class NetworkView extends ElementView {
 	private NetworkInterface mActiveInterface;
 	private String mActiveInterfaceType;
 	
-	public NetworkView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected NetworkView(Context context) {
+	public NetworkView(Context context) {
 		super(context);
-		
-		
 	}
 
 	@Override
@@ -42,7 +36,7 @@ public class NetworkView extends ElementView {
 	protected void initialize(Context context) {
 		mNetwork = new Network(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		updateActiveInterface();
 		table.add("Active Interface", mActiveInterfaceType);
@@ -54,14 +48,14 @@ public class NetworkView extends ElementView {
 		table.add("Valid Network Types", TextUtils.join(", ", mNetwork.getValidNetworkTypes()));
 		add(table);
 		
-		Section section = new Section("Networks");
+		Section section = new Section(getContext(), "Networks");
 		
 		
 		NetworkInfo[] infos = mNetwork.getConnectivityManager().getAllNetworkInfo();	
 		NetworkInfo active = mNetwork.getConnectivityManager().getActiveNetworkInfo();
 		
 		if (active != null) {
-			table = new TableSection();
+			table = new TableSection(getContext()) ;
 			table.add("Active NetworkInfo Type", active.getTypeName());
 			section.add(table);			
 		}
@@ -69,8 +63,8 @@ public class NetworkView extends ElementView {
 			Subsection subsection;
 			int i = 0;
 			for (NetworkInfo ni : infos) {
-				subsection = new Subsection("Network " + (i + 1));
-				table = new TableSection();
+				subsection = new Subsection(getContext(), "Network " + (i + 1));
+				table = new TableSection(getContext()) ;
 				table.add("Type", mNetwork.getNetworkTypeString(ni.getType()));
 				table.add("Subtype", mNetwork.getNetworkTypeString(ni.getSubtype()));
 				table.add("Type Name", ni.getTypeName());

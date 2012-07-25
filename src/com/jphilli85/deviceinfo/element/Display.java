@@ -60,6 +60,7 @@ public class Display extends Element {
 	public final String SIZE_XLARGE;
 	
 	public Display(Context context) {
+		super(context);
 		mDisplay = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();		
         mDisplayMetrics = new DisplayMetrics();        
         if (mDisplay != null) {
@@ -294,7 +295,6 @@ public class Display extends Element {
     @Override
 	public LinkedHashMap<String, String> getContents() {
     	LinkedHashMap<String, String> contents = new LinkedHashMap<String, String>();
-		Context context = DeviceInfo.getContext();
 		
 		contents.put("Density DPI String", getDensityDpiString());
 		contents.put("Density DPI", String.valueOf(getDensityDpi()));
@@ -302,7 +302,7 @@ public class Display extends Element {
 		contents.put("Y DPI", String.valueOf(getYDpi()));
 		contents.put("Logical Density", String.valueOf(getLogicalDensity()));
 		contents.put("Scaled Density", String.valueOf(getScaledDensity()));
-		contents.put("Font Scale", String.valueOf(getFontScale(context)));
+		contents.put("Font Scale", String.valueOf(getFontScale(getContext())));
 		contents.put("Width (pixel)", String.valueOf(getWidth()));
 		contents.put("Height (pixel)", String.valueOf(getHeight()));
 		contents.put("Diagonal (pixel)", String.valueOf(getDiagonal()));
@@ -312,14 +312,14 @@ public class Display extends Element {
 		contents.put("Refresh Rate", String.valueOf(getRefreshRate()));
 		contents.put("Rotation (degrees)", String.valueOf(getRotationDegrees()));
 		contents.put("Pixel Format", getPixelFormatString());
-		contents.put("Is Touch Screen", String.valueOf(isTouchScreen(context)));
+		contents.put("Is Touch Screen", String.valueOf(isTouchScreen(getContext())));
 		contents.put("Max Simultaneous Touch", String.valueOf(getMaxSimultaneousTouch()));
-		contents.put("Screen Size String", getScreenSizeString(context));
-		contents.put("Is Screen Long", String.valueOf(isScreenLong(context)));
-		contents.put("Orientation String", getOrientationString(context));
-		contents.put("Screen Height DP", String.valueOf(getScreenHeightDp(context)));
-		contents.put("Screen Width DP", String.valueOf(getScreenWidthDp(context)));
-		contents.put("Smallest Screen Width DP", String.valueOf(getSmallestScreenWidthDp(context)));
+		contents.put("Screen Size String", getScreenSizeString(getContext()));
+		contents.put("Is Screen Long", String.valueOf(isScreenLong(getContext())));
+		contents.put("Orientation String", getOrientationString(getContext()));
+		contents.put("Screen Height DP", String.valueOf(getScreenHeightDp(getContext())));
+		contents.put("Screen Width DP", String.valueOf(getScreenWidthDp(getContext())));
+		contents.put("Smallest Screen Width DP", String.valueOf(getSmallestScreenWidthDp(getContext())));
 		
 		return contents;
 	}

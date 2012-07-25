@@ -49,7 +49,8 @@ public class Network extends Element {
 	
 	private final ConnectivityManager mConnectivityManager;	
 	
-	public Network(Context context) {		
+	public Network(Context context) {	
+		super(context);
 		TYPE_BLUETOOTH = context.getString(R.string.connection_type_bluetooth);
 		TYPE_DUMMY = context.getString(R.string.connection_type_dummy);
 		TYPE_ETHERNET = context.getString(R.string.connection_type_ethernet);

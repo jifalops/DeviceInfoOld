@@ -16,6 +16,7 @@ public class Features extends Element {
 	private final List<String> mUnavailable;
 	
 	public Features(Context context) {
+		super(context);
 		mPackageManager = context.getPackageManager();
 		mAvailable = new ArrayList<String>();
 		mUnavailable = new ArrayList<String>();

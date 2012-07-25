@@ -102,7 +102,7 @@ public class Location extends ThrottledListeningElement implements GpsStatus.Lis
 	public final String GPS_EVENT_STOPPED;
 	
 	public Location(Context context) {
-		super(THROTTLE_COUNT);
+		super(context, THROTTLE_COUNT);
 		mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		mGeocoder = new Geocoder(context, Locale.getDefault());
 		mProviders = new ArrayList<ProviderWrapper>();

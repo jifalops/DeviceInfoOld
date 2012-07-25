@@ -13,11 +13,8 @@ import com.jphilli85.deviceinfo.element.Properties;
 
 public class PropertiesView extends ElementView {
 	private Properties mProperties;
-	
-	public PropertiesView() {
-		this(DeviceInfo.getContext());
-	}
-	protected PropertiesView(Context context) {
+
+	public PropertiesView(Context context) {
 		super(context);
 	}
 
@@ -28,8 +25,8 @@ public class PropertiesView extends ElementView {
 	
 	@Override
 	protected void initialize(Context context) {
-		mProperties = new Properties();
-		TableSection table = new TableSection();
+		mProperties = new Properties(context);
+		TableSection table = new TableSection(getContext()) ;
 		Map<String, String> properties = ShellHelper.getProp();
 		for (Entry<String, String> e : properties.entrySet()) {
 			table.add(e.getKey(), e.getValue());

@@ -26,6 +26,7 @@ public class Camera extends Element {
 	private final int mNumCameras;
 	
 	public Camera(Context context) {
+		super(context);
 		FACING_FRONT = context.getString(R.string.camera_facing_front);
 		FACING_BACK = context.getString(R.string.camera_facing_back);
 		

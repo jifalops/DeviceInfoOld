@@ -10,15 +10,9 @@ import com.jphilli85.deviceinfo.element.Features;
 public class FeaturesView extends ElementView {
 	private Features mFeatures;
 	
-	public FeaturesView() {
-		this(DeviceInfo.getContext());
-	}
 	
-	protected FeaturesView(Context context) {
+	public FeaturesView(Context context) {
 		super(context);
-		
-		
-		
 	}
 
 	@Override
@@ -30,17 +24,17 @@ public class FeaturesView extends ElementView {
 	protected void initialize(Context context) {
 		mFeatures = new Features(context);
 		
-		ListSection list = new ListSection();
+		ListSection list = new ListSection(getContext());
 		
-		Section section = new Section("Available");		
+		Section section = new Section(getContext(), "Available");		
 		for (String s : mFeatures.getAvailableFeatures()) {
 			list.add(s);
 		}
 		section.add(list);
 		add(section);
 		
-		list = new ListSection();
-		section = new Section("Unavailable");
+		list = new ListSection(getContext());
+		section = new Section(getContext(), "Unavailable");
 		for (String s : mFeatures.getUnavailableFeatures()) {
 			list.add(s);
 		}

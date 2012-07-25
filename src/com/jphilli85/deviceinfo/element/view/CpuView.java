@@ -33,18 +33,16 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 			mUserTotal, mSystemTotal,
 			mIdleTotal, mTotal;
 	
-	public CpuView() {
-		this(DeviceInfo.getContext());
-	}
-	protected CpuView(Context context) {
+
+	public CpuView(Context context) {
 		super(context);
 		
 		
-		mCpuInfoSection = new Section("CPU Info");
+		mCpuInfoSection = new Section(getContext(), "CPU Info");
 	}
 	
 	private TableSection getCpuStatTable(int index) {
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		mUserPercent[index] = table.getValueTextView();
 		mNicePercent[index] = table.getValueTextView();
@@ -74,7 +72,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 	}
 	
 	private TableSection getCpuInfoTable() {
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		List<String> list = mCpu.getCpuinfo();
 		if (list == null || list.isEmpty()) {
 			table.add("", "CPU Info not available");
@@ -146,7 +144,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 	}
 	@Override
 	protected void initialize(Context context) {
-		mCpu = new Cpu();
+		mCpu = new Cpu(context);
 		mCpu.setCallback(this);
 		
 		mCores = mCpu.getLogicalCpus().size();	
@@ -170,7 +168,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 		mIdleTotal = new TextView[stats]; 
 		mTotal = new TextView[stats];
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		Section overallStatSection;
 		Section logicalCpuSection;
 		Subsection statSubsection;	
@@ -178,7 +176,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 		table.add("Number of Logical CPUs (cores)", String.valueOf(mCores));
 		add(table);
 		
-		overallStatSection = new Section("Overall CPU Stat");
+		overallStatSection = new Section(getContext(), "Overall CPU Stat");
 		overallStatSection.add(getCpuStatTable(mCores));
 		add(overallStatSection);
 		
@@ -192,8 +190,8 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 				mTransitionTime[i] = table.getValueTextView();
 				mFrequencyTime[i] = table.getValueTextView();
 				
-				logicalCpuSection = new Section("Logical CPU " + (i + 1));
-				table = new TableSection();
+				logicalCpuSection = new Section(getContext(), "Logical CPU " + (i + 1));
+				table = new TableSection(getContext()) ;
 				table.add("Frequency (MHz)", mFrequency[i]);
 				table.add("Frequency Distribution (MHz, %)", mFrequencyTime[i]);
 				table.add("Governor", mGovernor[i]);
@@ -206,7 +204,7 @@ public class CpuView extends ListeningElementView implements Cpu.Callback {
 				table.add("Driver", cpu.getDriver());
 				logicalCpuSection.add(table);
 				
-				statSubsection = new Subsection("CPU Stat");			
+				statSubsection = new Subsection(getContext(), "CPU Stat");			
 				statSubsection.add(getCpuStatTable(i));
 				
 				logicalCpuSection.add(statSubsection);

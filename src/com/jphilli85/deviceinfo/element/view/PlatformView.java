@@ -12,12 +12,8 @@ import com.jphilli85.deviceinfo.element.Platform;
 
 public class PlatformView extends ElementView {
 	private Platform mPlatform;
-	
-	public PlatformView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected PlatformView(Context context) {
+
+	public PlatformView(Context context) {
 		super(context);
 	}
 
@@ -30,7 +26,7 @@ public class PlatformView extends ElementView {
 	protected void initialize(Context context) {
 		mPlatform = new Platform(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		table.add("Manufacturer", Build.MANUFACTURER);
 		table.add("Model", Build.MODEL);
 		table.add("Device", Build.DEVICE);
@@ -42,7 +38,7 @@ public class PlatformView extends ElementView {
 		table.add("Build ID", Build.ID);
 		table.add("Build Incremental Version", Build.VERSION.INCREMENTAL);
 		table.add("Build Fingerprint", Build.FINGERPRINT);
-		table.add("OpenGL Version", Graphics.openGlesVersion(DeviceInfo.getContext()));
+		table.add("OpenGL Version", Graphics.openGlesVersion(getContext()));
 		table.add("Kernel", Platform.getKernelVersion());
 		table.add("Radio Version", Cellular.getRadioVersion());
 		table.add("Radio Interface Version", Cellular.getRilVersion());

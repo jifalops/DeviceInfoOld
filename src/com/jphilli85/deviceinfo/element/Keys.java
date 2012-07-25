@@ -230,6 +230,7 @@ public class Keys extends Element {
 	private final List<Integer> mUnavailable;
 	
 	public Keys(Context context) throws UnavailableFeatureException {
+		super(context);
 		if (Build.MODEL.equals("Ally")) {
 			throw new UnavailableFeatureException("The LG Ally cannot use this class.");
 		}

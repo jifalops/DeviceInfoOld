@@ -11,9 +11,6 @@ import com.jphilli85.deviceinfo.element.Element;
 public class AudioView extends ElementView {
 	private Audio mAudio;
 
-	public AudioView() {
-		this(DeviceInfo.getContext());
-	}
 	
 	public AudioView(Context context) {
 		super(context);
@@ -28,7 +25,7 @@ public class AudioView extends ElementView {
 	protected void initialize(Context context) {
 		mAudio = new Audio(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext());
 		
 		table.add("Mode", mAudio.getMode());
 		table.add("Ringer Mode", mAudio.getRingerMode());

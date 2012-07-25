@@ -14,11 +14,8 @@ import com.jphilli85.deviceinfo.element.Camera.CameraWrapper;
 public class CameraView extends ElementView {
 	private Camera mCamera;
 	
-	public CameraView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected CameraView(Context context) {
+
+	public CameraView(Context context) {
 		super(context);	
 	}
 
@@ -31,7 +28,7 @@ public class CameraView extends ElementView {
 	protected void initialize(Context context) {
 		mCamera = new Camera(context);
 		
-		TableSection table = new TableSection();		
+		TableSection table = new TableSection(getContext()) ;		
 		table.add("Number of Cameras", String.valueOf(mCamera.getNumCameras()));
 		add(table);
 		
@@ -40,8 +37,8 @@ public class CameraView extends ElementView {
 		List<CameraWrapper> cameras = mCamera.getCameras();
 		LinkedHashMap<String, String> params;
 		for (int i = 0; i < cameras.size(); ++i) {
-			section = new Section("Camera " + (i + 1));
-			table = new TableSection();
+			section = new Section(getContext(), "Camera " + (i + 1));
+			table = new TableSection(getContext()) ;
 			if (API >= 9) {
 				table.add("Direction", cameras.get(i).getCameraDirection());
 				table.add("Orientation (Degrees)", String.valueOf(cameras.get(i).getCameraOrientation()));

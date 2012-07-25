@@ -2,12 +2,14 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
+import android.content.Context;
+
 public abstract class ThrottledListeningElement extends TimestampedListeningElement implements ThrottledEvents {
 	
 	private final int[] mThrottles;
 	
-	public ThrottledListeningElement(int numThrottles) {
-		super(numThrottles);
+	public ThrottledListeningElement(Context context, int numThrottles) {		
+		super(context, numThrottles);
 		mThrottles = new int[numThrottles];
 	}
 	

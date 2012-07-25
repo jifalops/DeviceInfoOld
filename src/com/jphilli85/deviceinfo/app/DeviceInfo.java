@@ -129,9 +129,9 @@ public class DeviceInfo extends Application {
 		sTheme = sPrefs.getInt(KEY_THEME, THEME_HOLO_DARK);
 	}
 	
-	public static Context getContext() {
-		return sAppContext;
-	}
+//	public static Context getContext() {
+//		return sAppContext;
+//	}
 	
 	public static SharedPreferences getPrefs() {
 		return sPrefs;

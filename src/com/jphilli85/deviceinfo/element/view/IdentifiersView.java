@@ -10,15 +10,8 @@ import android.content.Context;
 public class IdentifiersView extends ElementView {
 	private Identifiers mIdentifiers;
 	
-	public IdentifiersView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected IdentifiersView(Context context) {
+	public IdentifiersView(Context context) {
 		super(context);
-		
-		
-		
 	}
 
 	@Override
@@ -30,7 +23,7 @@ public class IdentifiersView extends ElementView {
 	protected void initialize(Context context) {
 		mIdentifiers = new Identifiers(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 
 		table.add("Device ID", mIdentifiers.DEVICE_ID);
 		table.add("Device Serial", mIdentifiers.DEVICE_SERIAL);

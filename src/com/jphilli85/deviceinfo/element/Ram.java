@@ -4,12 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.util.Log;
+import android.content.Context;
 
 import com.jphilli85.deviceinfo.Convert;
 import com.jphilli85.deviceinfo.ShellHelper;
 import com.jphilli85.deviceinfo.app.DeviceInfo;
-import com.jphilli85.deviceinfo.element.Uptime.Callback;
 
 public class Ram extends ListeningElement {
 	private static final String LOG_TAG = Ram.class.getSimpleName();
@@ -21,7 +20,8 @@ public class Ram extends ListeningElement {
 	private final LinkedHashMap<String, String> mMeminfo;
 	private final BackgroundRepeatingTask mUpdateTask;
 	
-	public Ram() {
+	public Ram(Context context) {
+		super(context);
 		mMeminfo = new LinkedHashMap<String, String>();
 		mUpdateTask = new BackgroundRepeatingTask(new Runnable() {			
 			@Override

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.jphilli85.deviceinfo.ShellHelper;
@@ -33,7 +34,8 @@ public class Cpu extends ListeningElement {
 
 	private final BackgroundRepeatingTask mUpdateTask;
 	
-	public Cpu() {	
+	public Cpu(Context context) {
+		super(context);
 		mCpuinfo = ShellHelper.getProc("cpuinfo");
 		mLogicalCpus = new ArrayList<LogicalCpu>();
 		mCpuStat = new CpuStat();

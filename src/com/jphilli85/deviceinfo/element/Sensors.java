@@ -61,6 +61,7 @@ public class Sensors extends ListeningElement {
 
 	// TODO singleton?
 	public Sensors(Context context) {
+		super(context);
 		mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);	
 		
 		mAccelerometerSensors = new ArrayList<AccelerometerSensor>(1);

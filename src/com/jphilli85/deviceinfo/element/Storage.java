@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import android.content.Context;
 import android.os.StatFs;
 import android.util.Log;
 
@@ -18,7 +19,8 @@ public class Storage extends Element {
 	// TODO use singleton
 	
 	//TODO android.os.Environment
-	public Storage() {
+	public Storage(Context context) {
+		super(context);
 		mMounts = new ArrayList<Mount>();
 		mPartitions = new ArrayList<Partition>();
 		if (!updateMounts()) 

@@ -3,7 +3,7 @@ package com.jphilli85.deviceinfo.element;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import android.os.Handler;
+import android.content.Context;
 
 import com.jphilli85.deviceinfo.ShellHelper;
 import com.jphilli85.deviceinfo.app.DeviceInfo;
@@ -19,7 +19,8 @@ public class Uptime extends ListeningElement {
 	
 	private final ForegroundRepeatingTask mUpdateTask;
 
-	public Uptime() {
+	public Uptime(Context context) {
+		super(context);
 		mUpdateTask = new ForegroundRepeatingTask(new Runnable() {
 			public void run() {		        
 				updateUptime();

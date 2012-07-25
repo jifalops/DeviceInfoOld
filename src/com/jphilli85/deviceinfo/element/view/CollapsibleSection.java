@@ -1,5 +1,6 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,7 +20,8 @@ public abstract class CollapsibleSection extends AbstractSection {
 	
 	private boolean mIsCollapsed;
 
-	CollapsibleSection(int layoutRes, int labelIndex, String label) {
+	CollapsibleSection(Context context, int layoutRes, int labelIndex, String label) {
+		super(context);
 		mHeader = (ViewGroup) inflate(layoutRes);
 		mContent = (ViewGroup) inflate(R.layout.element_collapsible_content);
 
@@ -54,7 +56,7 @@ public abstract class CollapsibleSection extends AbstractSection {
 	private void setIndent(ViewGroup vg, int dp) {
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		lp.setMargins(Convert.dpToPx(DeviceInfo.getContext(), dp), 
+		lp.setMargins(Convert.dpToPx(getContext(), dp), 
 				lp.topMargin, lp.rightMargin, lp.bottomMargin);
 		vg.setLayoutParams(lp);
 	}

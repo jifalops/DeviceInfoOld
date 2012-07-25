@@ -26,19 +26,11 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		
 	private int mNumProviders;
 	private final Section mSatellitesSection;
-	
-	public LocationView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected LocationView(Context context) {
+
+	public LocationView(Context context) {
 		super(context);
 		
-		
-		mSatellitesSection = new Section("GPS");
-		
-		
-		
+		mSatellitesSection = new Section(getContext(), "GPS");
 		
 	}
 
@@ -115,11 +107,11 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		GpsStatus status = mLocation.getGpsStatus();
 		
 		mSatellitesSection.getContent().removeAllViews();		
-		ListSection list = new ListSection();
+		ListSection list = new ListSection(getContext());
 		list.add("No Satellites Visible");
 		
 		if (status != null) {						
-			TableSection table = new TableSection();
+			TableSection table = new TableSection(getContext()) ;
 			table.add("First Fix (ms)", String.valueOf(status.getTimeToFirstFix()));
 			table.add("Max Satellites", String.valueOf(status.getMaxSatellites()));
 			
@@ -133,8 +125,8 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 				mSatellitesSection.add(table);
 				for (GpsSatellite s : sats) {	
 					++count;
-					subsection = new Subsection("Satellite " + count);
-					table = new TableSection();
+					subsection = new Subsection(getContext(), "Satellite " + count);
+					table = new TableSection(getContext()) ;
 					table.add("Azimuth (°)", String.valueOf(s.getAzimuth()));
 					table.add("Elevation (°)", String.valueOf(s.getElevation()));
 					table.add("PRN", String.valueOf(s.getPrn()));
@@ -167,7 +159,7 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 			pw.setCallback(this);
 		}
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		mGpsStatusEvent = table.getValueTextView();
 		mNmea = table.getValueTextView();
@@ -203,13 +195,13 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 		add(table);
 		
 		ProviderWrapper pw;
-		Section section = new Section("Providers");
+		Section section = new Section(getContext(), "Providers");
 		Subsection subsection;		
 		for (int i = 0; i < mNumProviders; ++i) {
 			pw = mLocation.getProviders().get(i);
-			subsection = new Subsection("Provider " + (i + 1) 
+			subsection = new Subsection(getContext(), "Provider " + (i + 1) 
 					+ " (" + pw.getProviderString() + ")");
-			table = new TableSection();			
+			table = new TableSection(getContext()) ;			
 			table.add("Enabled", mEnabled[i]);
 			table.add("Accuracy", pw.getAccuracyString());
 			table.add("Status", mStatus[i]);			

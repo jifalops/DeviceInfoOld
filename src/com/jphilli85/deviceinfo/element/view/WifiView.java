@@ -40,16 +40,12 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 		
 		mSupplicantConnected;
 	
-	public WifiView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected WifiView(Context context) {
+	public WifiView(Context context) {
 		super(context);
-		mScanResultsSection = new Section("Last Scan Results");
-		mWifiConfigSection = new Section("Wifi Configurations");
+		mScanResultsSection = new Section(getContext(), "Last Scan Results");
+		mWifiConfigSection = new Section(getContext(), "Wifi Configurations");
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		mRssi = table.getValueTextView();
 		mSpeed = table.getValueTextView();
 		mSupplicantState = table.getValueTextView();
@@ -125,7 +121,7 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 	
 	private void populateScanResults(List<ScanResult> results) {
 		mScanResultsSection.getContent().removeAllViews();		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		if (results == null || results.isEmpty()) {
 			table.add(null, "None");
 			mScanResultsSection.add(table);
@@ -133,8 +129,8 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 		}
 		Subsection subsection;
 		for (int i = 0; i < results.size(); ++i) {
-			subsection = new Subsection("Scan Result " + (i + 1));
-			table = new TableSection();
+			subsection = new Subsection(getContext(), "Scan Result " + (i + 1));
+			table = new TableSection(getContext()) ;
 			table.add("BSSID", results.get(i).BSSID);
 			table.add("SSID", results.get(i).SSID);
 			table.add("capabilities", results.get(i).capabilities);
@@ -148,7 +144,7 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 	
 	private void populateWifiConfigs(List<WifiConfiguration> configs) {
 		mWifiConfigSection.getContent().removeAllViews();		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		if (configs == null || configs.isEmpty()) {
 			table.add(null, "None");
 			mWifiConfigSection.add(table);
@@ -157,8 +153,8 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 		Subsection subsection;
 		String[] strings;
 		for (int i = 0; i < configs.size(); ++i) {
-			subsection = new Subsection("Wifi Configuration " + (i + 1));
-			table = new TableSection();
+			subsection = new Subsection(getContext(), "Wifi Configuration " + (i + 1));
+			table = new TableSection(getContext()) ;
 			table.add("BSSID", configs.get(i).BSSID);
 			table.add("SSID", configs.get(i).SSID);
 			table.add("Is Hidden SSID", String.valueOf(configs.get(i).hiddenSSID));
@@ -216,8 +212,8 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 	protected void initialize(Context context) {
 		mWifi = new Wifi(context);
 		
-		Section section = new Section("Wifi Info");
-		TableSection table = new TableSection();
+		Section section = new Section(getContext(), "Wifi Info");
+		TableSection table = new TableSection(getContext());
 		table.add("Enabled", mEnabled);
 		table.add("State", mState);
 		
@@ -238,8 +234,8 @@ public class WifiView extends ListeningElementView implements Wifi.Callback {
 		section.add(table);
 		add(section);
 		
-		section = new Section("DHCP info");
-		table = new TableSection();
+		section = new Section(getContext(), "DHCP info");
+		table = new TableSection(getContext()) ;
 		table.add("DNS1", mDns1);
 		table.add("DNS2", mDns2);
 		table.add("Gateway", mGateway);

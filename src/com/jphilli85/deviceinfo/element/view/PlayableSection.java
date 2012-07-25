@@ -1,5 +1,6 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import android.content.Context;
 import android.view.View;
 
 import com.jphilli85.deviceinfo.R;
@@ -15,8 +16,8 @@ public abstract class PlayableSection extends CollapsibleSection {
 	private boolean mIsPlaying;
 	private int mPlayPauseIndex;
 	
-	PlayableSection(int layoutRes, int labelIndex, String label, int playPauseIndex) {
-		super(layoutRes, labelIndex, label);		
+	PlayableSection(Context context, int layoutRes, int labelIndex, String label, int playPauseIndex) {
+		super(context, layoutRes, labelIndex, label);		
 		mPlayPauseIndex = playPauseIndex;
 	}
 	

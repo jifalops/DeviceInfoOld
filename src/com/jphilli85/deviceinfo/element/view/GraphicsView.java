@@ -18,11 +18,7 @@ public class GraphicsView extends ElementView implements Graphics.Callback {
 	private Graphics mGraphics;
 	private final GLSurfaceView mGlSurfaceView;
 	
-	public GraphicsView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected GraphicsView(Context context) {
+	public GraphicsView(Context context) {
 		super(context);
 		mGlSurfaceView = new GLSurfaceView(context);
 		mGlSurfaceView.setLayoutParams(new LayoutParams(1, 1));
@@ -61,7 +57,7 @@ public class GraphicsView extends ElementView implements Graphics.Callback {
 
 	@Override
 	protected void initialize(Context context) {
-		mGraphics = new Graphics(mGlSurfaceView);		
+		mGraphics = new Graphics(context, mGlSurfaceView);		
 		mGraphics.setCallback(this);
 		
 		add(mGlSurfaceView);

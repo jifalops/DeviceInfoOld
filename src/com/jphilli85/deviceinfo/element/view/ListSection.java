@@ -3,6 +3,7 @@ package com.jphilli85.deviceinfo.element.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -12,7 +13,8 @@ import com.jphilli85.deviceinfo.R;
 public class ListSection extends AbstractSection {
 	private List<View> mViews;
 	
-	public ListSection() {
+	public ListSection(Context context) {
+		super(context);
 		mViews = new ArrayList<View>();
 	}
 	

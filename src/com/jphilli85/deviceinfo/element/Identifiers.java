@@ -21,6 +21,7 @@ public class Identifiers extends Element {
 	public final String SUBSCRIBER_ID;
 	
 	public Identifiers(Context context) {
+		super(context);
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		DEVICE_ID = tm.getDeviceId();
 		SIM_SERIAL = tm.getSimSerialNumber();

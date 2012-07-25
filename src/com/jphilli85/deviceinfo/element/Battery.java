@@ -33,8 +33,7 @@ public class Battery extends ListeningElement {
 	public final String STATUS_FULL;
 	public final String STATUS_NOT_CHARGING;
 	public final String STATUS_UNKNOWN;
-	
-	private final Context mAppContext;
+		
 	private final BatteryChangedBroadcastReceiver mBatteryReceiver;
 	private final IntentFilter mIntentFilter;
 	
@@ -54,6 +53,7 @@ public class Battery extends ListeningElement {
 	
 	
 	public Battery(Context context) {
+		super(context);
 		HEALTH_COLD = context.getString(R.string.battery_health_cold);
 		HEALTH_DEAD = context.getString(R.string.battery_health_dead);
 		HEALTH_GOOD = context.getString(R.string.battery_health_good);
@@ -69,7 +69,6 @@ public class Battery extends ListeningElement {
 		STATUS_NOT_CHARGING = context.getString(R.string.battery_status_not_charging);
 		STATUS_UNKNOWN = context.getString(R.string.battery_status_unknown);
 		
-		mAppContext = context.getApplicationContext();
 		mBatteryReceiver = new BatteryChangedBroadcastReceiver();
 		mIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 	}
@@ -121,21 +120,17 @@ public class Battery extends ListeningElement {
 	@Override
 	public boolean startListening(boolean onlyIfCallbackSet) {
 		if (!super.startListening(onlyIfCallbackSet)) return false;
-		mAppContext.registerReceiver(mBatteryReceiver, mIntentFilter);
+		getContext().registerReceiver(mBatteryReceiver, mIntentFilter);
 		return setListening(true);		
 	}
 	
 	@Override
 	public boolean stopListening() {
 		if (!super.stopListening()) return false;
-		mAppContext.unregisterReceiver(mBatteryReceiver);
+		getContext().unregisterReceiver(mBatteryReceiver);
 		return !setListening(false);
 	}
-	
-	public Context getContext() {
-		return mAppContext;
-	}
-	
+
 	public BroadcastReceiver getReceiver() {
 		return mBatteryReceiver;
 	}

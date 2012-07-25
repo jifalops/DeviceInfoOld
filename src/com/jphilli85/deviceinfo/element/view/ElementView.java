@@ -29,16 +29,18 @@ public abstract class ElementView extends AbstractElementView {
 	
 	private final InitializeTask mInitializeTask;
 	
+	private final Context mContext;
+	
 	protected ElementView(Context context) {	
-		Context c = context.getApplicationContext();
-		mSaveSuccessfulToast = Toast.makeText(c, c.getString(R.string.save_successful), Toast.LENGTH_SHORT);
-		mSaveUnsuccessfulToast = Toast.makeText(c, c.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT);
+		mContext = context;
+		mSaveSuccessfulToast = Toast.makeText(context, context.getString(R.string.save_successful), Toast.LENGTH_SHORT);
+		mSaveUnsuccessfulToast = Toast.makeText(context, context.getString(R.string.save_unsuccessful), Toast.LENGTH_SHORT);
 		
 		String[] elements = DeviceInfo.getElements();
 		for (int i = 1; i < elements.length; ++i) {
 			if (this.getClass() == DeviceInfo.getAbstractView(i)) {
 				mLabel = elements[i];
-				mHeader = new Header(DeviceInfo.getElementIconResId(i), mLabel, this);
+				mHeader = new Header(getContext(), DeviceInfo.getElementIconResId(i), mLabel, this);
 				break;
 			}
 		}
@@ -48,6 +50,10 @@ public abstract class ElementView extends AbstractElementView {
 
 	protected abstract void initialize(Context context);	
 	protected abstract Element getElement();
+	
+	public final Context getContext() {
+		return mContext;
+	}
 	
 	protected void onInitialized() {
 		showContent();
@@ -74,7 +80,7 @@ public abstract class ElementView extends AbstractElementView {
 	}
 	
 	protected final void showElementContents() {		
-		TableSection table = new TableSection();		
+		TableSection table = new TableSection(getContext()) ;		
 		LinkedHashMap<String, String> map = getElement().getContents();
 		for (String key : map.keySet()) {
 			table.add(key,  map.get(key));

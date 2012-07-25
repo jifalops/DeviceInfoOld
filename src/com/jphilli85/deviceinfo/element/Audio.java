@@ -51,6 +51,7 @@ public class Audio extends Element {
 	private AudioManager mAudioManager;
 	
 	public Audio(Context context) {
+		super(context);
 		MODE_CURRENT = context.getString(R.string.audio_mode_current);
 		MODE_INVALID = context.getString(R.string.audio_mode_invalid);
 		MODE_IN_CALL = context.getString(R.string.audio_mode_in_call);

@@ -98,7 +98,8 @@ public class Wifi extends ListeningElement {
 	private final Network mNetwork;
 	private final Context mContext;
 	
-	public Wifi(Context context) {		
+	public Wifi(Context context) {	
+		super(context);
 		ERROR_AUTHENTICATING = context.getString(R.string.wifi_error_authenticating);
 		MODE_FULL = context.getString(R.string.wifi_mode_full);
 		MODE_FULL_HIGH_PERF = context.getString(R.string.wifi_mode_full_high_perf);

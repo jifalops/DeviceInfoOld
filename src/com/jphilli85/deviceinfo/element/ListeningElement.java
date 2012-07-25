@@ -2,12 +2,18 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
+import android.content.Context;
+
 public abstract class ListeningElement extends Element implements ElementListener {
 
 	protected interface Callback {}
 	
 	private Callback mCallback;	
 	private boolean mIsListening;
+	
+	public ListeningElement(Context context) {
+		super(context);
+	}
 
 	@Override
 	public final boolean startListening() {

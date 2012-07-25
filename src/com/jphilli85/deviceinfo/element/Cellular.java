@@ -101,7 +101,7 @@ public class Cellular extends ThrottledListeningElement {
     private SignalStrength mSignalStrength;
     
 	public Cellular(Context context) {
-		super(THROTTLE_COUNT);
+		super(context, THROTTLE_COUNT);
 		
 		mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);				
 		

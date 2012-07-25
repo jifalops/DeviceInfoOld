@@ -26,17 +26,14 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 	
 	private BluetoothDevice mAdapterDevice;
 	
-	public BluetoothView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected BluetoothView(Context context) {
+
+	public BluetoothView(Context context) {
 		super(context);
 		
 		try { mBluetooth = new Bluetooth(context); } 
 		catch (UnavailableFeatureException ignored) {}
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		mA2dpProfile = table.getValueTextView();
 		mHeadsetProfile = table.getValueTextView();
@@ -45,7 +42,7 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 	}
 	
 	private TableSection getDeviceTable(BluetoothDevice dev) {
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		if (dev == null) {
 			table.add("Device", "");
@@ -129,7 +126,7 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 		
 		
 		if (mBluetooth == null) {
-			ListSection list = new ListSection();
+			ListSection list = new ListSection(getContext());
 			list.add("Bluetooth not supported", null);
 			add(list);
 			return;
@@ -137,7 +134,7 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 		
 		mBluetooth.setCallback(this);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		String address = mBluetooth.getBluetoothAdapter().getAddress();
 		table.add("Enabled", String.valueOf(mBluetooth.getBluetoothAdapter().isEnabled()));
 		table.add("Name", mBluetooth.getBluetoothAdapter().getName());
@@ -164,19 +161,19 @@ public class BluetoothView extends ListeningElementView implements Bluetooth.Cal
 		table.add("Headset Profile Audio Connected", mHeadsetProfileAudio);	
 		table.add("Health Profile Connection State", mHealthProfile);		
 	
-		Section adapter = new Section("Adapter");
+		Section adapter = new Section(getContext(), "Adapter");
 		adapter.add(table);
-		Section devices = new Section("Devices");
+		Section devices = new Section(getContext(), "Devices");
 		Set<BluetoothDevice> devs = mBluetooth.getBluetoothAdapter().getBondedDevices();
 		if (devs == null) {
-			ListSection list = new ListSection();
+			ListSection list = new ListSection(getContext());
 			list.add(null, "No known devices");
 			devices.add(list);			
 		}
 		else {
 			int i = 1;
 			for (BluetoothDevice d : devs) {
-				Subsection section = new Subsection("Device " + i);
+				Subsection section = new Subsection(getContext(), "Device " + i);
 				section.add(getDeviceTable(d));
 				devices.add(section);
 				++i;

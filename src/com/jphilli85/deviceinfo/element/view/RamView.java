@@ -16,14 +16,8 @@ public class RamView extends ListeningElementView implements Ram.Callback {
 	private int mLastSize;
 	private TextView[] mValues;
 	
-	public RamView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected RamView(Context context) {
+	public RamView(Context context) {
 		super(context);
-		
-		
 	}
 
 	@Override
@@ -33,7 +27,7 @@ public class RamView extends ListeningElementView implements Ram.Callback {
 
 	@Override
 	protected void initialize(Context context) {
-		mRam = new Ram();
+		mRam = new Ram(context);
 		mRam.setCallback(this);
 	}
 
@@ -44,7 +38,7 @@ public class RamView extends ListeningElementView implements Ram.Callback {
 			mValues = new TextView[mLastSize + 1];					
 			
 			mHeader.getContent().removeAllViews();
-			TableSection table = new TableSection();
+			TableSection table = new TableSection(getContext()) ;
 			
 			mValues[0] = table.getValueTextView();
 			table.add("Usage (%)", mValues[0]);

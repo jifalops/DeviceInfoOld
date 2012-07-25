@@ -139,7 +139,7 @@ public class Bluetooth extends ListeningElement {
 	private BluetoothHealth mHealthProfile;
 	
 	public Bluetooth(Context context) throws UnavailableFeatureException {
-		
+		super(context);
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBluetoothAdapter == null) throw new UnavailableFeatureException();			
 		
@@ -637,9 +637,9 @@ public class Bluetooth extends ListeningElement {
 		};
 		
 		boolean a,b,c = false;
-		a = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.A2DP);
-		b = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.HEADSET);
-		if (API >= 14) c = mBluetoothAdapter.getProfileProxy(DeviceInfo.getContext(), listener, BluetoothProfile.HEALTH);
+		a = mBluetoothAdapter.getProfileProxy(getContext(), listener, BluetoothProfile.A2DP);
+		b = mBluetoothAdapter.getProfileProxy(getContext(), listener, BluetoothProfile.HEADSET);
+		if (API >= 14) c = mBluetoothAdapter.getProfileProxy(getContext(), listener, BluetoothProfile.HEALTH);
 		return setListening(a || b || c);		
 	}
 

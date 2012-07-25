@@ -25,15 +25,12 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 	private final ImageView mIcon;
 	
 	private final TimeView mTimeView;
-	
-	public BatteryView() {
-		this(DeviceInfo.getContext());
-	}
+
 	
 	public BatteryView(Context context) {
 		super(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		mTimestamp = table.getValueTextView();
 		mLevel = table.getValueTextView();
@@ -87,7 +84,7 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 		mBattery = new Battery(context);
 		mBattery.setCallback(this);	
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		table.add("Level", mLevel);
 		// TODO celcius and farenheit

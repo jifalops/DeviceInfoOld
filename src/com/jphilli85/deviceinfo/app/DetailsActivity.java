@@ -45,6 +45,6 @@ public class DetailsActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {	
 		super.onSaveInstanceState(outState);
-		getSupportFragmentManager().putFragment(outState, DetailsFragment.class.getName(), mDetailsFragment);
+//		getSupportFragmentManager().putFragment(outState, DetailsFragment.class.getName(), mDetailsFragment);
 	}
 }

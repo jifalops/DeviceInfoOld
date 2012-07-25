@@ -12,15 +12,11 @@ public class UptimeView extends ElementView implements Uptime.Callback {
 	private Uptime mUptime;
 	
 	private final TextView mTotal, mSleep, mAwake;
-	
-	public UptimeView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected UptimeView(Context context) {
+
+	public UptimeView(Context context) {
 		super(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		mTotal = table.getValueTextView();
 		mSleep = table.getValueTextView();
 		mAwake = table.getValueTextView();
@@ -30,7 +26,7 @@ public class UptimeView extends ElementView implements Uptime.Callback {
 		table.add("Awake", mAwake);
 		add(table);
 		
-		mUptime = new Uptime();
+		mUptime = new Uptime(context);
 		mUptime.setCallback(this);
 		mUptime.startListening();
 	}

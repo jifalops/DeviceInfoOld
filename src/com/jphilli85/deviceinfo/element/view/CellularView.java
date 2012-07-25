@@ -39,15 +39,12 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 			// SignalStrength
 			mCdmaDbm, mCdmaEcio, mEvdoDbm, mEvdoEcio,
 			mEvdoSn, mGsmBitError, mGsmSignal, mIsGsm;
+
 	
-	public CellularView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected CellularView(Context context) {
+	public CellularView(Context context) {
 		super(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		mCallForwarding = table.getValueTextView();
 		mMessageWaiting = table.getValueTextView();
@@ -98,7 +95,7 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 	@Override
 	public void onCellLocationChanged() {
 		Subsection subsection;
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_CDMA) {
 			CdmaCellLocation loc = (CdmaCellLocation) mCellular.getCellLocation();				
@@ -121,8 +118,8 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		if (cells != null && cells.size() > 0) {
 			int i = 0;
 			for (NeighboringCellInfo info : cells) {
-				subsection = new Subsection("Neighboring Cell " + (i + 1));
-				table = new TableSection();
+				subsection = new Subsection(getContext(), "Neighboring Cell " + (i + 1));
+				table = new TableSection(getContext()) ;
 				table.add("Cell ID", String.valueOf(info.getCid()));
 				table.add("Location Area Code", String.valueOf(info.getLac()));
 				table.add("Network Type", String.valueOf(info.getNetworkType()));
@@ -182,9 +179,9 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		
 		Section section;
 //		Subsection subsection;
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
-		section = new Section("Cell Location");
+		section = new Section(getContext(), "Cell Location");
 		// CellLocation info
 //		if (mCellular.getCellLocation() != null) {
 			if (mCellular.getTelephonyManager().getPhoneType() == TelephonyManager.PHONE_TYPE_CDMA) {
@@ -206,8 +203,8 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		section.add(table);
 		add(section);
 		
-		section = new Section("Signal Strength");
-		table = new TableSection();
+		section = new Section(getContext(), "Signal Strength");
+		table = new TableSection(getContext()) ;
 		// SignalStrength info
 //		if (mCellular.getSignalStrength() != null) {
 			table.add("CDMA dBm", mCdmaDbm);
@@ -225,15 +222,15 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		
 		
 		
-		mNeighboringCellSection = new Section("Neighboring Cells");		
-//		table = new TableSection();
+		mNeighboringCellSection = new Section(getContext(), "Neighboring Cells");		
+//		table = new TableSection(getContext()) ;
 //		// NeighboringCellInfo info
 //		List<NeighboringCellInfo> cells = mCellular.getTelephonyManager().getNeighboringCellInfo();
 //		if (cells != null && cells.size() > 0) {
 //			int i = 0;
 //			for (NeighboringCellInfo info : cells) {
-//				subsection = new Subsection("Neighboring Cell " + (i + 1));
-//				table = new TableSection();
+//				subsection = new Subsection(getContext(), "Neighboring Cell " + (i + 1));
+//				table = new TableSection(getContext()) ;
 //				table.add("Cell ID", String.valueOf(info.getCid()));
 //				table.add("Location Area Code", String.valueOf(info.getLac()));
 //				table.add("Network Type", String.valueOf(info.getNetworkType()));
@@ -251,8 +248,8 @@ public class CellularView extends ListeningElementView implements Cellular.Callb
 		add(mNeighboringCellSection);
 		
 		
-		section = new Section("Telephony");
-		table = new TableSection();
+		section = new Section(getContext(), "Telephony");
+		table = new TableSection(getContext()) ;
 		// Cellular info
 		table.add("MCC", String.valueOf(mCellular.getMcc()));
 		table.add("MNC", String.valueOf(mCellular.getMnc()));							

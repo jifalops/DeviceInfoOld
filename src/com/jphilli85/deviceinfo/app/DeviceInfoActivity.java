@@ -72,10 +72,10 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState) {	
 		super.onSaveInstanceState(outState);
 		outState.putInt(KEY_GROUP, mCurrentGroup);
-		if (mGroupListFragment != null) getSupportFragmentManager()
-			.putFragment(outState, GroupListFragment.class.getName(), mGroupListFragment);
-		if (mDetailsFragment != null) getSupportFragmentManager()
-			.putFragment(outState, DetailsFragment.class.getName(), mDetailsFragment);        
+//		if (mGroupListFragment != null) getSupportFragmentManager()
+//			.putFragment(outState, GroupListFragment.class.getName(), mGroupListFragment);
+//		if (mDetailsFragment != null) getSupportFragmentManager()
+//			.putFragment(outState, DetailsFragment.class.getName(), mDetailsFragment);        
 	}
 
 	@Override

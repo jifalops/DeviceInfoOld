@@ -10,13 +10,8 @@ import com.jphilli85.deviceinfo.element.Element;
 public class DisplayView extends ElementView {
 	private Display mDisplay;
 	
-	public DisplayView() {
-		this(DeviceInfo.getContext());
-	}
-	protected DisplayView(Context context) {
-		super(context);
-		
-		
+	public DisplayView(Context context) {
+		super(context);	
 		
 	}
 
@@ -28,7 +23,7 @@ public class DisplayView extends ElementView {
 	protected void initialize(Context context) {
 		mDisplay = new Display(context);
 		
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		
 		table.add("Density", mDisplay.getDensityDpiString() 
 				+ " (" + String.valueOf(mDisplay.getDensityDpi()) + " DPI)");		

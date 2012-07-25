@@ -24,18 +24,13 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 	
 	private PlayableSection[] mPlayables;
 		
-	
-	public SensorsView() {
-		this(DeviceInfo.getContext());
-	}
-	
 	public SensorsView(Context context) {
 		super(context);
 		
 	}
 	
 	private TableSection getValuesTable(SensorWrapper sw, int index) {
-		TableSection table = new TableSection();
+		TableSection table = new TableSection(getContext()) ;
 		if (sw == null) return table;
 		
 		table.add("Accuracy", mAccuracy[index]);
@@ -111,9 +106,9 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 	}
 	
 	private Subsection getSensorSubsection(final SensorWrapper sw, int index) {
-		Subsection subsection = new Subsection(sw.getTypeString());
-		Subsection subsection2 = new Subsection("Properties");
-		TableSection table = new TableSection();
+		Subsection subsection = new Subsection(getContext(), sw.getTypeString());
+		Subsection subsection2 = new Subsection(getContext(), "Properties");
+		TableSection table = new TableSection(getContext()) ;
 		
 		table.add("Name", sw.getName());
 		table.add("Vendor", sw.getVendor());
@@ -127,7 +122,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		subsection2.add(table);
 		subsection.add(subsection2);
 		
-		mPlayables[index] = new Subsection("Values");	
+		mPlayables[index] = new Subsection(getContext(), "Values");	
 		
 		 
 		
@@ -164,18 +159,18 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		Subsection subsection;
 		TableSection table;
 		
-		section = new Section("Aggregate Data");
+		section = new Section(getContext(), "Aggregate Data");
 		boolean agg = false;
 		if (mSensors.getAccelerometerSensors().size() > 0
 				&& mSensors.getMagneticFieldSensors().size() > 0) {
 			agg = true;
-			table = new TableSection();
+			table = new TableSection(getContext()) ;
 			mWorldX = table.getValueTextView();
 			mWorldY = table.getValueTextView();
 			mWorldZ = table.getValueTextView();
 			
 			
-			subsection = new Subsection("Orientation (World Coordinates)");			
+			subsection = new Subsection(getContext(), "Orientation (World Coordinates)");			
 			table.add("X", mWorldX);
 			table.add("Y", mWorldY);
 			table.add("Z", mWorldZ);
@@ -186,7 +181,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		if (mSensors.getRelativeHumiditySensors().size() > 0
 				&& mSensors.getAmbientTemperatureSensors().size() > 0) {
 			agg = true;
-			table = new TableSection();
+			table = new TableSection(getContext()) ;
 			
 			mDewPoint = table.getValueTextView();
 			mHumidity = table.getValueTextView();
@@ -196,14 +191,14 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 			section.add(table);
 		}
 		if (!agg) {
-			table = new TableSection();
+			table = new TableSection(getContext()) ;
 			table.add(null, "No aggregate data from sensor combinations");
 			section.add(table);
 		}
 		add(section);
 		
-		section = new Section("Motion Sensors");
-		table = new TableSection();
+		section = new Section(getContext(), "Motion Sensors");
+		table = new TableSection(getContext()) ;
 		for (int i = 0; i < count; ++i) {			
 			mAccuracy[i] = table.getValueTextView();
 			mValue0[i] = table.getValueTextView();
@@ -217,7 +212,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		}			
 		add(section);
 		
-		section = new Section("Position Sensors");		
+		section = new Section(getContext(), "Position Sensors");		
 		for (int i = 0; i < count; ++i) {		
 			if (sensors[i].getCategory() == Sensors.CATEGORY_POSITION) {
 				section.add(getSensorSubsection(sensors[i], i));
@@ -225,7 +220,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		}
 		add(section);
 		
-		section = new Section("Environment Sensors");		
+		section = new Section(getContext(), "Environment Sensors");		
 		for (int i = 0; i < count; ++i) {		
 			if (sensors[i].getCategory() == Sensors.CATEGORY_ENVIRONMENT) {
 				section.add(getSensorSubsection(sensors[i], i));

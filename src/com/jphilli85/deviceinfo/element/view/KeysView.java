@@ -11,14 +11,8 @@ import android.content.Context;
 public class KeysView extends ElementView {
 	private Keys mKeys;
 	
-	public KeysView() {
-		this(DeviceInfo.getContext());
-	}
-	
-	protected KeysView(Context context) {
+	public KeysView(Context context) {
 		super(context);
-		
-		
 	}
 
 	@Override
@@ -31,19 +25,19 @@ public class KeysView extends ElementView {
 		try { mKeys = new Keys(context); } 
 		catch (UnavailableFeatureException e) {}	
 		
-		ListSection list = new ListSection();
+		ListSection list = new ListSection(getContext());
 		
 		
 		if (mKeys != null) {
-			Section section = new Section("Available");
+			Section section = new Section(getContext(), "Available");
 			for (int i : mKeys.getAvailableKeys()) {
 				list.add(mKeys.getKeyName(i));
 			}
 			section.add(list);
 			add(section);
 			
-			list = new ListSection();
-			section = new Section("Unavailable");		
+			list = new ListSection(getContext());
+			section = new Section(getContext(), "Unavailable");		
 			for (int i : mKeys.getUnavailableKeys()) {
 				list.add(mKeys.getKeyName(i));
 			}

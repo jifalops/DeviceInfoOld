@@ -1,5 +1,6 @@
 package com.jphilli85.deviceinfo.element.view;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -9,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Header extends PlayableSection {
 	public static final int INDEX_ICON = 1;
@@ -20,8 +20,8 @@ public class Header extends PlayableSection {
 	
 	private final LinearLayout mContainer;
 	
-	Header(int iconRes, String label, final ElementView elementView) {
-		super(R.layout.element_header, INDEX_LABEL, label, INDEX_PLAY_PAUSE);
+	Header(Context context, int iconRes, String label, final ElementView elementView) {
+		super(context, R.layout.element_header, INDEX_LABEL, label, INDEX_PLAY_PAUSE);
 		setIcon(iconRes, INDEX_ICON);
 		setIcon(R.drawable.holo_dark_save, INDEX_SAVE);
 		setListener(INDEX_ICON, new ExpandCollapseListener());
@@ -32,7 +32,7 @@ public class Header extends PlayableSection {
 			}
 		});
 		
-		mContainer = new LinearLayout(DeviceInfo.getContext());
+		mContainer = new LinearLayout(getContext());
 		mContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		mContainer.setOrientation(LinearLayout.VERTICAL);
 	}

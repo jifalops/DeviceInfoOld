@@ -6,14 +6,15 @@ import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 
 public abstract class Element implements ContentsMapper {
-	protected static final String LOG_TAG = Element.class.getSimpleName();
-	// TODO Fix UI facing strings in getContents();
-	
-	public Element() {
-		this(DeviceInfo.getContext());
-	}
+//	private static final String LOG_TAG = Element.class.getSimpleName();
+
+	private final Context mContext;
 	
 	public Element(Context context) {
-		
+		mContext = context;
+	}
+	
+	public final Context getContext() {
+		return mContext;
 	}
 }

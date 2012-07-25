@@ -22,7 +22,7 @@ public class Platform extends Element {
 	private final TelephonyManager mTelephonyManager;
 	
 	public Platform(Context context) {
-		
+		super(context);
 		ECLAIR = context.getString(R.string.platform_eclair);
 		FROYO = context.getString(R.string.platform_froyo);
 		GINGERBREAD = context.getString(R.string.platform_gingerbread);
@@ -74,7 +74,7 @@ public class Platform extends Element {
 		contents.put("Build ID", Build.ID);
 		contents.put("Build Incremental Version", Build.VERSION.INCREMENTAL);
 		contents.put("Build Fingerprint", Build.FINGERPRINT);
-		contents.put("OpenGL Version", Graphics.openGlesVersion(DeviceInfo.getContext()));
+		contents.put("OpenGL Version", Graphics.openGlesVersion(getContext()));
 		contents.put("Kernel", getKernelVersion());
 		contents.put("Radio Version", Cellular.getRadioVersion());
 		contents.put("Radio Interface Version", Cellular.getRilVersion());

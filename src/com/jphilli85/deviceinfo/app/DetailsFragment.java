@@ -10,8 +10,29 @@ import android.widget.ScrollView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.element.view.AbstractElementView;
+import com.jphilli85.deviceinfo.element.view.AudioView;
+import com.jphilli85.deviceinfo.element.view.BatteryView;
+import com.jphilli85.deviceinfo.element.view.BluetoothView;
+import com.jphilli85.deviceinfo.element.view.CameraView;
+import com.jphilli85.deviceinfo.element.view.CellularView;
+import com.jphilli85.deviceinfo.element.view.CpuView;
+import com.jphilli85.deviceinfo.element.view.DisplayView;
 import com.jphilli85.deviceinfo.element.view.ElementView;
+import com.jphilli85.deviceinfo.element.view.FeaturesView;
+import com.jphilli85.deviceinfo.element.view.GraphicsView;
+import com.jphilli85.deviceinfo.element.view.IdentifiersView;
+import com.jphilli85.deviceinfo.element.view.KeysView;
 import com.jphilli85.deviceinfo.element.view.ListeningElementView;
+import com.jphilli85.deviceinfo.element.view.LocationView;
+import com.jphilli85.deviceinfo.element.view.NetworkView;
+import com.jphilli85.deviceinfo.element.view.Overview;
+import com.jphilli85.deviceinfo.element.view.PlatformView;
+import com.jphilli85.deviceinfo.element.view.PropertiesView;
+import com.jphilli85.deviceinfo.element.view.RamView;
+import com.jphilli85.deviceinfo.element.view.SensorsView;
+import com.jphilli85.deviceinfo.element.view.StorageView;
+import com.jphilli85.deviceinfo.element.view.UptimeView;
+import com.jphilli85.deviceinfo.element.view.WifiView;
 
 public class DetailsFragment extends SherlockFragment {
 	
@@ -54,18 +75,43 @@ public class DetailsFragment extends SherlockFragment {
     
     private void loadElements() {
     	if (mLayout == null) return;
-    	Class<? extends AbstractElementView> ev = null;
+//    	Class<? extends AbstractElementView> ev = null;
     	for (int i = 0; i < mElements.length; ++i) {
-    		ev = DeviceInfo.getAbstractView(mElements[i]);
-    		if (ev == null) continue;
+    		switch (mElements[i]) {
+    		case 0: break;
+    		case 1: mElementViews[i] = new AudioView(getActivity());	break;
+    		case 2:  mElementViews[i] = new BatteryView(getActivity());	break;
+    		case 3:  mElementViews[i] = new BluetoothView(getActivity());	break;
+    		case 4:  mElementViews[i] = new CameraView(getActivity());	break;
+    		case 5:  mElementViews[i] = new CellularView(getActivity());	break;
+    		case 6:  mElementViews[i] = new CpuView(getActivity());	break;
+    		case 7:  mElementViews[i] = new DisplayView(getActivity());	break;
+    		case 8:  mElementViews[i] = new FeaturesView(getActivity());	break;
+    		case 9:  mElementViews[i] = new GraphicsView(getActivity());	break;
+    		case 10:  mElementViews[i] = new IdentifiersView(getActivity());	break;
+    		case 11:  mElementViews[i] = new KeysView(getActivity());	break;
+    		case 12:  mElementViews[i] = new LocationView(getActivity());	break;
+    		case 13:  mElementViews[i] = new NetworkView(getActivity());	break;
+    		case 14:  mElementViews[i] = new PlatformView(getActivity());	break;
+    		case 15:  mElementViews[i] = new PropertiesView(getActivity());	break;
+    		case 16:  mElementViews[i] = new RamView(getActivity());	break;
+    		case 17:  mElementViews[i] = new SensorsView(getActivity());	break;
+    		case 18:  mElementViews[i] = new StorageView(getActivity());	break;
+    		case 19:  mElementViews[i] = new UptimeView(getActivity());	break;
+    		case 20:  mElementViews[i] = new WifiView(getActivity());	break;
+    		}
+    		if (mElementViews[i] != null) mElementViews[i].addToLayout(mLayout);
     		
-    		try { 
-    			mElementViews[i] = ((ElementView) ev.newInstance());
-    			mElementViews[i].addToLayout(mLayout);
-			} 
-    		catch (java.lang.InstantiationException e) {} 
-    		catch (IllegalAccessException e) {} 
-    		catch (ClassCastException e) {}     		
+//    		ev = DeviceInfo.getAbstractView(mElements[i]);
+//    		if (ev == null) continue;
+//    		
+//    		try { 
+//    			mElementViews[i] = ((ElementView) ev.newInstance());
+//    			mElementViews[i].addToLayout(mLayout);
+//			} 
+//    		catch (java.lang.InstantiationException e) {} 
+//    		catch (IllegalAccessException e) {} 
+//    		catch (ClassCastException e) {}     		
     	}
     	    	
     	
