@@ -2,7 +2,6 @@ package com.jphilli85.deviceinfo.element;
 
 import java.util.LinkedHashMap;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
@@ -13,7 +12,6 @@ import android.view.WindowManager;
 
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.ShellHelper;
-import com.jphilli85.deviceinfo.app.DeviceInfo;
 
 public class Display extends Element {
 	private static final int API = Build.VERSION.SDK_INT;
@@ -181,7 +179,6 @@ public class Display extends Element {
 		return mDisplay == null ? 0 : mDisplay.getRefreshRate(); 
 	}
 
-    @SuppressLint("NewApi")
 	public int getRotation() { 
     	if (mDisplay == null) return 0; 
         if (API < 8) return mDisplay.getOrientation();

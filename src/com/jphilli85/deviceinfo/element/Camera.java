@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.jphilli85.deviceinfo.R;
-
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.os.Build;
 import android.util.Log;
+
+import com.jphilli85.deviceinfo.R;
 
 public class Camera extends Element {
 	private static final String LOG_TAG = Camera.class.getSimpleName();
