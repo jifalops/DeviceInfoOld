@@ -1,11 +1,10 @@
 package com.jphilli85.deviceinfo.app;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-
-public class DetailsActivity extends SherlockFragmentActivity {
+public class DetailsActivity extends Activity {
 	//TODO manage fragment in list activity
 	private DetailsFragment mDetailsFragment;
 	
@@ -22,7 +21,7 @@ public class DetailsActivity extends SherlockFragmentActivity {
         }
 		
 		if (savedInstanceState != null) {
-			mDetailsFragment = (DetailsFragment) getSupportFragmentManager()
+			mDetailsFragment = (DetailsFragment) getFragmentManager()
 					.getFragment(savedInstanceState, DetailsFragment.class.getName());
 		}
 		
@@ -35,7 +34,7 @@ public class DetailsActivity extends SherlockFragmentActivity {
 		}
 		
 		if (mDetailsFragment != null) {
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
             .add(android.R.id.content, mDetailsFragment)
             .commit();
         }	

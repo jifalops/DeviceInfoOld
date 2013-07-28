@@ -6,7 +6,6 @@ import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Location;
 import com.jphilli85.deviceinfo.element.Location.ProviderWrapper;
@@ -127,8 +126,8 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 					++count;
 					subsection = new Subsection(getContext(), "Satellite " + count);
 					table = new TableSection(getContext()) ;
-					table.add("Azimuth (°)", String.valueOf(s.getAzimuth()));
-					table.add("Elevation (°)", String.valueOf(s.getElevation()));
+					table.add("Azimuth ()", String.valueOf(s.getAzimuth()));
+					table.add("Elevation ()", String.valueOf(s.getElevation()));
 					table.add("PRN", String.valueOf(s.getPrn()));
 					table.add("SNR", String.valueOf(s.getSnr()));
 					table.add("hasAlmanac", String.valueOf(s.hasAlmanac()));
@@ -210,7 +209,7 @@ public class LocationView extends ListeningElementView implements Location.GpsCa
 			table.add("Longitude", mLongitude[i]);
 			table.add("Altitude (m)", mAltitude[i]);
 			table.add("Speed (m/s)", mSpeed[i]);
-			table.add("Bearing (°)", mBearing[i]);
+			table.add("Bearing ()", mBearing[i]);
 			table.add("Accuracy (m)", mAccuracy[i]);
 			table.add("Address", mAddress[i]);
 

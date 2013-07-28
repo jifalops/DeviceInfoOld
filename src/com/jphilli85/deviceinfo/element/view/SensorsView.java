@@ -4,7 +4,6 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.widget.TextView;
 
-import com.jphilli85.deviceinfo.app.DeviceInfo;
 import com.jphilli85.deviceinfo.element.Element;
 import com.jphilli85.deviceinfo.element.Sensors;
 import com.jphilli85.deviceinfo.element.Sensors.SensorWrapper;
@@ -233,7 +232,7 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 	public void onAccuracyChanged(SensorWrapper sensorWrapper) {
 		int index =	mSensors.getSensorIndex(sensorWrapper);
 		if (index < 0) return;
-		mAccuracy[index].setText(sensorWrapper.getAccuracyString());	
+		mAccuracy[index].setText(sensorWrapper.getAccuracyStatusString());
 	}
 
 	@Override
@@ -242,7 +241,8 @@ public class SensorsView extends ListeningElementView implements Sensors.Callbac
 		if (index < 0) return;
 		float[] values = sensorWrapper.getLastValues();
 		if (values == null) return;
-		switch (values.length) {
+        mAccuracy[index].setText(sensorWrapper.getAccuracyString());
+        switch (values.length) {
 		case 4: mValue3[index].setText(String.valueOf(values[3]));
 		case 3: mValue2[index].setText(String.valueOf(values[2]));
 		case 2: mValue1[index].setText(String.valueOf(values[1]));

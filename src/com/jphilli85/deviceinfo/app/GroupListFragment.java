@@ -1,26 +1,19 @@
 package com.jphilli85.deviceinfo.app;
 
 
-import java.util.Arrays;
-
 import android.app.Activity;
-import android.content.Intent;
-import android.content.res.Resources;
+import android.app.ListFragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.R.array;
-import com.jphilli85.deviceinfo.R.id;
-import com.jphilli85.deviceinfo.R.layout;
 
-public class GroupListFragment extends SherlockListFragment {
+import java.util.Arrays;
+
+public class GroupListFragment extends ListFragment {
 
 	/** Interface for communication with container Activity. */
 	public interface Callback {

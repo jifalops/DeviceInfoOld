@@ -1,10 +1,5 @@
 package com.jphilli85.deviceinfo.element;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -13,6 +8,11 @@ import android.hardware.SensorManager;
 import android.os.Build;
 
 import com.jphilli85.deviceinfo.R;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 // TODO add microphone
 public class Sensors extends ListeningElement {
@@ -260,6 +260,10 @@ public class Sensors extends ListeningElement {
 		public String getAccuracyString() {
 			return getAccuracyString(mLastAccuracy);
 		}
+
+        public String getAccuracyStatusString() {
+            return getAccuracyString(mLastAccuracyStatus);
+        }
 		
 		/** The SensorEvent's timestamp in nanoseconds */
 		public long getLastEventTimestamp() {

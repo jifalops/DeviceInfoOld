@@ -1,5 +1,6 @@
 package com.jphilli85.deviceinfo.app;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.jphilli85.deviceinfo.R;
-import com.jphilli85.deviceinfo.element.view.AbstractElementView;
 import com.jphilli85.deviceinfo.element.view.AudioView;
 import com.jphilli85.deviceinfo.element.view.BatteryView;
 import com.jphilli85.deviceinfo.element.view.BluetoothView;
@@ -22,10 +21,8 @@ import com.jphilli85.deviceinfo.element.view.FeaturesView;
 import com.jphilli85.deviceinfo.element.view.GraphicsView;
 import com.jphilli85.deviceinfo.element.view.IdentifiersView;
 import com.jphilli85.deviceinfo.element.view.KeysView;
-import com.jphilli85.deviceinfo.element.view.ListeningElementView;
 import com.jphilli85.deviceinfo.element.view.LocationView;
 import com.jphilli85.deviceinfo.element.view.NetworkView;
-import com.jphilli85.deviceinfo.element.view.Overview;
 import com.jphilli85.deviceinfo.element.view.PlatformView;
 import com.jphilli85.deviceinfo.element.view.PropertiesView;
 import com.jphilli85.deviceinfo.element.view.RamView;
@@ -34,7 +31,7 @@ import com.jphilli85.deviceinfo.element.view.StorageView;
 import com.jphilli85.deviceinfo.element.view.UptimeView;
 import com.jphilli85.deviceinfo.element.view.WifiView;
 
-public class DetailsFragment extends SherlockFragment {
+public class DetailsFragment extends Fragment {
 	
 	public static final String KEY_ELEMENTS = DetailsFragment.class.getName() + ".ELEMENTS";
 	

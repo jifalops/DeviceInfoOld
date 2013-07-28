@@ -1,16 +1,14 @@
 package com.jphilli85.deviceinfo.app;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.jphilli85.deviceinfo.R;
 import com.jphilli85.deviceinfo.app.GroupListFragment.Callback;
 
-public class DeviceInfoActivity extends SherlockFragmentActivity implements 
+public class DeviceInfoActivity extends Activity implements
 		Callback {
 	
 //	private SQLiteDatabase mDatabase;
@@ -36,15 +34,15 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 		if (savedInstanceState != null) {			
 			mCurrentGroup = savedInstanceState.getInt(KEY_GROUP, 0);
 			
-			mGroupListFragment = (GroupListFragment) getSupportFragmentManager()
+			mGroupListFragment = (GroupListFragment) getFragmentManager()
 					.getFragment(savedInstanceState, GroupListFragment.class.getName()); 
 			
-			mDetailsFragment = (DetailsFragment) getSupportFragmentManager()
+			mDetailsFragment = (DetailsFragment) getFragmentManager()
 					.getFragment(savedInstanceState, DetailsFragment.class.getName());
 		}
 		
 		if (mGroupListFragment == null) {
-			mGroupListFragment = (GroupListFragment) getSupportFragmentManager().findFragmentById(R.id.groupListFragment);			
+			mGroupListFragment = (GroupListFragment) getFragmentManager().findFragmentById(R.id.groupListFragment);
 		}
 		
 		if (isDualPane()) {
@@ -56,7 +54,7 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 				mDetailsFragment = DetailsFragment.newInstance(elements); 
 			}
 			
-			getSupportFragmentManager().beginTransaction()
+			getFragmentManager().beginTransaction()
             .add(R.id.detailsFragmentWrapper, mDetailsFragment)
             .commit();
 			
@@ -91,7 +89,7 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
             // Check what fragment is currently shown, replace if needed.
             if (mDetailsFragment == null) {
 	            mDetailsFragment = (DetailsFragment)
-	                    getSupportFragmentManager().findFragmentById(R.id.detailsFragment);
+	                    getFragmentManager().findFragmentById(R.id.detailsFragment);
             }
             if (mDetailsFragment == null || GroupListFragment.getGroup(mDetailsFragment.getElements()) != group) {
                 // Make new fragment to show this selection.
@@ -99,7 +97,7 @@ public class DeviceInfoActivity extends SherlockFragmentActivity implements
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
-                getSupportFragmentManager().beginTransaction()
+                getFragmentManager().beginTransaction()
                 .replace(R.id.detailsFragmentWrapper, mDetailsFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();

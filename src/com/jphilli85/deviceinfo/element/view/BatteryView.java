@@ -57,7 +57,7 @@ public class BatteryView extends ListeningElementView implements Battery.Callbac
 			+ DeviceInfo.getDuration((int) (mTimeView.getValue() / 1000 + 0.5f)) + ")");
 		mTimeView.setOffset(mBattery.getTimestamp());
 		mLevel.setText((int) DeviceInfo.getPercent(mBattery.getLevel(), mBattery.getLevelMax()) + "%");
-		mTemp.setText(mBattery.getTemperature() + "°C");
+		mTemp.setText(mBattery.getTemperature() + "C");
 		mStatus.setText(mBattery.getStatusString());
 		mPluggedStatus.setText(mBattery.getPluggedInStatusString());
 		mVoltage.setText(mBattery.getVoltage() + "mV");
